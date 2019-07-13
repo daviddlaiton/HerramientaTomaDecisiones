@@ -8,7 +8,7 @@ from Herramienta.models import User
 class RegistrationForm(FlaskForm):
     username = StringField("Usuario", validators=[DataRequired(),Length(min=2, max=20)])
     email = StringField("Correo", validators=[DataRequired(), Email()])
-    password = PasswordField("Contraseña", validators=[DataRequired()])
+    password = PasswordField("Contraseña", validators=[DataRequired(),Length(min=6, max=50)])
     confirm_password = PasswordField(" Confirmar constraseña", validators=[DataRequired(), EqualTo("password")])
     submit = SubmitField("Registrarse")
 
