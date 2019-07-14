@@ -34,6 +34,7 @@
                     <!-- Navbar Right Side -->
                     <div class="navbar-nav">
                         {% if current_user.is_authenticated %}
+                            <p class="nav-item nav-link">Hola {{ current_user.username }}</p>
                             <a class="nav-item nav-link" href="{{ url_for('users.logout') }}">Logout</a>
                         {% else %}
                             <a class="nav-item nav-link" href="{{ url_for('users.login') }}">Iniciar sesión</a>
