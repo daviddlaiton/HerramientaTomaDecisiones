@@ -1,7 +1,7 @@
 from flask import render_template, url_for, flash, redirect, request, Blueprint
 from flask_login import login_user, current_user, logout_user, login_required
 from Herramienta import db, bcrypt
-from Herramienta.models import User
+from Herramienta.models import Usuario
 from Herramienta.users.forms import RegistrationForm, LoginForm, RequestResetForm, ResetPasswordForm
 
 users = Blueprint("users", __name__)
