@@ -49,7 +49,7 @@ class Usuario(db.Model, UserMixin):
         return User.query.get(user_id)
 
     def __repr__(self):
-        return f"User('{self.login}')"
+        return f"User('{self.login}','{self.rol_id}')"
 
 
 class Estudiante(db.Model):
@@ -74,6 +74,9 @@ class Curso(db.Model):
     nombre = db.Column(db.String(50), nullable=False)
     semestres = db.relationship("Semestre", backref="curso")
     usuarios = db.relationship("Usuario", backref="curso")
+
+    def __repr__(self):
+        return f"Estudiante('{self.nombre}')"
 
 
 class Semestre(db.Model):

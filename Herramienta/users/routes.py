@@ -3,6 +3,7 @@ from flask_login import login_user, current_user, logout_user, login_required
 from Herramienta import db, bcrypt
 from Herramienta.models import Usuario
 from Herramienta.users.forms import RegistrationForm, LoginForm, RequestResetForm, ResetPasswordForm
+import sys
 
 users = Blueprint("users", __name__)
 
@@ -13,7 +14,8 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode("utf-8")
-        user = User(username=form.username.data, email=form.email.data, password=hashed_password)
+        rol_id_int = int(form.rol.data)
+        user = Usuario(login=form.login.data, password=hashed_password, rol_id= rol_id_int, curso_id= 1)
         db.session.add(user)
         db.session.commit()
         flash(f"Registrado exitosamente", "success")
@@ -26,7 +28,7 @@ def login():
         return redirect(url_for("main.home"))
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
+        user = Usuario.query.filter_by(login=form.login.data).first()
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
             next_page = request.args.get("next")

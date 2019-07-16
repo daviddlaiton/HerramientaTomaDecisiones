@@ -34,11 +34,11 @@
                     <!-- Navbar Right Side -->
                     <div class="navbar-nav">
                         {% if current_user.is_authenticated %}
-                            <p class="nav-item nav-link">Hola {{ current_user.username }}</p>
-                            <a class="nav-item nav-link" href="{{ url_for('users.logout') }}">Logout</a>
+                        <p class="nav-item nav-link">Hola {{ current_user.username }}</p>
+                        <a class="nav-item nav-link" href="{{ url_for('users.logout') }}">Logout</a>
                         {% else %}
-                            <a class="nav-item nav-link" href="{{ url_for('users.login') }}">Iniciar sesión</a>
-                            <a class="nav-item nav-link" href="{{ url_for('users.register') }}">Registrarse</a>
+                        <a class="nav-item nav-link" href="{{ url_for('users.login') }}">Iniciar sesión</a>
+                        <a class="nav-item nav-link" href="{{ url_for('users.register') }}">Registrarse</a>
                         {% endif %}
                     </div>
                 </div>
@@ -71,6 +71,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 </body>
 
 </html>
