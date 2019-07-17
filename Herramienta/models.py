@@ -13,18 +13,23 @@ def load_user(user_id):
 grupos = db.Table("integrantes",
                   db.Column("Grupo_id", db.Integer, db.ForeignKey(
                       "grupo.id"), primary_key=True),
-                  db.Column("estudiante_id", db.Integer, db.ForeignKey(
+                  db.Column("Estudiante_id", db.Integer, db.ForeignKey(
                       "estudiante.id"), primary_key=True)
                   )
 
-
+cursos = db.Table("cursos",
+                  db.Column("usuario_id", db.Integer, db.ForeignKey(
+                      "usuario.id"), primary_key=True),
+                  db.Column("curso_id", db.Integer, db.ForeignKey(
+                      "curso.id"), primary_key=True)
+                  )
 class Rol(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), primary_key=True)
+    nombre = db.Column(db.String(50), primary_key=True)
     usuarios = db.relationship("Usuario", backref="rol")
 
     def __repr__(self):
-        return f"Rol('{self.name}')"
+        return f"Rol('{self.nombre}','{self.id}')"
 
 
 class Usuario(db.Model, UserMixin):
@@ -33,7 +38,8 @@ class Usuario(db.Model, UserMixin):
     password = db.Column(db.String(60), nullable=False)
     rol_id = db.Column(db.Integer, db.ForeignKey("rol.id"), nullable=False)
     grupos = db.relationship("Grupo", backref="Calificador")
-    curso_id = db.Column(db.Integer, db.ForeignKey("curso.id"), nullable=False)
+    cursos = db.relationship("Curso", secondary=cursos, lazy="subquery",
+        backref=db.backref("usuarios", lazy=True))
 
     def get_reset_token(self, expired_sec=1800):
         s = Serializer(current_app.config["SECRET_KEY"], expired_sec)
@@ -73,7 +79,6 @@ class Curso(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(50), nullable=False)
     semestres = db.relationship("Semestre", backref="curso")
-    usuarios = db.relationship("Usuario", backref="curso")
 
     def __repr__(self):
         return f"Estudiante('{self.nombre}')"

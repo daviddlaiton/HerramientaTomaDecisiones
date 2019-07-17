@@ -2,12 +2,12 @@ from flask import render_template, url_for, flash, redirect, request, Blueprint
 from flask_login import login_user, current_user, logout_user, login_required
 from Herramienta import db, bcrypt
 from Herramienta.models import Usuario
-from Herramienta.users.forms import RegistrationForm, LoginForm, RequestResetForm, ResetPasswordForm
+from Herramienta.usuarios.forms import RegistrationForm, LoginForm, RequestResetForm, ResetPasswordForm
 import sys
 
-users = Blueprint("users", __name__)
+usuarios = Blueprint("usuarios", __name__)
 
-@users.route("/register", methods=["GET", "POST"])
+@usuarios.route("/register", methods=["GET", "POST"])
 def register():
     if current_user.is_authenticated:
         return redirect(url_for("main.home"))
@@ -15,14 +15,14 @@ def register():
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode("utf-8")
         rol_id_int = int(form.rol.data)
-        user = Usuario(login=form.login.data, password=hashed_password, rol_id= rol_id_int, curso_id= 1)
+        user = Usuario(login=form.login.data, password=hashed_password, rol_id= rol_id_int)
         db.session.add(user)
         db.session.commit()
         flash(f"Registrado exitosamente", "success")
-        return redirect(url_for("users.login"))
+        return redirect(url_for("usuarios.login"))
     return render_template("register.html", title="Register", form=form)
 
-@users.route("/login", methods=["GET", "POST"])
+@usuarios.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
         return redirect(url_for("main.home"))
@@ -37,7 +37,7 @@ def login():
             flash("Correo o contraseña invalidos.", "danger")
     return render_template("login.html", title="Login", form=form)
 
-@users.route("/logout")
+@usuarios.route("/logout")
 def logout():
     logout_user()
     return redirect(url_for("main.home"))

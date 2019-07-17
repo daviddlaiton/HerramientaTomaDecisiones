@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <p>{{ usuario }}</p>
+    {% for curso in cursos.items %}
+        <article class="media content-section">
+            <div class="media-body">
+                <div class="article-metadata">
+                    <a class="mr-2">{{ curso.nombre }}</a>
+                </div>
+            </div>
+        </article>
+    {% endfor %}
+
+{% endblock content %}

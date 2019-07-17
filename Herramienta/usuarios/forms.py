@@ -14,7 +14,7 @@ class RegistrationForm(FlaskForm):
     confirm_password = PasswordField(" Confirmar constraseña", validators=[
                                      DataRequired(), EqualTo("password")])
     rol = SelectField("Tipo de usuario", choices=[
-                      ("1", "Monitor"), ("2", "Asistente"), ("3", "Administrador")])
+                      ("1", "Monitor"), ("2", "Asistente"), ("3","Profesor"), ("4", "Administrador")])
     submit = SubmitField("Registrarse")
 
     def validate_login(self, login):

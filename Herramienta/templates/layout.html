@@ -12,7 +12,7 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
 
     {% if title %}
-    <title>OptiCorrector - {{ title }}</title>
+    <title>OptiCorrector|{{ title }}</title>
     {% else %}
     <title>OptiCorrector</title>
     {% endif %}
@@ -34,11 +34,17 @@
                     <!-- Navbar Right Side -->
                     <div class="navbar-nav">
                         {% if current_user.is_authenticated %}
-                        <p class="nav-item nav-link">Hola {{ current_user.username }}</p>
-                        <a class="nav-item nav-link" href="{{ url_for('users.logout') }}">Logout</a>
+                            {% if current_user.rol_id == 4 %}
+                                <a class="nav-item nav-link">Usuarios</a>
+                            {% endif %}
+                            {% if current_user.rol_id == 2 or current_user.rol_id == 3 or current_user.rol_id == 4%}
+                                <a class="nav-item nav-link" href="{{ url_for('cursos.get_cursos') }}">Cursos</a>
+                                <a class="nav-item nav-link">Actividades</a>
+                            {% endif %}
+                            <a class="nav-item nav-link" href="{{ url_for('usuarios.logout') }}">Cerrar sesión</a>
                         {% else %}
-                        <a class="nav-item nav-link" href="{{ url_for('users.login') }}">Iniciar sesión</a>
-                        <a class="nav-item nav-link" href="{{ url_for('users.register') }}">Registrarse</a>
+                            <a class="nav-item nav-link" href="{{ url_for('usuarios.login') }}">Iniciar sesión</a>
+                            <a class="nav-item nav-link" href="{{ url_for('usuarios.register') }}">Registrarse</a>
                         {% endif %}
                     </div>
                 </div>
@@ -50,13 +56,13 @@
         <div class="row">
             <div class="col-md-8">
                 {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages%}
-                {% for category, message in messages %}
-                <div class="alert alert-{{ category }}">
-                    {{ message }}
-                </div>
-                {% endfor %}
-                {% endif %}
+                    {% if messages%}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
                 {% endwith %}
                 {% block content %}{% endblock %}
             </div>

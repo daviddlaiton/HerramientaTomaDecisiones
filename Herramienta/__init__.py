@@ -19,11 +19,13 @@ def create_app(config_class=Config):
     login_manager.init_app(app) 
 
     from Herramienta.main.routes import main 
-    from Herramienta.users.routes import users 
+    from Herramienta.usuarios.routes import usuarios 
     from Herramienta.errors.handlers import errors
+    from Herramienta.cursos.routes import cursos
 
     app.register_blueprint(main)
-    app.register_blueprint(users)
+    app.register_blueprint(usuarios)
     app.register_blueprint(errors)
+    app.register_blueprint(cursos)
 
     return app
