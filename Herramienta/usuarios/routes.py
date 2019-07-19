@@ -34,7 +34,7 @@ def login():
             next_page = request.args.get("next")
             return redirect(next_page) if next_page else redirect(url_for("main.home"))
         else:
-            flash("Correo o contraseña invalidos.", "danger")
+            flash("Login o contraseña invalidos.", "danger")
     return render_template("login.html", title="Login", form=form)
 
 @usuarios.route("/logout")

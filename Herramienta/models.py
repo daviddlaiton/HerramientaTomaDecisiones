@@ -81,7 +81,7 @@ class Curso(db.Model):
     semestres = db.relationship("Semestre", backref="curso")
 
     def __repr__(self):
-        return f"Estudiante('{self.nombre}')"
+        return f"Curso('{self.nombre}')"
 
 
 class Semestre(db.Model):
