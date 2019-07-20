@@ -6,6 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
+    <!-- icon -->
+    <link rel="icon" type="image/jpg"
+        href="http://res.freestockphotos.biz/pictures/14/14183-illustration-of-a-pencil-pv.png">
+    <!-- ./icon -->
+
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
@@ -34,17 +39,17 @@
                     <!-- Navbar Right Side -->
                     <div class="navbar-nav">
                         {% if current_user.is_authenticated %}
-                            {% if current_user.rol_id == 4 %}
-                                <a class="nav-item nav-link">Usuarios</a>
-                            {% endif %}
-                            {% if current_user.rol_id == 2 or current_user.rol_id == 3 or current_user.rol_id == 4%}
-                                <a class="nav-item nav-link" href="{{ url_for('cursos.get_cursos') }}">Cursos</a>
-                                <a class="nav-item nav-link">Actividades</a>
-                            {% endif %}
-                            <a class="nav-item nav-link" href="{{ url_for('usuarios.logout') }}">Cerrar sesión</a>
+                        {% if current_user.rol_id == 4 %}
+                        <a class="nav-item nav-link">Usuarios</a>
+                        {% endif %}
+                        {% if current_user.rol_id == 2 or current_user.rol_id == 3 or current_user.rol_id == 4%}
+                        <a class="nav-item nav-link" href="{{ url_for('cursos.get_cursos') }}">Cursos</a>
+                        <a class="nav-item nav-link">Actividades</a>
+                        {% endif %}
+                        <a class="nav-item nav-link" href="{{ url_for('usuarios.logout') }}">Cerrar sesión</a>
                         {% else %}
-                            <a class="nav-item nav-link" href="{{ url_for('usuarios.login') }}">Iniciar sesión</a>
-                            <a class="nav-item nav-link" href="{{ url_for('usuarios.register') }}">Registrarse</a>
+                        <a class="nav-item nav-link" href="{{ url_for('usuarios.login') }}">Iniciar sesión</a>
+                        <a class="nav-item nav-link" href="{{ url_for('usuarios.register') }}">Registrarse</a>
                         {% endif %}
                     </div>
                 </div>
@@ -54,18 +59,29 @@
 
     <main role="main" class="container">
         <div class="row">
-            <div class="col-md-8">
+            <div class="col-md-7">
                 {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages%}
-                        {% for category, message in messages %}
-                            <div class="alert alert-{{ category }}">
-                                {{ message }}
-                            </div>
-                        {% endfor %}
-                    {% endif %}
+                {% if messages%}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+                {% endif %}
                 {% endwith %}
                 {% block content %}{% endblock %}
             </div>
+            {% if showCursosSideBar == True and (current_user.rol_id == 4 or current_user.rol_id == 2 or current_user.rol_id == 3) %}
+            <div class="col-md-5">
+                <div class="content-section">
+                    <h3>Acciones cursos</h3>
+                    <button type="button" class="btn btn-outline-info cursosActionsButton">Crear curso</button>
+                    <button type="button" class="btn btn-outline-info cursosActionsButton">Eliminar curso</button>
+                    <button type="button" class="btn btn-outline-info cursosActionsButton">Modificar curso</button>
+                    </p>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </main>
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"

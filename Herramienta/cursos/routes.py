@@ -12,4 +12,4 @@ def get_cursos():
     if user.rol_id != 4:
         abort(403)
     cursos = Curso.query.all()
-    return render_template("cursos.html", title="Cursos", cursos=cursos, usuario=user)
+    return render_template("cursos.html", title="Cursos", cursos=cursos, usuario=user, showCursosSideBar=True)

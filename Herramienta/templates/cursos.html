@@ -1,8 +1,16 @@
 {% extends "layout.html" %}
 
 {% block content %}
-    {% for curso in cursos.items %}
-        <p>{{ curso.nombre }}</p>
+    <h1>Lista de cursos</h1>
+    {% for curso in cursos %}
+        <article class="media content-section">
+            <div class="media-body">
+                <div class="article-metadata">
+                    <a class="mr-2" href="{{ url_for('cursos.get_cursos') }}">{{ curso.nombre }}</a>
+                </div>
+                <h2><a class="article-title" href="{{ url_for('cursos.get_cursos') }}">{{ curso.nombre }}</a></h2>
+            </div>
+        </article>
     {% endfor %}
 
 {% endblock content %}
