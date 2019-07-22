@@ -1,4 +1,4 @@
-from flask import render_template, abort, Blueprint
+from flask import render_template, abort, Blueprint, request
 from flask_login import login_user, current_user, logout_user, login_required
 from Herramienta.models import Usuario, Curso
 
@@ -7,9 +7,7 @@ cursos = Blueprint("cursos", __name__)
 @cursos.route("/cursos")
 @login_required
 def get_cursos():
-    user_id = current_user.get_id()
-    user = Usuario.query.filter_by(id=user_id).first()
-    if user.rol_id != 4:
-        abort(403)
-    cursos = Curso.query.all()
-    return render_template("cursos.html", title="Cursos", cursos=cursos, usuario=user, showCursosSideBar=True)
+    page = request.args.get("page", 1, type=int)
+    cursos = Curso.query.order_by(Curso.id.desc()).paginate(page=page, per_page=10)
+    print(cursos)
+    return render_template("cursos/cursos.html", title="Cursos", cursos=cursos)

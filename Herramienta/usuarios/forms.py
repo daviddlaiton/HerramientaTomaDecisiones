@@ -15,7 +15,7 @@ class RegistrationForm(FlaskForm):
                                      DataRequired(), EqualTo("password")])
     rol = SelectField("Tipo de usuario", choices=[
                       ("1", "Monitor"), ("2", "Asistente"), ("3","Profesor"), ("4", "Administrador")])
-    submit = SubmitField("Registrarse")
+    submit = SubmitField("Crear usuario")
 
     def validate_login(self, login):
         user = Usuario.query.filter_by(login=login.data).first()

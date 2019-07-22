@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <div class="row">
+        {% if current_user.rol_id == 2 or current_user.rol_id == 3 or current_user.rol_id == 4%}
+            <div class="col-md-7">
+        {% else %}
+            <div class="col-md-10">
+        {% endif %}
+        <h1>Lista de cursos</h1>
+        {% for curso in cursos.items %}
+            <article class="media content-section">
+                <div class="media-body">
+                    <div class="article-metadata">
+                        <a class="mr-2">{{ curso.nombre }}</a>
+                    </div>
+                    <h2><a class="article-title">Semestres: {{ curso.semestres }}</a></h2>
+                </div>
+            </article>
+        {% endfor %}
+        {% for page_num in cursos.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+        {% if page_num %}
+            {% if cursos.page == page_num %}
+                <a class="btn btn-info mb-4" href="{{ url_for('cursos.get_cursos', page=page_num) }}">{{ page_num }}</a>
+            {% else %}
+                <a class="btn btn-outline-info mb-4" href="{{ url_for('cursos.get_cursos', page=page_num) }}">{{ page_num }}</a>
+            {% endif %}
+        {% else %}
+            ...
+        {% endif %}
+    {% endfor %}
+            </div>
+            <div class="col-md-5">
+                {% if current_user.rol_id == 2 or current_user.rol_id == 3 or current_user.rol_id == 4%}
+                <div class="content-section">
+                    <h3>Acciones cursos</h3>
+                    <div>
+                        <form action="">
+                            <button type="submit" class="btn btn-outline-info cursosActionsButton">Crear curso</button>
+                        </form>
+                        <form action="">
+                            <button type="button" class="btn btn-outline-info cursosActionsButton">Eliminar curso</button>
+                        </form>
+                        <form action="">
+                            <button type="button" class="btn btn-outline-info cursosActionsButton">Modificar curso</button>
+                        </form>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock content %}

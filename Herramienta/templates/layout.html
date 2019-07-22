@@ -34,22 +34,21 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarToggle">
                     <div class="navbar-nav mr-auto">
-                        <a class="nav-item nav-link" href="/">Inicio</a>
                     </div>
                     <!-- Navbar Right Side -->
                     <div class="navbar-nav">
                         {% if current_user.is_authenticated %}
-                        {% if current_user.rol_id == 4 %}
-                        <a class="nav-item nav-link">Usuarios</a>
-                        {% endif %}
-                        {% if current_user.rol_id == 2 or current_user.rol_id == 3 or current_user.rol_id == 4%}
-                        <a class="nav-item nav-link" href="{{ url_for('cursos.get_cursos') }}">Cursos</a>
-                        <a class="nav-item nav-link">Actividades</a>
-                        {% endif %}
-                        <a class="nav-item nav-link" href="{{ url_for('usuarios.logout') }}">Cerrar sesión</a>
+                            <a class="nav-item nav-link" href="{{ url_for('cursos.get_cursos') }}">Cursos</a>
+                            {% if current_user.rol_id == 4 %}
+                                <a class="nav-item nav-link" href="{{ url_for('usuarios.get_usuarios')}}">Usuarios</a>
+                                <a class="nav-item nav-link">Semestres</a>
+                            {% endif %}
+                            {% if current_user.rol_id == 2 or current_user.rol_id == 3 or current_user.rol_id == 4%}
+                                <a class="nav-item nav-link">Actividades</a>
+                            {% endif %}
+                                <a class="nav-item nav-link" href="{{ url_for('usuarios.logout') }}">Cerrar sesión</a>
                         {% else %}
-                        <a class="nav-item nav-link" href="{{ url_for('usuarios.login') }}">Iniciar sesión</a>
-                        <a class="nav-item nav-link" href="{{ url_for('usuarios.register') }}">Registrarse</a>
+                            <a class="nav-item nav-link" href="{{ url_for('usuarios.login') }}">Iniciar sesión</a>
                         {% endif %}
                     </div>
                 </div>
@@ -58,31 +57,16 @@
     </header>
 
     <main role="main" class="container">
-        <div class="row">
-            <div class="col-md-7">
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages%}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages%}
                 {% for category, message in messages %}
-                <div class="alert alert-{{ category }}">
-                    {{ message }}
-                </div>
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
                 {% endfor %}
-                {% endif %}
-                {% endwith %}
-                {% block content %}{% endblock %}
-            </div>
-            {% if showCursosSideBar == True and (current_user.rol_id == 4 or current_user.rol_id == 2 or current_user.rol_id == 3) %}
-            <div class="col-md-5">
-                <div class="content-section">
-                    <h3>Acciones cursos</h3>
-                    <button type="button" class="btn btn-outline-info cursosActionsButton">Crear curso</button>
-                    <button type="button" class="btn btn-outline-info cursosActionsButton">Eliminar curso</button>
-                    <button type="button" class="btn btn-outline-info cursosActionsButton">Modificar curso</button>
-                    </p>
-                </div>
-            </div>
             {% endif %}
-        </div>
+        {% endwith %}
+        {% block content %}{% endblock %}
     </main>
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
         integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"

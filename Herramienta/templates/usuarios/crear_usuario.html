@@ -5,7 +5,7 @@
     <form method="POST" action="">
         {{ form.hidden_tag() }}
         <fieldset class="form-group">
-            <legend class="border-bottom mb-4">Registrarse</legend>
+            <legend class="border-bottom mb-4">Crear usuario</legend>
             <div class="form-group">
                 {{ form.login.label(class="form-control-label") }}
 
@@ -66,11 +66,5 @@
             {{ form.submit(class="btn btn-outline-info")}}
         </div>
     </form>
-</div>
-
-<div class="border-top pt-3">
-    <small class="text-muted">
-        ¿Ya estás registrado? <a class="ml-2" href="{{ url_for('usuarios.login') }}"> Iniciar sesión</a>
-    </small>
 </div>
 {% endblock content %}

@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-7">
+            <h1>Lista de usuarios</h1>
+            {% for usuario in usuarios %}
+            <article class="media content-section">
+                <div class="media-body">
+                    <div class="article-metadata">
+                        <h3 class="mr-2">{{ usuario.login }}</h3>
+                    </div>
+                    {% if usuario.rol_id == 1 %}
+                        <p> <strong>Rol:</strong> Monitor</p>
+                    {% elif usuario.rol_id == 2 %}
+                        <p> <strong>Rol:</strong> Asistente</p>
+                    {% elif usuario.rol_id == 3 %}
+                        <p> <strong>Rol:</strong> Profesor</p>
+                    {% elif usuario.rol_id == 4 %}
+                        <p> <strong>Rol:</strong> Admin</p>
+                    {% endif%}
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+        <div class="col-md-5">
+            {% if current_user.rol_id == 2 or current_user.rol_id == 3 or current_user.rol_id == 4%}
+            <div class="content-section">
+                <h3>Acciones usuarios</h3>
+                <form action="{{ url_for('usuarios.register') }}">
+                    <button type="submit" class="btn btn-outline-info usuariossActionsButton">Crear usuarios</button>
+                </form>
+                <form action="">
+                    <button type="button" class="btn btn-outline-info usuariossActionsButton">Eliminar usuarios</button>
+                </form>
+                <form action="">
+                    <button type="button" class="btn btn-outline-info usuariossActionsButton">Modificar
+                        usuarios</button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock content %}

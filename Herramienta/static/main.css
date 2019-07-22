@@ -85,4 +85,10 @@ body {
     margin-right: 100px;
     display: block;
   }
+
+  .usuariossActionsButton{
+    margin: 5px;
+    margin-right: 100px;
+    display: inline-block;
+  }
   

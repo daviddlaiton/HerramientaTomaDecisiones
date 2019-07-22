@@ -1,8 +1,11 @@
-from flask import render_template, request, Blueprint
+from flask import render_template, Blueprint, redirect, url_for
+from flask_login import current_user
 
 main = Blueprint("main", __name__)
 
 @main.route("/")
-@main.route("/home")
 def home():
-    return render_template("home.html", title="Inicio")
+    if current_user.is_authenticated:
+        return redirect(url_for("cursos.get_cursos"))
+    else :
+        return render_template("main/home.html", title="Inicio")
