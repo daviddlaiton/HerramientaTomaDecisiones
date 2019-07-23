@@ -55,7 +55,8 @@ def logout():
 def get_usuarios():
     user_id = current_user.get_id()
     user = Usuario.query.filter_by(id=user_id).first()
-    usuarios = Usuario.query.all()
     if user.rol_id != 4:
         abort(403)
+    page = request.args.get("page", 1, type=int)
+    usuarios = Usuario.query.order_by(Usuario.id.desc()).paginate(page=page, per_page=5)
     return render_template("usuarios/usuarios.html", title="Usuarios", usuarios=usuarios)

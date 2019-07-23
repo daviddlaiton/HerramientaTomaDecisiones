@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-7">
+        <h1>Lista de semestres</h1>
+        {% for semestre in semestres.items %}
+        <article class="media content-section">
+            <div class="media-body">
+                <div class="article-metadata">
+                    <a class="mr-2">{{ semestre.nombre }}</a>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+        {% for page_num in semestres.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+            {% if page_num %}
+                {% if semestres.page == page_num %}
+                    <a class="btn btn-info mb-4" href="{{ url_for('semestres.get_semestres', page=page_num) }}">{{ page_num }}</a>
+                {% else %}
+                    <a class="btn btn-outline-info mb-4" href="{{ url_for('semestres.get_semestres', page=page_num) }}">{{ page_num }}</a>
+                {% endif %}
+            {% else %}
+                ...
+            {% endif %}
+        {% endfor %}
+    </div>
+    <div class="col-md-5">
+        {% if current_user.rol_id == 2 or current_user.rol_id == 3 or current_user.rol_id == 4%}
+        <div class="content-section">
+            <h3>Acciones semestres</h3>
+            <div>
+                <form action="{{ url_for('semestres.crear_semestre') }}">
+                    <button type="submit" class="btn btn-outline-info cursosActionsButton">Crear semestre</button>
+                </form>
+                <form action="">
+                    <button type="button" class="btn btn-outline-info cursosActionsButton">Eliminar semestre</button>
+                </form>
+                <form action="">
+                    <button type="button" class="btn btn-outline-info cursosActionsButton">Modificar semestre</button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock content %}

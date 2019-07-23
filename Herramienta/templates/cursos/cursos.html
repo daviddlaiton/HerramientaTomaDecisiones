@@ -19,23 +19,23 @@
             </article>
         {% endfor %}
         {% for page_num in cursos.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
-        {% if page_num %}
-            {% if cursos.page == page_num %}
-                <a class="btn btn-info mb-4" href="{{ url_for('cursos.get_cursos', page=page_num) }}">{{ page_num }}</a>
+            {% if page_num %}
+                {% if cursos.page == page_num %}
+                    <a class="btn btn-info mb-4" href="{{ url_for('cursos.get_cursos', page=page_num) }}">{{ page_num }}</a>
+                {% else %}
+                    <a class="btn btn-outline-info mb-4" href="{{ url_for('cursos.get_cursos', page=page_num) }}">{{ page_num }}</a>
+                {% endif %}
             {% else %}
-                <a class="btn btn-outline-info mb-4" href="{{ url_for('cursos.get_cursos', page=page_num) }}">{{ page_num }}</a>
+                ...
             {% endif %}
-        {% else %}
-            ...
-        {% endif %}
-    {% endfor %}
+        {% endfor %}
             </div>
             <div class="col-md-5">
                 {% if current_user.rol_id == 2 or current_user.rol_id == 3 or current_user.rol_id == 4%}
                 <div class="content-section">
                     <h3>Acciones cursos</h3>
                     <div>
-                        <form action="">
+                        <form action="{{ url_for('cursos.crear_curso') }}">
                             <button type="submit" class="btn btn-outline-info cursosActionsButton">Crear curso</button>
                         </form>
                         <form action="">

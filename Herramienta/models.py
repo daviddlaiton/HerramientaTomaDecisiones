@@ -87,6 +87,7 @@ class Curso(db.Model):
 class Semestre(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(50), unique=True, nullable=False)
+    #Creo que debe ser una relación (profesores y asistentes)
     profesores = db.Column(db.String(50), nullable=False)
     asistentes = db.Column(db.String(50), nullable=False)
     lista = db.relationship("Estudiante", backref="lista")
