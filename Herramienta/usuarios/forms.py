@@ -13,8 +13,7 @@ class RegistrationForm(FlaskForm):
                              DataRequired(), Length(min=6, max=50)])
     confirm_password = PasswordField(" Confirmar constraseña", validators=[
                                      DataRequired(), EqualTo("password")])
-    rol = SelectField("Tipo de usuario", choices=[
-                      ("1", "Monitor"), ("2", "Asistente"), ("3","Profesor"), ("4", "Administrador")])
+    rol = SelectField("Tipo de usuario", choices=[], coerce=int)
     submit = SubmitField("Crear usuario")
 
     def validate_login(self, login):
@@ -22,16 +21,9 @@ class RegistrationForm(FlaskForm):
         if user:
             raise ValidationError("Usuario ya existente en el sistema.")
 
-    def validate_email(self, email):
-        user = Usuario.query.filter_by(email=email.data).first()
-        if user:
-            raise ValidationError("Correo ya usado.")
-
-
 class LoginForm(FlaskForm):
     login = StringField("Login", validators=[DataRequired()])
     password = PasswordField("Contraseña", validators=[DataRequired()])
-    remember = BooleanField("Recuerdame")
     submit = SubmitField("Iniciar sesión")
 
 

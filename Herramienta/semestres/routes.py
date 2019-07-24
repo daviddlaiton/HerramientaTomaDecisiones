@@ -1,6 +1,6 @@
 from flask import render_template, url_for, flash, redirect, request, Blueprint, abort
 from flask_login import current_user, login_required
-from Herramienta.models import Usuario, Semestre
+from Herramienta.models import Usuario, Semestre, Curso
 from Herramienta import db, bcrypt
 from Herramienta.semestres.forms import CrearSemestreForm
 
@@ -20,9 +20,11 @@ def crear_semestre():
     user = Usuario.query.filter_by(id=user_id).first()
     if user.rol_id == 1:
         abort(403)
-    form = CrearSemestreForm()
+    cursos = [(c.id, c.nombre) for c in Curso.query.all()]
+    form = CrearSemestreForm(request.form)
+    form.curso_id.choices = cursos
     if form.validate_on_submit():
-        semestre = Semestre(nombre=form.nombre.data)
+        semestre = Semestre(nombre=form.nombre.data, curso_id=form.curso_id.data)
         db.session.add(semestre)
         db.session.commit()
         flash(f"Semestre creado exitosamente", "success")

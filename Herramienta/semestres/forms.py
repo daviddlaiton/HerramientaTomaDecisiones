@@ -9,6 +9,7 @@ from Herramienta.models import Semestre
 class CrearSemestreForm(FlaskForm):
     nombre = StringField("Nombre", validators=[
                         DataRequired(), Length(min=1, max=50)])
+    curso_id = SelectField("Curso", choices=[], coerce=int)
     submit = SubmitField("Crear semestre")
 
     def validate_nombre(self, nombre):

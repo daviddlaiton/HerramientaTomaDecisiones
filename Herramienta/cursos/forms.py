@@ -8,9 +8,7 @@ from Herramienta.models import Curso
 
 class CrearUsuarioForm(FlaskForm):
     nombre = StringField("Nombre", validators=[
-                        DataRequired(), Length(min=1, max=50)])
-    semestre = SelectField("Semestre", choices=[
-                      ("1", "Monitor"), ("2", "Asistente"), ("3", "Profesor"), ("4", "Administrador")])
+                        DataRequired(), Length(min=1, max=70)])
     submit = SubmitField("Crear curso")
 
     def validate_nombre(self, nombre):

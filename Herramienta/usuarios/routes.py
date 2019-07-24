@@ -1,7 +1,7 @@
 from flask import render_template, url_for, flash, redirect, request, Blueprint, abort
 from flask_login import login_user, current_user, logout_user, login_required
 from Herramienta import db, bcrypt
-from Herramienta.models import Usuario
+from Herramienta.models import Usuario, Rol
 from Herramienta.usuarios.forms import RegistrationForm, LoginForm, RequestResetForm, ResetPasswordForm
 import sys
 
@@ -15,13 +15,15 @@ def register():
     user = Usuario.query.filter_by(id=user_id).first()
     if user.rol_id != 4:
         abort(403)
-    form = RegistrationForm()
+    roles = [(r.id, r.nombre) for r in Rol.query.all()]
+    print(roles)
+    form = RegistrationForm(request.form)
+    form.rol.choices = roles
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(
             form.password.data).decode("utf-8")
-        rol_id_int = int(form.rol.data)
         user = Usuario(login=form.login.data,
-                       password=hashed_password, rol_id=rol_id_int)
+                       password=hashed_password, rol_id=form.rol.data)
         db.session.add(user)
         db.session.commit()
         flash(f"Usuario creado exitosamente", "success")

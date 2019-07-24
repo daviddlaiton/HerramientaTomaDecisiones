@@ -52,10 +52,10 @@ class Usuario(db.Model, UserMixin):
             user_id = s.loads(token)["user_id"]
         except:
             return None
-        return User.query.get(user_id)
+        return Usuario.query.get(user_id)
 
     def __repr__(self):
-        return f"User('{self.login}','{self.rol_id}')"
+        return f"Usuario('{self.login}','{self.rol_id}')"
 
 
 class Estudiante(db.Model):
@@ -77,7 +77,7 @@ class Estudiante(db.Model):
 
 class Curso(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(50), nullable=False)
+    nombre = db.Column(db.String(70), nullable=False)
     semestres = db.relationship("Semestre", backref="curso")
 
     def __repr__(self):
@@ -88,8 +88,8 @@ class Semestre(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(50), unique=True, nullable=False)
     #Creo que debe ser una relación (profesores y asistentes)
-    profesores = db.Column(db.String(50), nullable=False)
-    asistentes = db.Column(db.String(50), nullable=False)
+    #profesores = db.Column(db.String(50), nullable=False)
+    #asistentes = db.Column(db.String(50), nullable=False)
     lista = db.relationship("Estudiante", backref="lista")
     curso_id = db.Column(db.Integer, db.ForeignKey(
         "curso.id"), nullable=False)
@@ -121,7 +121,6 @@ class Grupo(db.Model):
 class Actividad(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(50), unique=True, nullable=False)
-    # Integrantes no debería ir dentro de grupo?
     porcentaje = db.Column(db.Integer, nullable=False)
     habilitada = db.Column(db.Boolean, nullable=False)
     semestre_id = db.Column(db.Integer, db.ForeignKey(

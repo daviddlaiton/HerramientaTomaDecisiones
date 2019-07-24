@@ -29,5 +29,5 @@ def create_app(config_class=Config):
     app.register_blueprint(errors)
     app.register_blueprint(cursos)
     app.register_blueprint(semestres)
-
+     
     return app

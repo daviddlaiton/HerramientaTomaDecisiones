@@ -22,21 +22,6 @@
                             {% else %}
                             {{ form.nombre(class="form-control form-control-lg") }}
                             {% endif %}
-
-                        </div>
-                        <div class="form-group">
-                            {{ form.semestre.label(class="form-control-label") }}
-                            {% if form.semestre.errors %}
-                            {{ form.semestre(class="form-control form-control-lg is-invalid") }}
-                            <div class="invalid-feedbakc">
-                                {% for error in form.semestre.errors%}
-                                <span>{{ error }}</span>
-                                {% endfor %}
-                            </div>
-                            {% else %}
-                            <br>
-                            {{ form.semestre(size=1, maxlength=50,class="form-control form-control-lg") }}
-                            {% endif %}
                         </div>
                     </fieldset>
                     <div class="form-group">

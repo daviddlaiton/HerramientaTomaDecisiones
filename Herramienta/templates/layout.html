@@ -46,6 +46,7 @@
                             {% if current_user.rol_id == 2 or current_user.rol_id == 3 or current_user.rol_id == 4%}
                                 <a class="nav-item nav-link">Actividades</a>
                             {% endif %}
+                                <a class="nav-item nav-link">Mi cuenta</a>
                                 <a class="nav-item nav-link" href="{{ url_for('usuarios.logout') }}">Cerrar sesión</a>
                         {% else %}
                             <a class="nav-item nav-link" href="{{ url_for('usuarios.login') }}">Iniciar sesión</a>

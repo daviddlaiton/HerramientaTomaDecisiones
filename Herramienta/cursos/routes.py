@@ -22,13 +22,11 @@ def crear_curso():
         abort(403)
     form = CrearUsuarioForm()
     if form.validate_on_submit():
-        semestre_id_int = int(form.semestre.data)
         semestres=[]
-        semestres.append(semestre_id_int)
         curso = Curso(nombre=form.nombre.data,
-                       semestre=semestres)
+                       semestres=semestres)
         db.session.add(curso)
         db.session.commit()
-        flash(f"Cursos creado exitosamente", "success")
+        flash(f"Curso creado exitosamente", "success")
         return redirect(url_for("cursos.get_cursos"))
     return render_template("cursos/crear_curso.html", title="Crear curso", form=form)

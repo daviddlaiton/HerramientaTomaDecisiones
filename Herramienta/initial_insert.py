@@ -13,8 +13,8 @@ def initial_insert():
     db.session.add(rol_3)
     db.session.add(rol_4)
 
-    curso_1 = Curso(id=1, nombre="Prueba")
-    db.session.add(curso_1)
+    #curso_1 = Curso(id=1, nombre="Prueba")
+    #db.session.add(curso_1)
 
     hashed_password = bcrypt.generate_password_hash("admin1").decode("utf-8")
     user = Usuario(login="admin", password=hashed_password, rol_id= 4)
