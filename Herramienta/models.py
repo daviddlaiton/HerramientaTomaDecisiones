@@ -95,6 +95,8 @@ class Semestre(db.Model):
         "curso.id"), nullable=False)
     actividades = db.relationship("Actividad", backref="actividad")
 
+    def __repr__(self):
+        return f"Semestre('{self.nombre}')"
 
 class Calificacion(db.Model):
     id = db.Column(db.Integer, primary_key=True)

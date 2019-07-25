@@ -39,7 +39,7 @@ def login():
     if form.validate_on_submit():
         user = Usuario.query.filter_by(login=form.login.data).first()
         if user and bcrypt.check_password_hash(user.password, form.password.data):
-            login_user(user, remember=form.remember.data)
+            login_user(user)
             next_page = request.args.get("next")
             return redirect(next_page) if next_page else redirect(url_for("cursos.get_cursos"))
         else:
@@ -62,3 +62,12 @@ def get_usuarios():
     page = request.args.get("page", 1, type=int)
     usuarios = Usuario.query.order_by(Usuario.id.desc()).paginate(page=page, per_page=5)
     return render_template("usuarios/usuarios.html", title="Usuarios", usuarios=usuarios)
+
+
+@usuarios.route("/cuenta", methods=["GET", "POST"])
+@login_required
+def cuenta():
+    user_id = current_user.get_id()
+    user = Usuario.query.filter_by(id=user_id).first()
+    rol = Rol.query.filter_by(id=user.rol_id).first()
+    return render_template("usuarios/cuenta.html", title="Mi cuenta", usuario=user, rol=rol)

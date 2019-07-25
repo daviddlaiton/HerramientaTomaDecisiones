@@ -12,9 +12,14 @@
             <article class="media content-section">
                 <div class="media-body">
                     <div class="article-metadata">
-                        <a class="mr-2">{{ curso.nombre }}</a>
+                        <h2><a class="mr-2">{{ curso.nombre }}</a></h2>
                     </div>
-                    <h2><a class="article-title">Semestres: {{ curso.semestres }}</a></h2>
+                    <h4><a class="article-title">Semestres:</a></h4>
+                    <ul style="list-style-type:disc;">
+                    {% for semestre in curso.semestres %}
+                        <li>{{ semestre.nombre }}</li>
+                    {% endfor %}
+                    </ul>
                 </div>
             </article>
         {% endfor %}

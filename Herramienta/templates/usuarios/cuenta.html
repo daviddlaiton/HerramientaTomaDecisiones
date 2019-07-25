@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-7">
+            <h1>Mi cuenta</h1>
+                <article class="media content-section">
+                    <div class="media-body">
+                        <div class="article-metadata">
+                            <h3 class="mr-2">{{ usuario.login }}</h3>
+                        </div>
+                        <p> <strong>Rol:</strong> {{ rol.nombre }}</p>
+                    </div>
+                </article>
+        </div>
+        <div class="col-md-5">
+            {% if current_user.rol_id == 2 or current_user.rol_id == 3 or current_user.rol_id == 4%}
+                <div class="content-section">
+                    <h3>Acciones sobre la cuenta</h3>
+                    <form action="">
+                        <button type="submit" class="btn btn-outline-info usuariossActionsButton">Cambiar contraseña</button>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock content %}
