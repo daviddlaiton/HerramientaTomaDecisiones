@@ -9,6 +9,9 @@
                     <div class="media-body">
                         <div class="article-metadata">
                             <h3 class="mr-2">{{ usuario.login }}</h3>
+                            <form action="{{ url_for('usuarios.editar_usuario', usuario_id=usuario.id) }}">
+                                <input type="image" class="EditButton" src="http://simpleicon.com/wp-content/uploads/pencil.png" />
+                            </form>
                         </div>
                         {% if usuario.rol_id == 1 %}
                             <p> <strong>Rol:</strong> Monitor</p>
@@ -40,13 +43,6 @@
                     <h3>Acciones usuarios</h3>
                     <form action="{{ url_for('usuarios.register') }}">
                         <button type="submit" class="btn btn-outline-info usuariossActionsButton">Crear usuarios</button>
-                    </form>
-                    <form action="">
-                        <button type="button" class="btn btn-outline-info usuariossActionsButton">Eliminar usuarios</button>
-                    </form>
-                    <form action="">
-                        <button type="button" class="btn btn-outline-info usuariossActionsButton">Modificar
-                            usuarios</button>
                     </form>
                 </div>
             {% endif %}

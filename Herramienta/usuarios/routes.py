@@ -2,7 +2,7 @@ from flask import render_template, url_for, flash, redirect, request, Blueprint,
 from flask_login import login_user, current_user, logout_user, login_required
 from Herramienta import db, bcrypt
 from Herramienta.models import Usuario, Rol
-from Herramienta.usuarios.forms import RegistrationForm, LoginForm, RequestResetForm, ResetPasswordForm
+from Herramienta.usuarios.forms import RegistrationForm, LoginForm, RequestResetForm, ResetPasswordForm, EditarUsuarioForm
 import sys
 
 usuarios = Blueprint("usuarios", __name__)
@@ -16,7 +16,6 @@ def register():
     if user.rol_id != 4:
         abort(403)
     roles = [(r.id, r.nombre) for r in Rol.query.all()]
-    print(roles)
     form = RegistrationForm(request.form)
     form.rol.choices = roles
     if form.validate_on_submit():
@@ -71,3 +70,24 @@ def cuenta():
     user = Usuario.query.filter_by(id=user_id).first()
     rol = Rol.query.filter_by(id=user.rol_id).first()
     return render_template("usuarios/cuenta.html", title="Mi cuenta", usuario=user, rol=rol)
+
+@usuarios.route("/usuarios/<int:usuario_id>/editar", methods=["GET", "POST"])
+@login_required
+def editar_usuario(usuario_id):
+    user_id = current_user.get_id()
+    user = Usuario.query.filter_by(id=user_id).first()
+    if user.rol_id == 1:
+        abort(403)
+    usuario = Usuario.query.get_or_404(usuario_id)
+    roles = [(r.id, r.nombre) for r in Rol.query.all()]
+    form = EditarUsuarioForm(request.form)
+    form.rol.choices = roles
+    if form.validate_on_submit():
+        usuario.login = form.login.data
+        usuario.rol_id = form.rol.data
+        db.session.commit()
+        flash(f"Usuario actualizado exitosamente", "success")
+        return redirect(url_for("usuarios.get_usuarios"))
+    elif request.method == "GET":
+        form.login.data = usuario.login
+    return render_template("usuarios/editar_usuario.html", title="Editar usuario", form=form)

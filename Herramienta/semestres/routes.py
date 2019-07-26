@@ -1,8 +1,8 @@
 from flask import render_template, url_for, flash, redirect, request, Blueprint, abort
 from flask_login import current_user, login_required
-from Herramienta.models import Usuario, Semestre, Curso
+from Herramienta.models import Usuario, Semestre, Semestre
 from Herramienta import db, bcrypt
-from Herramienta.semestres.forms import CrearSemestreForm
+from Herramienta.semestres.forms import CrearSemestreForm, EditarSemestreForm
 
 semestres = Blueprint("semestres", __name__)
 
@@ -20,13 +20,29 @@ def crear_semestre():
     user = Usuario.query.filter_by(id=user_id).first()
     if user.rol_id == 1:
         abort(403)
-    cursos = [(c.id, c.nombre) for c in Curso.query.all()]
-    form = CrearSemestreForm(request.form)
-    form.curso_id.choices = cursos
+    form = CrearSemestreForm()
     if form.validate_on_submit():
-        semestre = Semestre(nombre=form.nombre.data, curso_id=form.curso_id.data)
+        semestre = Semestre(nombre=form.nombre.data)
         db.session.add(semestre)
         db.session.commit()
         flash(f"Semestre creado exitosamente", "success")
         return redirect(url_for("semestres.get_semestres"))
     return render_template("semestres/crear_semestre.html", title="Crear semestre", form=form)
+
+@semestres.route("/semestres/<int:semestre_id>/editar", methods=["GET", "POST"])
+@login_required
+def editar_semestre(semestre_id):
+    user_id = current_user.get_id()
+    user = Usuario.query.filter_by(id=user_id).first()
+    if user.rol_id == 1:
+        abort(403)
+    semestre = Semestre.query.get_or_404(semestre_id)
+    form = EditarSemestreForm()
+    if form.validate_on_submit():
+        semestre.nombre = form.nombre.data
+        db.session.commit()
+        flash(f"Semestre actualizado exitosamente", "success")
+        return redirect(url_for("semestre.get_semestres"))
+    elif request.method == "GET":
+        form.nombre.data = semestre.nombre
+    return render_template("semestres/editar_semestre.html", title="Editar semestre", form=form)

@@ -13,6 +13,9 @@
                 <div class="media-body">
                     <div class="article-metadata">
                         <h2><a class="mr-2">{{ curso.nombre }}</a></h2>
+                        <form action="{{ url_for('cursos.editar_curso', curso_id=curso.id) }}">
+                            <input type="image" class="EditButton" src="http://simpleicon.com/wp-content/uploads/pencil.png" />
+                        </form>
                     </div>
                     <h4><a class="article-title">Semestres:</a></h4>
                     <ul style="list-style-type:disc;">
@@ -42,12 +45,6 @@
                     <div>
                         <form action="{{ url_for('cursos.crear_curso') }}">
                             <button type="submit" class="btn btn-outline-info cursosActionsButton">Crear curso</button>
-                        </form>
-                        <form action="">
-                            <button type="button" class="btn btn-outline-info cursosActionsButton">Eliminar curso</button>
-                        </form>
-                        <form action="">
-                            <button type="button" class="btn btn-outline-info cursosActionsButton">Modificar curso</button>
                         </form>
                     </div>
                 </div>

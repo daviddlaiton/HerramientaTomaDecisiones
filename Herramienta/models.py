@@ -23,6 +23,15 @@ cursos = db.Table("cursos",
                   db.Column("curso_id", db.Integer, db.ForeignKey(
                       "curso.id"), primary_key=True)
                   )
+
+semestres = db.Table("semestres",
+                     db.Column("semestre_id", db.Integer, db.ForeignKey(
+                         "semestre.id"), primary_key=True),
+                     db.Column("curso_id", db.Integer, db.ForeignKey(
+                         "curso.id"), primary_key=True)
+                     )
+
+
 class Rol(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(50), primary_key=True)
@@ -39,7 +48,7 @@ class Usuario(db.Model, UserMixin):
     rol_id = db.Column(db.Integer, db.ForeignKey("rol.id"), nullable=False)
     grupos = db.relationship("Grupo", backref="Calificador")
     cursos = db.relationship("Curso", secondary=cursos, lazy="subquery",
-        backref=db.backref("usuarios", lazy=True))
+                             backref=db.backref("usuarios", lazy=True))
 
     def get_reset_token(self, expired_sec=1800):
         s = Serializer(current_app.config["SECRET_KEY"], expired_sec)
@@ -78,7 +87,8 @@ class Estudiante(db.Model):
 class Curso(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(70), nullable=False)
-    semestres = db.relationship("Semestre", backref="curso")
+    semestres = db.relationship("Semestre", secondary=semestres, lazy="subquery",
+        backref=db.backref("cursos", lazy=True))
 
     def __repr__(self):
         return f"Curso('{self.nombre}')"
@@ -87,16 +97,15 @@ class Curso(db.Model):
 class Semestre(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(50), unique=True, nullable=False)
-    #Creo que debe ser una relación (profesores y asistentes)
-    #profesores = db.Column(db.String(50), nullable=False)
-    #asistentes = db.Column(db.String(50), nullable=False)
+    # Creo que debe ser una relación (profesores y asistentes)
+    # profesores = db.Column(db.String(50), nullable=False)
+    # asistentes = db.Column(db.String(50), nullable=False)
     lista = db.relationship("Estudiante", backref="lista")
-    curso_id = db.Column(db.Integer, db.ForeignKey(
-        "curso.id"), nullable=False)
     actividades = db.relationship("Actividad", backref="actividad")
 
     def __repr__(self):
         return f"Semestre('{self.nombre}')"
+
 
 class Calificacion(db.Model):
     id = db.Column(db.Integer, primary_key=True)

@@ -92,3 +92,11 @@ body {
     display: inline-block;
   }
   
+  .EditButton{
+    height: 30px;
+    width: 30px;
+    margin-top: 10px;
+    position: absolute;
+    left: 90%;
+  }
+  

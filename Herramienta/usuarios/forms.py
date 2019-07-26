@@ -21,6 +21,7 @@ class RegistrationForm(FlaskForm):
         if user:
             raise ValidationError("Usuario ya existente en el sistema.")
 
+
 class LoginForm(FlaskForm):
     login = StringField("Login", validators=[DataRequired()])
     password = PasswordField("Contraseña", validators=[DataRequired()])
@@ -43,3 +44,10 @@ class ResetPasswordForm(FlaskForm):
     confirm_password = PasswordField(" Confirmar contraseña", validators=[
                                      DataRequired(), EqualTo("password")])
     submit = SubmitField("Cambiar contraseña")
+
+
+class EditarUsuarioForm(FlaskForm):
+    login = StringField("Usuario", validators=[
+                        DataRequired(), Length(min=2, max=20)])
+    rol = SelectField("Tipo de usuario", choices=[], coerce=int)
+    submit = SubmitField("Editar usuario")
