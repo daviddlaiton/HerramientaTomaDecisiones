@@ -13,9 +13,11 @@
                 <div class="media-body">
                     <div class="article-metadata">
                         <h2><a class="mr-2">{{ curso.nombre }}</a></h2>
-                        <form action="{{ url_for('cursos.editar_curso', curso_id=curso.id) }}">
-                            <input type="image" class="EditButton" src="http://simpleicon.com/wp-content/uploads/pencil.png" />
-                        </form>
+                        {% if current_user.rol_id != 1 %}
+                            <form action="{{ url_for('cursos.editar_curso', curso_id=curso.id) }}">
+                                <input data-toggle="tooltip" data-placement="top" title="Ver Curso"  type="image" class="EditButton" src="http://simpleicon.com/wp-content/uploads/pencil.png" />
+                            </form>
+                        {% endif %}
                     </div>
                     <h4><a class="article-title">Semestres:</a></h4>
                     <ul style="list-style-type:disc;">

@@ -16,12 +16,16 @@ class CrearSemestreForm(FlaskForm):
         if user:
             raise ValidationError("Semestre ya existente")
 
-class EditarSemestreForm(FlaskForm):
+class EditarNombreSemestreForm(FlaskForm):
     nombre = StringField("Nombre", validators=[
                         DataRequired(), Length(min=1, max=50)])
-    submit = SubmitField("Crear semestre")
+    submit = SubmitField("Cambiar nombre")
 
     def validate_nombre(self, nombre):
         user = Semestre.query.filter_by(nombre=nombre.data).first()
         if user:
             raise ValidationError("Semestre ya existente")
+
+class AgregarCursoASemestreForm(FlaskForm) :
+    curso = SelectField("Curso a añadir", choices=[], coerce=int)
+    submit = SubmitField("Agregar curso a semestre") 

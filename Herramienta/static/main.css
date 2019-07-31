@@ -99,4 +99,12 @@ body {
     position: absolute;
     left: 90%;
   }
-  
+
+  .BackButton{
+    height: 30px;
+    width: 30px;
+  }
+
+  .semestreActions{
+    margin: 5px;
+  }

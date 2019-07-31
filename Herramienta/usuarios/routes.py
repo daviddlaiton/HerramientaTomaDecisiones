@@ -76,7 +76,7 @@ def cuenta():
 def editar_usuario(usuario_id):
     user_id = current_user.get_id()
     user = Usuario.query.filter_by(id=user_id).first()
-    if user.rol_id == 1:
+    if user.rol_id != 4:
         abort(403)
     usuario = Usuario.query.get_or_404(usuario_id)
     roles = [(r.id, r.nombre) for r in Rol.query.all()]

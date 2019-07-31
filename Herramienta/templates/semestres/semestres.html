@@ -9,11 +9,16 @@
             <div class="media-body">
                 <div class="article-metadata">
                     <h2><a class="mr-2">{{ semestre.nombre }}</a></h2>
-                    <form action="{{ url_for('semestres.editar_semestre', semestre_id=semestre.id) }}">
-                        <input type="image" class="EditButton" src="http://simpleicon.com/wp-content/uploads/pencil.png" />
+                    <form action="{{ url_for('semestres.ver_semestre', semestre_id=semestre.id) }}">
+                        <input data-toggle="tooltip" data-placement="top" title="Ver semestre" type="image" class="EditButton" src="https://image.flaticon.com/icons/svg/159/159604.svg" />
                     </form>
                 </div>
-                <h4><a class="article-title">Curso: {{ semestre.curso_id }} </a></h4>
+                <h4><a class="article-title">Cursos:</a></h4>
+                <ul style="list-style-type:disc;">
+                    {% for curso in semestre.cursos %}
+                        <li>{{ curso.nombre }}</li>
+                    {% endfor %}
+                </ul>
             </div>
         </article>
         {% endfor %}

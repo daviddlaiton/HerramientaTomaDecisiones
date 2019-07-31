@@ -43,9 +43,6 @@
                                 <a class="nav-item nav-link" href="{{ url_for('usuarios.get_usuarios')}}">Usuarios</a>
                                 <a class="nav-item nav-link" href="{{ url_for('semestres.get_semestres') }}">Semestres</a>
                             {% endif %}
-                            {% if current_user.rol_id == 2 or current_user.rol_id == 3 or current_user.rol_id == 4%}
-                                <a class="nav-item nav-link">Actividades</a>
-                            {% endif %}
                                 <a class="nav-item nav-link" href="{{ url_for('usuarios.cuenta') }}">Mi cuenta</a>
                                 <a class="nav-item nav-link" href="{{ url_for('usuarios.logout') }}">Cerrar sesión</a>
                         {% else %}
