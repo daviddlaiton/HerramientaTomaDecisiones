@@ -1,5 +1,5 @@
 import os
 
 class Config:
-    SECRET_KEY = "8df40eb46210118188dc32233c8dc512"
+    SECRET_KEY =  os.environ.get("SECRET_KEY")
     SQLALCHEMY_DATABASE_URI = "sqlite:///site.db"
