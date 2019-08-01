@@ -29,3 +29,10 @@ class EditarNombreSemestreForm(FlaskForm):
 class AgregarCursoASemestreForm(FlaskForm) :
     curso = SelectField("Curso a añadir", choices=[], coerce=int)
     submit = SubmitField("Agregar curso a semestre") 
+
+class EliminarCursoASemestreForm(FlaskForm) :
+    curso = SelectField("Curso a elimiar", choices=[], coerce=int)
+    submit = SubmitField("Eliminar curso a semestre") 
+
+class EliminarSemestreForm(FlaskForm) :
+    submit = SubmitField("Eliminar semestre") 

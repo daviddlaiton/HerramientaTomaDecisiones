@@ -9,13 +9,13 @@
             </form>
             {% if not cursos %}
                 <br>
-                <h4>No hay cursos para añadir a este semestre.</h4>
+                <h4>No hay cursos para eliminar a este semestre.</h4>
             {% else %}
                 <div class="content-section">
                     <form method="POST" action="">
                         {{ form.hidden_tag() }}
                         <fieldset class="form-group">
-                            <legend class="border-bottom mb-4">Añadir curso a semestre</legend>
+                            <legend class="border-bottom mb-4">Eliminar curso a semestre</legend>
                             <div class="form-group">
                                 {{ form.curso.label(class="form-control-label") }}
                                 {% if form.curso.errors %}

@@ -19,6 +19,12 @@
                         <form action="{{ url_for('semestres.agregarCurso_semestre', semestre_id=semestre.id) }}">
                                 <button type="submit" class="btn btn-outline-info semestreActions">Agregar curso a semestre</button>
                         </form>
+                        <form action="{{ url_for('semestres.eliminarCurso_semestre', semestre_id=semestre.id) }}">
+                                <button type="submit" class="btn btn-outline-info semestreActions">Eliminar curso a semestre</button>
+                        </form>
+                        <form action="{{ url_for('semestres.eliminar_semestre', semestre_id=semestre.id) }}">
+                                <button type="submit" class="btn btn-outline-danger semestreActions">Eliminar semestre</button>
+                        </form>
                     </div>
                 </article>
         </div>

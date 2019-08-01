@@ -14,10 +14,14 @@
                     </form>
                 </div>
                 <h4><a class="article-title">Cursos:</a></h4>
-                <ul style="list-style-type:disc;">
-                    {% for curso in semestre.cursos %}
-                        <li>{{ curso.nombre }}</li>
-                    {% endfor %}
+                <ul style="list-style-type:disc;"></ul>
+                {% if not semestre.cursos %}
+                    <li>Ninguno.</li>
+                {% else %}
+                        {% for curso in semestre.cursos %}
+                            <li>{{ curso.nombre }}</li>
+                        {% endfor %}
+                {% endif %}
                 </ul>
             </div>
         </article>
