@@ -14,7 +14,7 @@ def get_semestres():
     page = request.args.get("page", 1, type=int)
     semestres = Semestre.query.order_by(
         Semestre.id.desc()).paginate(page=page, per_page=5)
-    return render_template("semestres/semestres.html", title="Cursos", semestres=semestres)
+    return render_template("semestres/semestres.html", title="Semestres", semestres=semestres)
 
 
 @semestres.route("/crear_semestre", methods=["GET", "POST"])
@@ -86,26 +86,22 @@ def agregarCurso_semestre(semestre_id):
     return render_template("semestres/anadirCurso_semestre.html", title="Anadir curso a semestre", form=form, semestre=semestre, cursos=cursos)
 
 
-@semestres.route("/semestres/<int:semestre_id>/eliminarCurso", methods=["GET", "POST"])
+@semestres.route("/semestres/<int:semestre_id>/eliminarCurso/<int:curso_id>", methods=["GET", "POST"])
 @login_required
-def eliminarCurso_semestre(semestre_id):
+def eliminarCurso_semestre(semestre_id, curso_id):
     user_id = current_user.get_id()
     user = Usuario.query.filter_by(id=user_id).first()
     if user.rol_id == 1:
         abort(403)
     semestre = Semestre.query.get_or_404(semestre_id)
-    cursosActuales = semestre.cursos
-    cursos = [(c.id, c.nombre)
-              for c in Curso.query.all() if c in cursosActuales]
-    form = EliminarCursoASemestreForm(request.form)
-    form.curso.choices = cursos
+    curso = Curso.query.get_or_404(curso_id)
+    form = EliminarCursoASemestreForm()
     if form.validate_on_submit():
-        cursoAnadir = Curso.query.filter_by(id=form.curso.data).first()
-        semestre.cursos.remove(cursoAnadir)
+        semestre.cursos.remove(curso)
         db.session.commit()
         flash(f"Curso eliminado exitosamente", "success")
         return redirect(url_for("semestres.ver_semestre", semestre_id=semestre.id))
-    return render_template("semestres/eliminarCurso_semestre.html", title="Eliminar curso a semestre", form=form, semestre=semestre, cursos=cursos)
+    return render_template("semestres/eliminarCurso_semestre.html", title="Eliminar curso a semestre", form=form, semestre=semestre, curso=curso)
 
 
 @semestres.route("/semestres/<int:semestre_id>/eliminarSemestre", methods=["GET", "POST"])

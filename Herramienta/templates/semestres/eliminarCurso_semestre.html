@@ -7,36 +7,18 @@
             <form action="{{ url_for('semestres.ver_semestre', semestre_id=semestre.id) }}">
                     <input type="image" class="BackButton" src="https://image.flaticon.com/icons/svg/271/271218.svg" />
             </form>
-            {% if not cursos %}
-                <br>
-                <h4>No hay cursos para eliminar a este semestre.</h4>
-            {% else %}
                 <div class="content-section">
                     <form method="POST" action="">
                         {{ form.hidden_tag() }}
                         <fieldset class="form-group">
                             <legend class="border-bottom mb-4">Eliminar curso a semestre</legend>
-                            <div class="form-group">
-                                {{ form.curso.label(class="form-control-label") }}
-                                {% if form.curso.errors %}
-                                {{ form.curso(class="form-control form-control-lg is-invalid") }}
-                                <div class="invalid-feedbakc">
-                                    {% for error in form.curso.errors%}
-                                    <span>{{ error }}</span>
-                                    {% endfor %}
-                                </div>
-                                {% else %}
-                                <br>
-                                {{ form.curso(size=1, maxlength=50,class="form-control form-control-lg") }}
-                                {% endif %}
-                            </div>
+                            <h5>¿Desea eliminar el curso {{ curso.nombre}} del semestre {{ semestre.nombre }}?</h5>
                         </fieldset>
                         <div class="form-group">
                             {{ form.submit(class="btn btn-outline-info")}}
                         </div>
                     </form>
                 </div>
-            {% endif %}
         </div>
     </div>
 {% endblock content %}

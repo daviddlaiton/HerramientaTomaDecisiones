@@ -9,20 +9,10 @@
             <div class="media-body">
                 <div class="article-metadata">
                     <h2><a class="mr-2">{{ semestre.nombre }}</a></h2>
-                    <form action="{{ url_for('semestres.ver_semestre', semestre_id=semestre.id) }}">
-                        <input data-toggle="tooltip" data-placement="top" title="Ver semestre" type="image" class="EditButton" src="https://image.flaticon.com/icons/svg/159/159604.svg" />
-                    </form>
                 </div>
-                <h4><a class="article-title">Cursos:</a></h4>
-                <ul style="list-style-type:disc;"></ul>
-                {% if not semestre.cursos %}
-                    <li>Ninguno.</li>
-                {% else %}
-                        {% for curso in semestre.cursos %}
-                            <li>{{ curso.nombre }}</li>
-                        {% endfor %}
-                {% endif %}
-                </ul>
+                <form action="{{ url_for('semestres.ver_semestre', semestre_id=semestre.id) }}">
+                    <button type="submit" class="btn btn-outline-info verSemestre">Ver semestre</button>
+                </form>
             </div>
         </article>
         {% endfor %}

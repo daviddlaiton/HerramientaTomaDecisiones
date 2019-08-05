@@ -91,14 +91,6 @@ body {
     margin-right: 100px;
     display: inline-block;
   }
-  
-  .EditButton{
-    height: 30px;
-    width: 30px;
-    margin-top: 10px;
-    position: absolute;
-    left: 90%;
-  }
 
   .BackButton{
     height: 30px;
@@ -107,4 +99,21 @@ body {
 
   .semestreActions{
     margin: 5px;
+  }
+
+  .verSemestre{
+    margin: 5px;
+    margin-left: 0px;
+  }
+
+  .cursosListInSemestre li{
+    font-size: 25px;
+  }
+
+  .cursoTextButtonLayout{
+    display: flex;
+  }
+
+  .eliminarCursoSemestre{
+    margin-left: 15px;
   }

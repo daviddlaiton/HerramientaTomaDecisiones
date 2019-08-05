@@ -31,8 +31,7 @@ class AgregarCursoASemestreForm(FlaskForm) :
     submit = SubmitField("Agregar curso a semestre") 
 
 class EliminarCursoASemestreForm(FlaskForm) :
-    curso = SelectField("Curso a elimiar", choices=[], coerce=int)
-    submit = SubmitField("Eliminar curso a semestre") 
+    submit = SubmitField("Eliminar curso") 
 
 class EliminarSemestreForm(FlaskForm) :
     submit = SubmitField("Eliminar semestre") 
