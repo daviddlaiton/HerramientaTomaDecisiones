@@ -8,22 +8,7 @@
                 <form method="POST" action="">
                     {{ form.hidden_tag() }}
                     <fieldset class="form-group">
-                        <legend class="border-bottom mb-4">Crear usuario</legend>
-                        <div class="form-group">
-                            {{ form.login.label(class="form-control-label") }}
-
-                            {% if form.login.errors %}
-                            {{ form.login(class="form-control form-control-lg is-invalid") }}
-                            <div class="invalid-feedbakc">
-                                {% for error in form.login.errors%}
-                                <span>{{ error }}</span>
-                                {% endfor %}
-                            </div>
-                            {% else %}
-                            {{ form.login(class="form-control form-control-lg") }}
-                            {% endif %}
-
-                        </div>
+                        <legend class="border-bottom mb-4">Cambiar rol a  usuario</legend>
                         <div class="form-group">
                             {{ form.rol.label(class="form-control-label") }}
                             {% if form.rol.errors %}

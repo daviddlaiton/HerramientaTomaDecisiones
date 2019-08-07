@@ -16,12 +16,22 @@ class CrearUsuarioForm(FlaskForm):
         if user:
             raise ValidationError("Curso ya existente")
 
-class EditarCursoForm(FlaskForm):
+class EditarNombreCursoForm(FlaskForm):
     nombre = StringField("Nombre", validators=[
                         DataRequired(), Length(min=1, max=70)])
-    submit = SubmitField("Actualizar curso")
+    submit = SubmitField("Cambiar nombre curso")
 
     def validate_nombre(self, nombre):
         user = Curso.query.filter_by(nombre=nombre.data).first()
         if user:
             raise ValidationError("Curso ya existente")
+
+class AgregarSemestreACursoForm(FlaskForm) :
+    semestre = SelectField("Semestre a añadir", choices=[], coerce=int)
+    submit = SubmitField("Agregar semestre a curso") 
+
+class EliminarSemestreACursoForm(FlaskForm) :
+    submit = SubmitField("Eliminar semestre") 
+
+class EliminarCursoForm(FlaskForm) :
+    submit = SubmitField("Eliminar curso") 

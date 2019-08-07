@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-10">
+            <form action="{{ url_for('usuarios.get_usuarios')}}">
+                <input type="image" class="BackButton" src="https://image.flaticon.com/icons/svg/271/271218.svg" />
+            </form>
+            <br>
+                <article class="media content-section">
+                    <div class="media-body">
+                        <div class="article-metadata">
+                            <h3 class="mr-2">{{ usuario.login }} - Acciones sobre el usuario</h3>
+                        </div>
+                        <form action="{{ url_for('usuarios.editarNombre_usuario', usuario_id=usuario.id) }}">
+                            <button type="submit" class="btn btn-outline-info semestreActions">Cambiar login usuario</button>
+                        </form>
+                        <form action="{{ url_for('usuarios.editarRol_usuario', usuario_id=usuario.id) }}">
+                            <button type="submit" class="btn btn-outline-info semestreActions">Cambiar rol usuario</button>
+                        </form>
+                        <form action="{{ url_for('usuarios.eliminar_usuario', usuario_id=usuario.id) }}">
+                            <button type="submit" class="btn btn-outline-danger semestreActions">Eliminar usuario</button>
+                        </form>
+                    </div>
+                </article>
+
+                <article class="media content-section">
+                    <div class="media-body">
+                            <div class="article-metadata">
+                                <h3 class="mr-2">{{ usuario.login }} - Acciones sobre el usuario </h3>
+                            </div>
+                            <form action="{{ url_for('usuarios.agregarCurso_usuario', usuario_id=usuario.id) }}">
+                                <button type="submit" class="btn btn-outline-info semestreActions">Agregar curso a usuario</button>
+                            </form>
+                            <h4>Lista de cursos:</h4>
+                            <ul style="list-style-type:disc;" class="cursosListInSemestre">
+                                {% if not usuario.cursos %}
+                                    <li>Ninguno</li>
+                                {% else %}
+                                    {% for curso in usuario.cursos %}
+                                        <li>
+                                            <div class="cursoTextButtonLayout">
+                                                {{ curso.nombre }}
+                                                <form action="{{ url_for('semestres.eliminarCurso_semestre', semestre_id=semestre.id,  curso_id=curso.id) }}">
+                                                    <button type="submit" class="btn btn-outline-danger eliminarCursoSemestre">Eliminar curso</button>
+                                                </form>
+                                            </div>
+                                        </li>
+                                    {% endfor %}
+                                {% endif %}
+                            </ul>
+                    </div>
+                </article>
+        </div>
+    </div>
+{% endblock content %}

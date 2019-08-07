@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-3"></div>
+        <div class="col-md-5">
+            <form action="{{ url_for('usuarios.ver_usuario', usuario_id=usuario.id) }}">
+                    <input type="image" class="BackButton" src="https://image.flaticon.com/icons/svg/271/271218.svg" />
+            </form>
+            {% if not cursos %}
+                <br>
+                <h4>No hay cursos para añadir a este usuario.</h4>
+            {% else %}
+                <div class="content-section">
+                    <form method="POST" action="">
+                        {{ form.hidden_tag() }}
+                        <fieldset class="form-group">
+                            <legend class="border-bottom mb-4">Añadir curso a usuario</legend>
+                            <div class="form-group">
+                                {{ form.curso.label(class="form-control-label") }}
+                                {% if form.curso.errors %}
+                                {{ form.curso(class="form-control form-control-lg is-invalid") }}
+                                <div class="invalid-feedbakc">
+                                    {% for error in form.curso.errors%}
+                                    <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                <br>
+                                {{ form.curso(size=1, maxlength=50,class="form-control form-control-lg") }}
+                                {% endif %}
+                            </div>
+                        </fieldset>
+                        <div class="form-group">
+                            {{ form.submit(class="btn btn-outline-info")}}
+                        </div>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock content %}

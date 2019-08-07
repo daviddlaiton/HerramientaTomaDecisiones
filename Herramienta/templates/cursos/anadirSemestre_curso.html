@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-3"></div>
+        <div class="col-md-5">
+            <form action="{{ url_for('cursos.ver_curso', curso_id=curso.id) }}">
+                    <input type="image" class="BackButton" src="https://image.flaticon.com/icons/svg/271/271218.svg" />
+            </form>
+            {% if not semestres %}
+                <br>
+                <h4>No hay semestres para añadir a este curso.</h4>
+            {% else %}
+                <div class="content-section">
+                    <form method="POST" action="">
+                        {{ form.hidden_tag() }}
+                        <fieldset class="form-group">
+                            <legend class="border-bottom mb-4">Añadir semestre a curso</legend>
+                            <div class="form-group">
+                                {{ form.semestre.label(class="form-control-label") }}
+                                {% if form.semestre.errors %}
+                                {{ form.crm.semestre(class="form-control form-control-lg is-invalid") }}
+                                <div class="invalid-feedbakc">
+                                    {% for error in form.semestre.errors%}
+                                    <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                <br>
+                                {{ form.semestre(size=1, maxlength=50,class="form-control form-control-lg") }}
+                                {% endif %}
+                            </div>
+                        </fieldset>
+                        <div class="form-group">
+                            {{ form.submit(class="btn btn-outline-info")}}
+                        </div>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock content %}

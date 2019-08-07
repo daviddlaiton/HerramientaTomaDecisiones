@@ -101,7 +101,7 @@ body {
     margin: 5px;
   }
 
-  .verSemestre{
+  .verButton{
     margin: 5px;
     margin-left: 0px;
   }
@@ -116,4 +116,8 @@ body {
 
   .eliminarCursoSemestre{
     margin-left: 15px;
+  }
+
+  .pRol{
+    margin-bottom: 0px;
   }

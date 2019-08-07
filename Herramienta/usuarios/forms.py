@@ -46,8 +46,21 @@ class ResetPasswordForm(FlaskForm):
     submit = SubmitField("Cambiar contraseña")
 
 
-class EditarUsuarioForm(FlaskForm):
+class EditarNombreUsuarioForm(FlaskForm):
     login = StringField("Usuario", validators=[
                         DataRequired(), Length(min=2, max=20)])
+    submit = SubmitField("Editar usuario")
+
+class EditarRolUsuarioForm(FlaskForm):
     rol = SelectField("Tipo de usuario", choices=[], coerce=int)
     submit = SubmitField("Editar usuario")
+
+class AgregarCursoAUsuarioForm(FlaskForm) :
+    curso = SelectField("Semestre a añadir", choices=[], coerce=int)
+    submit = SubmitField("Agregar semestre a curso") 
+
+class EliminarCursosAUsuarioForm(FlaskForm) :
+    submit = SubmitField("Eliminar semestre") 
+
+class EliminarUsuarioForm(FlaskForm) :
+    submit = SubmitField("Eliminar curso") 
