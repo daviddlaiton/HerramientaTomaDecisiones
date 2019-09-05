@@ -4,13 +4,13 @@
     <div class="row">
         <div class="col-md-3"></div>
         <div class="col-md-5">
-            <form action="{{ url_for('usuarios.ver_usuario', usuario_id=usuario.id) }}">
+            <form action="{{ url_for('actividades.crear_actividad', curso_id=curso_id) }}">
                 <input type="image" class="BackButton" src="https://image.flaticon.com/icons/svg/271/271218.svg" />
             </form>
             <div class="content-section">
                 <form method="POST" action="">
                     {{ form.hidden_tag() }}
-                    <legend class="border-bottom mb-4">Eliminar usuario</legend>
+                    <legend class="border-bottom mb-4">Eliminar actividad</legend>
                     <div class="form-group">
                         {{ form.submit(class="btn btn-outline-danger")}}
                     </div>

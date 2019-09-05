@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-3"></div>
+        <div class="col-md-5">
+            <form action="{{ url_for('usuarios.ver_usuario', usuario_id=usuario.id) }}">
+                    <input type="image" class="BackButton" src="https://image.flaticon.com/icons/svg/271/271218.svg" />
+            </form>
+                <div class="content-section">
+                    <form method="POST" action="">
+                        {{ form.hidden_tag() }}
+                        <fieldset class="form-group">
+                            <legend class="border-bottom mb-4">Eliminar curso a usuario</legend>
+                            <h5>¿Desea eliminar el curso {{ curso.nombre}} del usuario {{ usuario.nombre }}?</h5>
+                        </fieldset>
+                        <div class="form-group">
+                            {{ form.submit(class="btn btn-outline-info")}}
+                        </div>
+                    </form>
+                </div>
+        </div>
+    </div>
+{% endblock content %}

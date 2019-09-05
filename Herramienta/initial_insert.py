@@ -1,6 +1,6 @@
 from flask import Flask
 from Herramienta import db, bcrypt
-from Herramienta.models import Usuario, Rol, Curso
+from Herramienta.models import Usuario, Rol, Curso, Semestre
 
 def initial_insert():
     rol_1 = Rol(id=1,nombre="Monitor")
@@ -16,4 +16,10 @@ def initial_insert():
     hashed_password = bcrypt.generate_password_hash("admin1").decode("utf-8")
     user = Usuario(login="admin", password=hashed_password, rol_id= 4)
     db.session.add(user)
+
+    curso = Curso(nombre="Opti")
+    db.session.add(curso)
+
+    semestre = Semestre(nombre="201920")
+    db.session.add(semestre)
     db.session.commit()

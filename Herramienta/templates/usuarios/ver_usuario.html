@@ -41,7 +41,7 @@
                                         <li>
                                             <div class="cursoTextButtonLayout">
                                                 {{ curso.nombre }}
-                                                <form action="{{ url_for('semestres.eliminarCurso_semestre', semestre_id=semestre.id,  curso_id=curso.id) }}">
+                                                <form action="{{ url_for('usuarios.eliminarCurso_usuario', usuario_id=usuario.id,  curso_id=curso.id) }}">
                                                     <button type="submit" class="btn btn-outline-danger eliminarCursoSemestre">Eliminar curso</button>
                                                 </form>
                                             </div>

@@ -141,8 +141,8 @@ def agregarCurso_usuario(usuario_id):
         usuario.cursos.append(cursoAnadir)
         db.session.commit()
         flash(f"Curso añadido exitosamente", "success")
-        return redirect(url_for("usuario.ver_usuario", usuario_id=usuario.id))
-    return render_template("usuario/anadirCurso_usuario.html", title="Anadir cursos a usuario", form=form, usuario=usuario, cursos=cursos)
+        return redirect(url_for("usuarios.ver_usuario", usuario_id=usuario.id))
+    return render_template("usuarios/anadirCurso_usuario.html", title="Anadir cursos a usuario", form=form, usuario=usuario, cursos=cursos)
 
 
 @usuarios.route("/usuarios/<int:usuario_id>/eliminarCurso/<int:curso_id>", methods=["GET", "POST"])
@@ -156,7 +156,7 @@ def eliminarCurso_usuario(usuario_id, curso_id):
     curso = Curso.query.get_or_404(curso_id)
     form = EliminarCursosAUsuarioForm()
     if form.validate_on_submit():
-        usuario.semestres.remove(curso)
+        usuario.cursos.remove(curso)
         db.session.commit()
         flash(f"Curso eliminado exitosamente", "success")
         return redirect(url_for("usuarios.ver_usuario", usuario_id=usuario.id))
@@ -165,12 +165,12 @@ def eliminarCurso_usuario(usuario_id, curso_id):
 
 @usuarios.route("/usuarios/<int:usuario_id>/eliminarUsuario", methods=["GET", "POST"])
 @login_required
-def eliminar_usuario(curso_id):
+def eliminar_usuario(usuario_id):
     user_id = current_user.get_id()
     user = Usuario.query.filter_by(id=user_id).first()
     if user.rol_id == 1:
         abort(403)
-    usuario = Usuario.query.get_or_404(curso_id)
+    usuario = Usuario.query.get_or_404(usuario_id)
     form = EliminarUsuarioForm()
     if form.validate_on_submit():
         db.session.delete(usuario)

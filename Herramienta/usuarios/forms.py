@@ -57,10 +57,10 @@ class EditarRolUsuarioForm(FlaskForm):
 
 class AgregarCursoAUsuarioForm(FlaskForm) :
     curso = SelectField("Semestre a añadir", choices=[], coerce=int)
-    submit = SubmitField("Agregar semestre a curso") 
+    submit = SubmitField("Agregar curso a usuario") 
 
 class EliminarCursosAUsuarioForm(FlaskForm) :
-    submit = SubmitField("Eliminar semestre") 
+    submit = SubmitField("Eliminar curso") 
 
 class EliminarUsuarioForm(FlaskForm) :
-    submit = SubmitField("Eliminar curso") 
+    submit = SubmitField("Eliminar usuario") 

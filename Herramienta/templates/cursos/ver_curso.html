@@ -7,6 +7,7 @@
                 <input type="image" class="BackButton" src="https://image.flaticon.com/icons/svg/271/271218.svg" />
             </form>
             <br>
+            {% if current_user.rol_id != 1 %}
                 <article class="media content-section">
                     <div class="media-body">
                         <div class="article-metadata">
@@ -45,6 +46,40 @@
                                         </li>
                                     {% endfor %}
                                 {% endif %}
+                            </ul>
+                    </div>
+                </article>
+            {% endif %}
+                <article class="media content-section">
+                    <div class="media-body">
+                            <div class="article-metadata">
+                                <h3 class="mr-2">{{ curso.nombre }} - Actividades del curso</h3>
+                            </div>
+                            {% if current_user.rol_id != 1 %}
+                            <form action="{{ url_for('actividades.crear_actividad', curso_id=curso.id) }}">
+                                <button type="submit" class="btn btn-outline-info semestreActions">Crear actividad</button>
+                            </form>
+                            {% endif %}
+                            <h4>Lista de actividades:</h4>
+                            <ul style="list-style-type:disc;" class="cursosListInSemestre">
+                                    {% for semestre in curso.semestres %}
+                                        {% if not semestre.actividades %}
+                                            <li>Ninguna</li>
+                                        {% else %}
+                                            {% for actividad in semestre.actividades %}
+                                                <li>
+                                                    <div class="cursoTextButtonLayout">
+                                                        {{ actividad.nombre }}
+                                                        {% if current_user.rol_id != 1 %}
+                                                            <form action="{{ url_for('actividades.ver_actividad', actividad_id=actividad.id, curso_id=curso.id) }}">
+                                                                <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Ver actividad</button>
+                                                            </form>
+                                                        {% endif %}
+                                                    </div>
+                                                </li>
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endfor %}
                             </ul>
                     </div>
                 </article>

@@ -89,6 +89,7 @@ class Curso(db.Model):
     nombre = db.Column(db.String(70), nullable=False)
     semestres = db.relationship("Semestre", secondary=semestres, lazy="subquery",
         backref=db.backref("cursos", lazy=True))
+    actividades = db.relationship("Actividad", backref="actividad")
 
     def __repr__(self):
         return f"Curso('{self.nombre}')"
@@ -99,12 +100,12 @@ class Semestre(db.Model):
     nombre = db.Column(db.String(50), unique=True, nullable=False)
     # Creo que debe ser una relación (profesores y asistentes)
     # profesores = db.Column(db.String(50), nullable=False)
-    # asistentes = db.Column(db.String(50), nullable=False)
+    # asistentes = db.Column(db.String(50), nullable=False
     lista = db.relationship("Estudiante", backref="lista")
-    actividades = db.relationship("Actividad", backref="actividad")
+    actividades = db.relationship("Actividad", backref="semestre")
 
     def __repr__(self):
-        return f"Semestre('{self.nombre}')"
+        return f"Semestre('{self.nombre}', '{self.id}'), Actividades('{self.actividades}') "
 
 
 class Calificacion(db.Model):
@@ -126,32 +127,41 @@ class Grupo(db.Model):
         "usuario.id"), nullable=False)
     actividad_id = db.Column(db.Integer, db.ForeignKey(
         "actividad.id"), nullable=False)
-    calificaciones = db.relationship("Calificacion", backref="calificaciones")
+    calificaciones = db.relationship("Calificacion", backref="grupos")
 
 
 class Actividad(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(50), unique=True, nullable=False)
+    #No se como limitar para que los grupos sean del número de integrantes especificado. 
+    nombre = db.Column(db.String(50), nullable=False)
     porcentaje = db.Column(db.Integer, nullable=False)
     habilitada = db.Column(db.Boolean, nullable=False)
     semestre_id = db.Column(db.Integer, db.ForeignKey(
         "semestre.id"), nullable=False)
+    curso_id = db.Column(db.Integer, db.ForeignKey(
+        "curso.id"), nullable=False)
     grupos = db.relationship("Grupo", backref="actividad")
-    puntos = db.relationship("Punto", backref="punto")
+    puntos = db.relationship("Punto", backref="actividad")
+
+    def __repr__(self):
+        return f"Actividad:'{self.nombre}' Semestre:'{self.semestre_id}' Curso: '{self.curso_id}')"
 
 
 class Punto(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(50), unique=True, nullable=False)
+    nombre = db.Column(db.String(50), nullable=False)
     puntajePosible = db.Column(db.Float, nullable=False)
     incisos = db.relationship("Inciso", backref="inciso")
     actividad_id = db.Column(db.Integer, db.ForeignKey(
         "actividad.id"), nullable=False)
 
+    def __repr__(self):
+        return f"Punto('{self.nombre}', '{self.incisos}')"
+
 
 class Inciso(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(50), unique=True, nullable=False)
+    nombre = db.Column(db.String(50), nullable=False)
     puntajePosible = db.Column(db.Float, nullable=False)
     criterios = db.relationship("Criterio", backref="criterio")
     punto_id = db.Column(db.Integer, db.ForeignKey(
@@ -160,7 +170,7 @@ class Inciso(db.Model):
 
 class Criterio(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(50), unique=True, nullable=False)
+    nombre = db.Column(db.String(50), nullable=False)
     puntajePosible = db.Column(db.Float, nullable=False)
     subcriterios = db.relationship("Subcriterio", backref="subcriterio")
     inciso_id = db.Column(db.Integer, db.ForeignKey(
@@ -169,7 +179,7 @@ class Criterio(db.Model):
 
 class Subcriterio(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    nombre = db.Column(db.String(50), unique=True, nullable=False)
+    nombre = db.Column(db.String(50), nullable=False)
     minimoPuntaje = db.Column(db.Float, nullable=False)
     maximoPuntaje = db.Column(db.Float, nullable=False)
     variaciones = db.relationship("Variacion", backref="variacion")

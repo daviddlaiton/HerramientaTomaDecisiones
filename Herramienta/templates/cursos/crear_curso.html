@@ -4,6 +4,9 @@
     <div class="row">
         <div class="col-md-3"></div>
         <div class="col-md-5">
+            <form action="{{ url_for('cursos.get_cursos')}}">
+                <input type="image" class="BackButton" src="https://image.flaticon.com/icons/svg/271/271218.svg" />
+            </form>
             <div class="content-section">
                 <form method="POST" action="">
                     {{ form.hidden_tag() }}
@@ -13,14 +16,14 @@
                             {{ form.nombre.label(class="form-control-label") }}
 
                             {% if form.nombre.errors %}
-                            {{ form.nombre(class="form-control form-control-lg is-invalid") }}
-                            <div class="invalid-feedbakc">
-                                {% for error in form.nombre.errors%}
-                                <span>{{ error }}</span>
-                                {% endfor %}
-                            </div>
+                                {{ form.nombre(class="form-control form-control-lg is-invalid") }}
+                                <div class="invalid-feedbakc">
+                                    {% for error in form.nombre.errors%}
+                                    <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
                             {% else %}
-                            {{ form.nombre(class="form-control form-control-lg") }}
+                                {{ form.nombre(class="form-control form-control-lg") }}
                             {% endif %}
                         </div>
                     </fieldset>

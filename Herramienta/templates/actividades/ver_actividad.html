@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-10">
+            <form action="{{ url_for('cursos.ver_curso', curso_id=curso_id) }}">
+                <input type="image" class="BackButton" src="https://image.flaticon.com/icons/svg/271/271218.svg" />
+            </form>
+            <br>
+            {% if current_user.rol_id != 1 %}
+                <article class="media content-section">
+                    <div class="media-body">
+                        <div class="article-metadata">
+                            <h3 class="mr-2">{{ actividad.nombre }} - Acciones sobre la actividad</h3>
+                        </div>
+                        <form action="{{ url_for('actividades.modificar_actividad', actividad_id=actividad.id) }}">
+                            <button type="submit" class="btn btn-outline-info semestreActions">Modificar actividad</button>
+                        </form>
+                        <form action="{{ url_for('actividades.eliminar_actividad', actividad_id=actividad.id, curso_id=curso_id) }}">
+                            <button type="submit" class="btn btn-outline-danger semestreActions">Eliminar actividad</button>
+                        </form>
+                    </div>
+                </article>
+            {% endif %}
+        </div>
+    </div>
+{% endblock content %}

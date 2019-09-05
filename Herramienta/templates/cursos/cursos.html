@@ -14,11 +14,9 @@
                     <div class="article-metadata">
                         <h2><a class="mr-2">{{ curso.nombre }}</a></h2>
                     </div>
-                    {% if current_user.rol_id != 1 %}
                         <form action="{{ url_for('cursos.ver_curso', curso_id=curso.id) }}">
                                 <button type="submit" class="btn btn-outline-info verButton">Ver curso</button>
                         </form>
-                    {% endif %}
                 </div>
             </article>
         {% endfor %}
