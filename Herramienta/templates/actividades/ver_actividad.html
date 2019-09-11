@@ -8,20 +8,57 @@
             </form>
             <br>
             {% if current_user.rol_id != 1 %}
-                <article class="media content-section">
-                    <div class="media-body">
-                        <div class="article-metadata">
-                            <h3 class="mr-2">{{ actividad.nombre }} - Acciones sobre la actividad</h3>
-                        </div>
-                        <form action="{{ url_for('actividades.modificar_actividad', actividad_id=actividad.id) }}">
-                            <button type="submit" class="btn btn-outline-info semestreActions">Modificar actividad</button>
-                        </form>
-                        <form action="{{ url_for('actividades.eliminar_actividad', actividad_id=actividad.id, curso_id=curso_id) }}">
-                            <button type="submit" class="btn btn-outline-danger semestreActions">Eliminar actividad</button>
-                        </form>
+            <article class="media content-section">
+                <div class="media-body">
+                    <div class="article-metadata">
+                        <h3 class="mr-2">{{ actividad.nombre }} - Acciones sobre la actividad</h3>
                     </div>
-                </article>
+                    <form action="{{ url_for('actividades.modificar_actividad', actividad_id=actividad.id) }}">
+                        <button type="submit" class="btn btn-outline-info semestreActions">Modificar actividad</button>
+                    </form>
+                    <form action="{{ url_for('actividades.descargar_actividad', actividad_id=actividad.id) }}">
+                        <button type="submit" class="btn btn-outline-info semestreActions">Descargar actividad</button>
+                    </form>
+                    <form
+                        action="{{ url_for('actividades.eliminar_actividad', actividad_id=actividad.id, curso_id=curso_id) }}">
+                        <button type="submit" class="btn btn-outline-danger semestreActions">Eliminar actividad</button>
+                    </form>
+                </div>
+            </article>
             {% endif %}
+
+            <article class="media content-section">
+                <div class="media-body">
+                    <div class="article-metadata">
+                        <h3 class="mr-2">{{ actividad.nombre }} - Detalles de la actividad del curso</h3>
+                    </div>
+                    <ul class="activityDescription">
+                        {% for punto in actividad.puntos %}
+                            <li>{{ punto.nombre }} ({{ punto.puntajePosible}})</li>
+                            <ul class="activityDescription">
+                                {% for inciso in punto.incisos %}
+                                <li>{{ inciso.nombre }} ({{ inciso.puntajePosible }})</li>
+                                <ul class="activityDescription">
+                                    {% for criterio in inciso.criterios %}
+                                        <li>{{ criterio.nombre }} ({{ criterio.puntajePosible }})</li>
+                                        <ul class="activityDescription">
+                                            {% for subcriterio in criterio.subcriterios %}
+                                                <li>{{ subcriterio.nombre }} ({{ subcriterio.maximoPuntaje }})</li>
+                                                <ul class="activityDescription">
+                                                    {% for variacion in subcriterio.variaciones %}
+                                                        <li>{{ variacion.descripcion }} ({{ variacion.puntaje}})</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            {% endfor %}
+                                        </ul>
+                                    {% endfor %}
+                                </ul>
+                                {% endfor %}
+                            </ul>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </article>
         </div>
     </div>
 {% endblock content %}

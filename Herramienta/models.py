@@ -144,7 +144,7 @@ class Actividad(db.Model):
     puntos = db.relationship("Punto", backref="actividad")
 
     def __repr__(self):
-        return f"Actividad:'{self.nombre}' Semestre:'{self.semestre_id}' Curso: '{self.curso_id}')"
+        return f"Actividad:'{self.nombre}' Semestre:'{self.semestre_id}' Curso: '{self.curso_id}', Puntos:'{self.puntos}')"
 
 
 class Punto(db.Model):

@@ -4,8 +4,7 @@ from flask_login import current_user, login_required
 from Herramienta.models import Usuario, Curso, Semestre, Actividad, Punto, Inciso, Criterio, Subcriterio, Variacion
 from Herramienta import db, bcrypt
 from Herramienta.actividades.forms import CrearActividadArchivoForm, EliminarActividad
-from pprint import pprint
-from openpyxl import load_workbook
+from openpyxl import load_workbook, Workbook
 
 actividades = Blueprint("actividades", __name__)
 
@@ -105,7 +104,6 @@ def analizarArchivo(curso_id):
                 celdaCriterio = hoja.cell(row=fila, column=columna).value
                 #-------------------------------------------------------------------
                 while not finalInciso:
-                    print(celdaCriterio)
                     criterio = Criterio(nombre = celdaCriterio, puntajePosible=0, inciso_id=inciso.id)
                     db.session.add(criterio)
                     db.session.commit()
@@ -152,7 +150,7 @@ def analizarArchivo(curso_id):
                     columna = columna - 1
                     celdaCriterio = hoja.cell(row=fila, column=columna).value
                     if celdaCriterio is None:
-                        finalInciso = False
+                        finalInciso = True
                     inciso.puntajePosible = inciso.puntajePosible + criterio.puntajePosible
                     inciso.criterios.append(criterio)
                     db.session.commit()
@@ -176,3 +174,29 @@ def analizarArchivo(curso_id):
 @login_required
 def crear_actividadWeb(curso_id):
     return render_template("actividades/crear_actividadWeb.html", title="Crear actividad Web", curso_id=curso_id)
+
+@actividades.route("/actividades/<int:actividad_id>/descargar", methods=["GET"])
+@login_required
+def descargar_actividad(actividad_id):
+    actividad = Actividad.query.get_or_404(actividad_id)
+    semestre = Semestre.query.get_or_404(actividad.semestre_id)
+    curso = Curso.query.get_or_404(actividad.curso_id)
+    wb = Workbook()
+    dest_filename = 'ExportarActividad.xlsx'
+    ws = wb.active
+    ws.cell(column=1, row=1, value="Nombre:")
+    ws.cell(column=2, row=1, value=actividad_id.nombre)
+    ws.cell(column=1, row=2, value="Semestre:")
+    ws.cell(column=2, row=2, value=semestre.nombre)
+    ws.cell(column=1, row=3, value="ID Tarea:")
+    ws.cell(column=1, row=4, value="Creado:")
+    ws.cell(column=1, row=5, value="Curso:")
+    ws.cell(column=1, row=5, value=curso.nombre)
+    ws.cell(column=1, row=6, value="Porcentaje sobre la nota:")
+    ws.cell(column=1, row=6, value=actividad.porcentaje)
+    ws.cell(column=1, row=7, value="Nota estándar:")
+    ws.cell(column=1, row=8, value="Integrantes por grupo:")
+
+
+    wb.save(filename = dest_filename)
+    return render_template("actividades/descargar_actividad.html", title="Descargar actividad Web", actividad_id=actividad_id)

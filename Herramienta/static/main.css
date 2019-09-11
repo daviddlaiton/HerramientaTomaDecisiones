@@ -121,3 +121,24 @@ body {
   .pRol{
     margin-bottom: 0px;
   }
+
+  /* Activity descriptions*/
+ul.activityDescription,
+.activityDescription ul {
+  list-style: none;
+  padding: 0 0 0 1.5em;
+  margin: 0 0 0 0.5em;
+  border-left: 2px solid rgb(223, 220, 220);
+}
+
+.activityDescription li {
+  margin: 4px 0;
+}
+
+
+.activityDescription li:hover {
+  margin: 4px 0;
+  cursor: pointer;
+  color: blue;
+  text-decoration: underline;
+}
