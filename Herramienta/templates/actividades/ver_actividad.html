@@ -2,61 +2,128 @@
 
 {% block content %}
     <div class="row">
-        <div class="col-md-10">
+        <div class="col-md-12">
             <form action="{{ url_for('cursos.ver_curso', curso_id=curso_id) }}">
                 <input type="image" class="BackButton" src="https://image.flaticon.com/icons/svg/271/271218.svg" />
             </form>
             <br>
             {% if current_user.rol_id != 1 %}
-            <article class="media content-section">
-                <div class="media-body">
-                    <div class="article-metadata">
-                        <h3 class="mr-2">{{ actividad.nombre }} - Acciones sobre la actividad</h3>
+                <article class="media content-section">
+                    <div class="media-body">
+                        <div class="article-metadata">
+                            <h3 class="mr-2">{{ actividad.nombre }} - Acciones sobre la actividad</h3>
+                        </div>
+                        <form action="{{ url_for('actividades.modificar_actividad', actividad_id=actividad.id) }}">
+                            <button type="submit" class="btn btn-outline-info semestreActions">Modificar actividad</button>
+                        </form>
+                        <form action="{{ url_for('actividades.descargar_actividad', actividad_id=actividad.id, curso_id=curso_id) }}">
+                            <button type="submit" class="btn btn-outline-info semestreActions">Descargar actividad</button>
+                        </form>
+                        <form
+                            action="{{ url_for('actividades.eliminar_actividad', actividad_id=actividad.id, curso_id=curso_id) }}">
+                            <button type="submit" class="btn btn-outline-danger semestreActions">Eliminar actividad</button>
+                        </form>
                     </div>
-                    <form action="{{ url_for('actividades.modificar_actividad', actividad_id=actividad.id) }}">
-                        <button type="submit" class="btn btn-outline-info semestreActions">Modificar actividad</button>
-                    </form>
-                    <form action="{{ url_for('actividades.descargar_actividad', actividad_id=actividad.id) }}">
-                        <button type="submit" class="btn btn-outline-info semestreActions">Descargar actividad</button>
-                    </form>
-                    <form
-                        action="{{ url_for('actividades.eliminar_actividad', actividad_id=actividad.id, curso_id=curso_id) }}">
-                        <button type="submit" class="btn btn-outline-danger semestreActions">Eliminar actividad</button>
-                    </form>
-                </div>
-            </article>
+                </article>
             {% endif %}
 
             <article class="media content-section">
                 <div class="media-body">
-                    <div class="article-metadata">
-                        <h3 class="mr-2">{{ actividad.nombre }} - Detalles de la actividad del curso</h3>
-                    </div>
-                    <ul class="activityDescription">
+                    <h3 class="mr-2">{{ actividad.nombre }} - Detalles de la actividad del curso</h3>
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
                         {% for punto in actividad.puntos %}
-                            <li>{{ punto.nombre }} ({{ punto.puntajePosible}})</li>
-                            <ul class="activityDescription">
-                                {% for inciso in punto.incisos %}
-                                <li>{{ inciso.nombre }} ({{ inciso.puntajePosible }})</li>
-                                <ul class="activityDescription">
-                                    {% for criterio in inciso.criterios %}
-                                        <li>{{ criterio.nombre }} ({{ criterio.puntajePosible }})</li>
-                                        <ul class="activityDescription">
-                                            {% for subcriterio in criterio.subcriterios %}
-                                                <li>{{ subcriterio.nombre }} ({{ subcriterio.maximoPuntaje }})</li>
-                                                <ul class="activityDescription">
-                                                    {% for variacion in subcriterio.variaciones %}
-                                                        <li>{{ variacion.descripcion }} ({{ variacion.puntaje}})</li>
-                                                    {% endfor %}
-                                                </ul>
-                                            {% endfor %}
-                                        </ul>
-                                    {% endfor %}
-                                </ul>
-                                {% endfor %}
-                            </ul>
+                            <li class="nav-item">
+                                <a class="nav-link activityDescription" id="home-tab" data-toggle="tab"
+                                    href={{'#punto' + punto.id|string}} role="tab"
+                                    aria-selected="true">{{ punto.nombre }}</a>
+                            </li>
                         {% endfor %}
+                        <li class="nav-item">
+                            <a class="nav-link activityDescription" id="home-tab" data-toggle="tab" href="#anadirPunto"
+                                role="tab" aria-selected="true">Añadir punto</a>
+                        </li>
                     </ul>
+                    <div class="tab-content" id="myTabContent">
+                        {% for punto in actividad.puntos %}
+                        <div class="tab-pane fade" id={{"punto" + punto.id|string}}
+                            role="tabpanel">
+                            <div class="accordion" id="accordionIncisos">
+                                {% for inciso in punto.incisos %}
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h2 class="mb-0">
+                                            <button class="btn" type="button" data-toggle="collapse"
+                                                data-target={{"#inciso" + inciso.id|string + "delPunto" + punto.id|string}} aria-expanded="true" aria-controls={{"#inciso" + inciso.id|string + "delPunto" + punto.id|string }}>
+                                                {{ inciso.nombre }}
+                                            </button>
+                                        </h2>
+                                    </div>
+                                    <div id={{"inciso" + inciso.id|string + "delPunto" + punto.id|string}} class="collapse" aria-labelledby="headingOne"
+                                        data-parent="#accordionIncisos">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-2">
+                                                    <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                                                        {% for criterio in inciso.criterios %}                                                  
+                                                            <a class="nav-link incisoDescription" id={{"criterio" + criterio.id|string + "-tab"}} data-toggle="pill" href={{"#criterio" + criterio.id|string}}  role="tab" aria-controls={{"criterio" + criterio.id|string}} aria-selected="false">{{criterio.nombre}}</a>                                
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                                <div class="col-10">
+                                                    <div class="tab-content" id="v-pills-tabContent">
+                                                        {% for criterio in inciso.criterios %}                                                                                                        
+                                                            <div class="tab-pane fade" id={{"criterio" + criterio.id|string}} role="tabpanel" aria-labelledby={{"criterio" + criterio.id|string + "-tab"}}>
+                                                                    <div class="row">
+                                                                            <div class="col-5">
+                                                                                <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                                                                                    {% for subcriterio in criterio.subcriterios %}                                                  
+                                                                                        <a class="nav-link subincisoDescription" id={{"subcriterio" + subcriterio.id|string + "-tab"}} data-toggle="pill" href={{"#subcriterio" + subcriterio.id|string}}  role="tab" aria-controls={{"subcriterio" + subcriterio.id|string}} aria-selected="false">{{subcriterio.nombre}}</a>                                
+                                                                                    {% endfor %}
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-7 ">
+                                                                                <div class="tab-content" id="v-pills-tabContent">
+                                                                                    {% for subcriterio in criterio.subcriterios %}                                                                                                        
+                                                                                        <div class="tab-pane fade" id={{"subcriterio" + subcriterio.id|string}} role="tabpanel" aria-labelledby={{"subcriterio" + subcriterio.id|string + "-tab"}}>
+                                                                                            ...
+                                                                                        </div>                                                                           
+                                                                                    {% endfor %}
+                                                                                </div> 
+                                                                            </div>
+                                                                        </div>
+                                                            </div>                                                                           
+                                                        {% endfor %}
+                                                    </div> 
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                        <div class="tab-pane fade" id="anadirPunto" role="tabpanel">
+                            <div class="accordion">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h2 class="mb-0">
+                                            <button class="btn collapsed" type="button" data-toggle="collapse"
+                                                data-target="#collapseAnadirPunto" aria-expanded="true" aria-controls="collapseOne">
+                                                Añadir punto
+                                            </button>
+                                        </h2>
+                                    </div>
+                                    <div id="collapseAnadirPunto" class="collapse show" aria-labelledby="headingOne"
+                                        data-parent="#accordionExample">
+                                        <div class="card-body">
+                                            Aquí se añade el punto
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </article>
         </div>

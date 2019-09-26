@@ -122,23 +122,33 @@ body {
     margin-bottom: 0px;
   }
 
-  /* Activity descriptions*/
-ul.activityDescription,
-.activityDescription ul {
-  list-style: none;
-  padding: 0 0 0 1.5em;
-  margin: 0 0 0 0.5em;
-  border-left: 2px solid rgb(223, 220, 220);
+.activityDescription{
+  color: #555555;
 }
 
-.activityDescription li {
-  margin: 4px 0;
+.activityDescription:hover {
+  color: #555555;  
+  text-decoration: none;
 }
 
+.incisoDescription {
+  color: #555555;  
+}
 
-.activityDescription li:hover {
-  margin: 4px 0;
-  cursor: pointer;
-  color: blue;
-  text-decoration: underline;
+.incisoDescription:hover {
+  color: #555555;  
+  text-decoration: none;
+}
+
+.subincisoDescription {
+  color: #555555;  
+}
+
+.subincisoDescription:hover {
+  color: #555555;  
+  text-decoration: none;
+}
+
+.nav-pills .nav-link.active, .nav-pills .show>.nav-link {
+  background-color: #d1d1d1
 }

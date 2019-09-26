@@ -11,3 +11,6 @@ class CrearActividadArchivoForm(FlaskForm):
 
 class EliminarActividad(FlaskForm) :
     submit = SubmitField("Eliminar actividad") 
+
+class DescargarActividad(FlaskForm) :
+    submit = SubmitField("Descargar actividad") 
