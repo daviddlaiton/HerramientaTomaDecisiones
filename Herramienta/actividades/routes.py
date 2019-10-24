@@ -21,19 +21,11 @@ def eliminar_actividad(actividad_id, curso_id):
     user = Usuario.query.filter_by(id=user_id).first()
     if user.rol_id == 1:
         abort(403)
-    actividad = Actividad.query.get_or_404(actividad_id)
-    curso_idEliminar = actividad.curso_id
-    semestre_idEliminar = actividad.semestre_id
-    curso = Curso.query.get_or_404(curso_idEliminar)
-    semestre = Semestre.query.get_or_404(semestre_idEliminar)
     form = EliminarActividad()
     if form.validate_on_submit():
-        curso.actividades.remove(actividad)
-        semestre.actividades.remove(actividad)
-        db.session.delete(actividad)
-        db.session.commit()
+        eliminarActividad(actividad_id)
         flash(f"Semestre eliminado exitosamente", "success")
-        return redirect(url_for("cursos.ver_curso", curso_id=curso.id))
+        return redirect(url_for("cursos.ver_curso", curso_id=curso_id))
     return render_template("actividades/eliminar_actividad.html", title="Eliminar actividad", curso_id=curso_id, actividad_id=actividad_id, form=form)
 
 @actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/modificar", methods=["GET", "POST"])
@@ -256,3 +248,36 @@ def descargar_actividad(actividad_id,curso_id):
                      attachment_filename='ExportarActividad.xlsx',
                      as_attachment=True)
     return render_template("actividades/descargar_actividad.html", title="Descargar actividad Web", actividad_id=actividad_id, curso_id=curso_id, form=form)
+
+def eliminarActividad(actividad_id):
+    actividad = Actividad.query.get_or_404(actividad_id)
+
+    for punto in actividad.puntos:
+        #-------------------------------------------------------------------
+        for inciso in punto.incisos:
+            #-------------------------------------------------------------------
+            for criterio in inciso.criterios:
+                #-------------------------------------------------------------------
+                for subcriterio in criterio.subcriterios:
+                    #-------------------------------------------------------------------
+                    for variacion in subcriterio.variaciones:
+                        db.session.delete(variacion)
+                        db.session.commit()
+                    #-------------------------------------------------------------------
+                    db.session.delete(subcriterio)
+                    db.session.commit()
+                #-------------------------------------------------------------------
+                db.session.delete(criterio)
+                db.session.commit()
+            #-------------------------------------------------------------------
+            db.session.delete(inciso)
+            db.session.commit()
+        #-------------------------------------------------------------------
+        db.session.delete(punto)
+        db.session.commit()
+    
+    db.session.delete(actividad)
+    db.session.commit()
+
+                        
+        

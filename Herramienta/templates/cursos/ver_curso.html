@@ -62,11 +62,10 @@
                             {% endif %}
                             <h4>Lista de actividades:</h4>
                             <ul style="list-style-type:disc;" class="cursosListInSemestre">
-                                    {% for semestre in curso.semestres %}
-                                        {% if not semestre.actividades %}
+                                        {% if not curso.actividades  %}
                                             <li>Ninguna</li>
                                         {% else %}
-                                            {% for actividad in semestre.actividades %}
+                                            {% for actividad in curso.actividades %}
                                                 <li>
                                                     <div class="cursoTextButtonLayout">
                                                         {{ actividad.nombre }}
@@ -79,7 +78,6 @@
                                                 </li>
                                             {% endfor %}
                                         {% endif %}
-                                    {% endfor %}
                             </ul>
                     </div>
                 </article>

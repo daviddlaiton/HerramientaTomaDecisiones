@@ -13,7 +13,7 @@
                         <div class="article-metadata">
                             <h3 class="mr-2">{{ actividad.nombre }} - Acciones sobre la actividad</h3>
                         </div>
-                        <form action="{{ url_for('actividades.modificar_actividad', actividad_id=actividad.id) }}">
+                        <form action="{{ url_for('actividades.modificar_actividad', actividad_id=actividad.id, curso_id=curso_id) }}">
                             <button type="submit" class="btn btn-outline-info semestreActions">Modificar actividad</button>
                         </form>
                         <form action="{{ url_for('actividades.descargar_actividad', actividad_id=actividad.id, curso_id=curso_id) }}">
