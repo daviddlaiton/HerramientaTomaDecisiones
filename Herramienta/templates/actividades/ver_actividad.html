@@ -11,10 +11,16 @@
                 <article class="media content-section">
                     <div class="media-body">
                         <div class="article-metadata">
-                            <h3 class="mr-2">{{ actividad.nombre }} - Acciones sobre la actividad</h3>
+                            <h4 class="mr-2">{{ actividad.nombre }} - Acciones sobre la actividad</h4>
                         </div>
-                        <form action="{{ url_for('actividades.modificar_actividad', actividad_id=actividad.id, curso_id=curso_id) }}">
-                            <button type="submit" class="btn btn-outline-info semestreActions">Modificar actividad</button>
+                        <p class="estadoTextHeader"><strong>Estado de la actividad: </strong></p>
+                        {% if actividad.habilitada %}
+                            <p class="estadoText">Habilitada</p>
+                        {% else %}
+                            <p class="estadoText">Deshabilitada</p>
+                        {% endif%}
+                        <form action="{{ url_for('actividades.cambiarEstado_actividad', actividad_id=actividad.id, curso_id=curso_id) }}">
+                            <button type="submit" class="btn btn-outline-info semestreActions">Cambiar estado actividad</button>
                         </form>
                         <form action="{{ url_for('actividades.descargar_actividad', actividad_id=actividad.id, curso_id=curso_id) }}">
                             <button type="submit" class="btn btn-outline-info semestreActions">Descargar actividad</button>
@@ -29,7 +35,7 @@
 
             <article class="media content-section">
                 <div class="media-body">
-                    <h3 class="mr-2">{{ actividad.nombre }} - Detalles de la actividad del curso</h3>
+                    <h4 class="mr-2">{{ actividad.nombre }} - Detalles de la actividad del curso</h4>
                     <ul class="nav nav-tabs" id="myTab" role="tablist">
                         {% for punto in actividad.puntos %}
                             <li class="nav-item">
@@ -73,24 +79,37 @@
                                                     <div class="tab-content" id="v-pills-tabContent">
                                                         {% for criterio in inciso.criterios %}                                                                                                        
                                                             <div class="tab-pane fade" id={{"criterio" + criterio.id|string}} role="tabpanel" aria-labelledby={{"criterio" + criterio.id|string + "-tab"}}>
-                                                                    <div class="row">
-                                                                            <div class="col-5">
-                                                                                <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-                                                                                    {% for subcriterio in criterio.subcriterios %}                                                  
-                                                                                        <a class="nav-link subincisoDescription" id={{"subcriterio" + subcriterio.id|string + "-tab"}} data-toggle="pill" href={{"#subcriterio" + subcriterio.id|string}}  role="tab" aria-controls={{"subcriterio" + subcriterio.id|string}} aria-selected="false">{{subcriterio.nombre}}</a>                                
-                                                                                    {% endfor %}
-                                                                                </div>
-                                                                            </div>
-                                                                            <div class="col-7 ">
-                                                                                <div class="tab-content" id="v-pills-tabContent">
-                                                                                    {% for subcriterio in criterio.subcriterios %}                                                                                                        
-                                                                                        <div class="tab-pane fade" id={{"subcriterio" + subcriterio.id|string}} role="tabpanel" aria-labelledby={{"subcriterio" + subcriterio.id|string + "-tab"}}>
-                                                                                            ...
-                                                                                        </div>                                                                           
-                                                                                    {% endfor %}
-                                                                                </div> 
-                                                                            </div>
+                                                                <div class="row">
+                                                                    <div class="col-5">
+                                                                        <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                                                                            {% for subcriterio in criterio.subcriterios %}                                                  
+                                                                                <a class="nav-link subincisoDescription" id={{"subcriterio" + subcriterio.id|string + "-tab"}} data-toggle="pill" href={{"#subcriterio" + subcriterio.id|string}}  role="tab" aria-controls={{"subcriterio" + subcriterio.id|string}} aria-selected="false">{{subcriterio.nombre}}</a>                                
+                                                                            {% endfor %}
                                                                         </div>
+                                                                    </div>
+                                                                    <div class="col-7 ">
+                                                                        <div class="tab-content" id="v-pills-tabContent">
+                                                                            {% for subcriterio in criterio.subcriterios %}                                                                                                        
+                                                                                <div class="tab-pane fade" id={{"subcriterio" + subcriterio.id|string}} role="tabpanel" aria-labelledby={{"subcriterio" + subcriterio.id|string + "-tab"}}>
+                                                                                    {% for variacion in subcriterio.variaciones %}
+                                                                                        <div class="variacionGroup">
+                                                                                            <div class="variacionText">
+                                                                                                <p>{{ variacion.descripcion }}</p>
+                                                                                            </div>
+                                                                                            <div class="variacionTextInputDiv">
+                                                                                                <input type="number" class="notaTextInput" name={{"notaSubcriterio" + subcriterio.id|string}}>
+                                                                                            </div>
+                                                                                            <div class="variacionPuntaje">
+                                                                                                <p>{{ variacion.puntaje }}</p>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    {% endfor %}
+
+                                                                                </div>                                                                           
+                                                                            {% endfor %}
+                                                                        </div> 
+                                                                    </div>
+                                                                </div>
                                                             </div>                                                                           
                                                         {% endfor %}
                                                     </div> 
@@ -117,7 +136,11 @@
                                     <div id="collapseAnadirPunto" class="collapse show" aria-labelledby="headingOne"
                                         data-parent="#accordionExample">
                                         <div class="card-body">
-                                            Aquí se añade el punto
+                                            <p>Nombre del punto a crear:</p>
+                                            <input type="text" class="crearPuntoTextInput" name="crearPunto">
+                                            <form action="{{ url_for('actividades.crear_punto', actividad_id=actividad.id, curso_id=curso_id) }}">
+                                                <button type="submit" class="btn btn-outline-info semestreActions">Crear punto</button>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>

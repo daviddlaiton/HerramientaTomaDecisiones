@@ -152,3 +152,30 @@ body {
 .nav-pills .nav-link.active, .nav-pills .show>.nav-link {
   background-color: #d1d1d1
 }
+
+ .variacionText {
+  display: inline-block;
+  width: 75%;
+ }
+
+ .variacionTextInputDiv {
+  display: inline-block;
+  position: absolute;
+  left: 80%;
+ }
+
+ .variacionPuntaje {
+  display: inline-block;
+  position: absolute;
+  left: 90%;
+ }
+
+ .notaTextInput{
+   width: 40px;
+ }
+
+ .estadoTextHeader, .estadoText {
+  display: inline-block;
+  font-size: 19px;
+ }
+

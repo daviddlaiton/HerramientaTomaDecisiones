@@ -9,8 +9,16 @@ class CrearActividadArchivoForm(FlaskForm):
     archivo = FileField(u'Archivo de Excel', validators=[FileAllowed(['xls', 'xlsx'])])
     submit = SubmitField("Crear actividad")
 
-class EliminarActividad(FlaskForm) :
+class EliminarActividad(FlaskForm):
     submit = SubmitField("Eliminar actividad") 
 
-class DescargarActividad(FlaskForm) :
+class DescargarActividad(FlaskForm):
     submit = SubmitField("Descargar actividad") 
+
+class CrearPunto(FlaskForm):
+    nombre = StringField("Nombre del punto", validators=[
+                        DataRequired(), Length(min=1, max=100)])
+    submit = SubmitField("Crear punto")
+
+class CambiarEstadoActividad(FlaskForm):
+    submit = SubmitField("Cambiar estado")

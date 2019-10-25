@@ -3,7 +3,7 @@ from flask import render_template, url_for, flash, redirect, request, Blueprint,
 from flask_login import current_user, login_required
 from Herramienta.models import Usuario, Curso, Semestre, Actividad, Punto, Inciso, Criterio, Subcriterio, Variacion
 from Herramienta import db, bcrypt
-from Herramienta.actividades.forms import CrearActividadArchivoForm, EliminarActividad, DescargarActividad
+from Herramienta.actividades.forms import CrearActividadArchivoForm, EliminarActividad, DescargarActividad, CrearPunto, CambiarEstadoActividad
 from openpyxl import load_workbook, Workbook
 
 actividades = Blueprint("actividades", __name__)
@@ -24,15 +24,23 @@ def eliminar_actividad(actividad_id, curso_id):
     form = EliminarActividad()
     if form.validate_on_submit():
         eliminarActividad(actividad_id)
-        flash(f"Semestre eliminado exitosamente", "success")
+        flash(f"Actividad eliminada exitosamente", "success")
         return redirect(url_for("cursos.ver_curso", curso_id=curso_id))
     return render_template("actividades/eliminar_actividad.html", title="Eliminar actividad", curso_id=curso_id, actividad_id=actividad_id, form=form)
 
-@actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/modificar", methods=["GET", "POST"])
+@actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/cambiarEstado", methods=["GET", "POST"])
 @login_required
-def modificar_actividad(actividad_id,curso_id):
+def cambiarEstado_actividad(actividad_id,curso_id):
     actividad = Actividad.query.get_or_404(actividad_id)
-    return render_template("actividades/ver_actividad.html", title="Ver actividad", actividad=actividad, curso_id=curso_id)
+    estadoACambiar = not actividad.habilitada
+    print(estadoACambiar)
+    form = CambiarEstadoActividad()
+    if form.validate_on_submit():
+        actividad.habilitada = estadoACambiar
+        db.session.commit()
+        flash(f"Cambio de estado de actividad realizado exitosamente", "success")
+        return redirect(url_for("actividades.ver_actividad", curso_id=curso_id, actividad_id=actividad_id))
+    return render_template("actividades/cambiarEstado_actividad.html", title="Cambiar estado actividad", actividad=actividad, curso_id=curso_id, form=form)
 
 @actividades.route("/actividades/<int:curso_id>/crearActividad")
 @login_required
@@ -279,5 +287,9 @@ def eliminarActividad(actividad_id):
     db.session.delete(actividad)
     db.session.commit()
 
-                        
-        
+@actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/crearPunto", methods=["GET","POST"])
+@login_required
+def crear_punto(curso_id,actividad_id):
+    actividad = Actividad.query.get_or_404(actividad_id)
+    # form = EliminarActividad()
+    # punto = Punto(nombre=, actividad_id=actividad.id, puntajePosible=0)

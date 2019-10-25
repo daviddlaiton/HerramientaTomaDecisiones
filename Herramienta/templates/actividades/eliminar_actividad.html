@@ -10,7 +10,8 @@
             <div class="content-section">
                 <form method="POST" action="">
                     {{ form.hidden_tag() }}
-                    <legend class="border-bottom mb-4">Eliminar actividad</legend>
+                    <legend class="border-bottom mb-2">Eliminar actividad</legend>
+                    <p>¿Desea eliminar de forma permante la actividad? Esta acción no puede deshacerse.</p>
                     <div class="form-group">
                         {{ form.submit(class="btn btn-outline-danger")}}
                     </div>
