@@ -25,8 +25,7 @@
                         <form action="{{ url_for('actividades.descargar_actividad', actividad_id=actividad.id, curso_id=curso_id) }}">
                             <button type="submit" class="btn btn-outline-info semestreActions">Descargar actividad</button>
                         </form>
-                        <form
-                            action="{{ url_for('actividades.eliminar_actividad', actividad_id=actividad.id, curso_id=curso_id) }}">
+                        <form action="{{ url_for('actividades.eliminar_actividad', actividad_id=actividad.id, curso_id=curso_id) }}">
                             <button type="submit" class="btn btn-outline-danger semestreActions">Eliminar actividad</button>
                         </form>
                     </div>
@@ -36,12 +35,16 @@
             <article class="media content-section">
                 <div class="media-body">
                     <h4 class="mr-2">{{ actividad.nombre }} - Detalles de la actividad del curso</h4>
-                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <ul class="nav nav-pills" id="myTab" role="tablist">
                         {% for punto in actividad.puntos %}
                             <li class="nav-item">
                                 <a class="nav-link activityDescription" id="home-tab" data-toggle="tab"
                                     href={{'#punto' + punto.id|string}} role="tab"
-                                    aria-selected="true">{{ punto.nombre }}</a>
+                                    aria-selected="true"><strong>Punto: </strong>{{ punto.nombre }}</a>
+                                <div class="checkCancelButtons">
+                                    <button class="checkButton"><img src="/static/icons/check.svg" alt="check image"></button>
+                                    <button class="cancelButton"><img src="/static/icons/cancel.svg" alt="cancel image"></button>
+                                </div>
                             </li>
                         {% endfor %}
                         <li class="nav-item">
@@ -58,10 +61,14 @@
                                 <div class="card">
                                     <div class="card-header">
                                         <h2 class="mb-0">
-                                            <button class="btn" type="button" data-toggle="collapse"
+                                            <button class="btn incisoButton" type="button" data-toggle="collapse"
                                                 data-target={{"#inciso" + inciso.id|string + "delPunto" + punto.id|string}} aria-expanded="true" aria-controls={{"#inciso" + inciso.id|string + "delPunto" + punto.id|string }}>
-                                                {{ inciso.nombre }}
+                                                <strong>Inciso: </strong>{{ inciso.nombre }}
                                             </button>
+                                            <div class="checkCancelButtonsInciso">
+                                                <button class="checkButtonInciso"><img src="/static/icons/check.svg" alt="check image"></button>
+                                                <button class="cancelButtonInciso"><img src="/static/icons/cancel.svg" alt="cancel image"></button>
+                                            </div>
                                         </h2>
                                     </div>
                                     <div id={{"inciso" + inciso.id|string + "delPunto" + punto.id|string}} class="collapse" aria-labelledby="headingOne"
@@ -70,8 +77,13 @@
                                             <div class="row">
                                                 <div class="col-2">
                                                     <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                                                            <p><strong>Criterio:</strong></p>
                                                         {% for criterio in inciso.criterios %}                                                  
-                                                            <a class="nav-link incisoDescription" id={{"criterio" + criterio.id|string + "-tab"}} data-toggle="pill" href={{"#criterio" + criterio.id|string}}  role="tab" aria-controls={{"criterio" + criterio.id|string}} aria-selected="false">{{criterio.nombre}}</a>                                
+                                                            <a class="nav-link incisoDescription" id={{"criterio" + criterio.id|string + "-tab"}} data-toggle="pill" href={{"#criterio" + criterio.id|string}}  role="tab" aria-controls={{"criterio" + criterio.id|string}} aria-selected="false">{{criterio.nombre}}</a> 
+                                                            <div class="checkCancelButtonsCriterio">
+                                                                <button class="checkButton"><img src="/static/icons/check.svg" alt="check image"></button>
+                                                                <button class="cancelButton"><img src="/static/icons/cancel.svg" alt="cancel image"></button>
+                                                            </div>                               
                                                         {% endfor %}
                                                     </div>
                                                 </div>
@@ -82,8 +94,13 @@
                                                                 <div class="row">
                                                                     <div class="col-5">
                                                                         <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                                                                            <p><strong>Subcriterio:</strong></p>
                                                                             {% for subcriterio in criterio.subcriterios %}                                                  
-                                                                                <a class="nav-link subincisoDescription" id={{"subcriterio" + subcriterio.id|string + "-tab"}} data-toggle="pill" href={{"#subcriterio" + subcriterio.id|string}}  role="tab" aria-controls={{"subcriterio" + subcriterio.id|string}} aria-selected="false">{{subcriterio.nombre}}</a>                                
+                                                                                <a class="nav-link subincisoDescription" id={{"subcriterio" + subcriterio.id|string + "-tab"}} data-toggle="pill" href={{"#subcriterio" + subcriterio.id|string}}  role="tab" aria-controls={{"subcriterio" + subcriterio.id|string}} aria-selected="false">{{subcriterio.nombre}}</a>
+                                                                                <div class="checkCancelButtonsCriterio">
+                                                                                    <button class="checkButton"><img src="/static/icons/check.svg" alt="check image"></button>
+                                                                                    <button class="cancelButton"><img src="/static/icons/cancel.svg" alt="cancel image"></button>
+                                                                                </div>                                  
                                                                             {% endfor %}
                                                                         </div>
                                                                     </div>
@@ -91,6 +108,17 @@
                                                                         <div class="tab-content" id="v-pills-tabContent">
                                                                             {% for subcriterio in criterio.subcriterios %}                                                                                                        
                                                                                 <div class="tab-pane fade" id={{"subcriterio" + subcriterio.id|string}} role="tabpanel" aria-labelledby={{"subcriterio" + subcriterio.id|string + "-tab"}}>
+                                                                                    <div class="variacionGroup">
+                                                                                        <div class="variacionText">
+                                                                                            <p><strong>Variación:</strong></p>
+                                                                                        </div>
+                                                                                        <div class="variacionTextInputDiv">
+                                                                                            <p><strong>Nota:</strong></p>
+                                                                                        </div>
+                                                                                        <div class="variacionPuntaje">
+                                                                                            <p><strong>Puntaje máx:</strong></p>
+                                                                                        </div>
+                                                                                    </div>
                                                                                     {% for variacion in subcriterio.variaciones %}
                                                                                         <div class="variacionGroup">
                                                                                             <div class="variacionText">
@@ -100,7 +128,7 @@
                                                                                                 <input type="number" class="notaTextInput" name={{"notaSubcriterio" + subcriterio.id|string}}>
                                                                                             </div>
                                                                                             <div class="variacionPuntaje">
-                                                                                                <p>{{ variacion.puntaje }}</p>
+                                                                                                <p class="variacionPuntajeText">{{ variacion.puntaje }}</p>
                                                                                             </div>
                                                                                         </div>
                                                                                     {% endfor %}
@@ -147,6 +175,10 @@
                             </div>
                         </div>
                     </div>
+                    <br>
+                    <form action="{{ url_for('actividades.descargar_actividad', actividad_id=actividad.id, curso_id=curso_id) }}">
+                        <button type="submit" class="btn btn-outline-info semestreActions">Guardar cambios en la actividad</button>
+                    </form>
                 </div>
             </article>
         </div>

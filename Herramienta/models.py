@@ -50,15 +50,15 @@ class Usuario(db.Model, UserMixin):
     cursos = db.relationship("Curso", secondary=cursos, lazy="subquery",
                              backref=db.backref("usuarios", lazy=True))
 
-    def get_reset_token(self, expired_sec=1800):
+    def get_token_password(self, expired_sec=172800):
         s = Serializer(current_app.config["SECRET_KEY"], expired_sec)
-        return s.dumps({"user_id": self.id}).decode("utf-8")
+        return s.dumps({"usuario_id": self.id}).decode("utf-8")
 
     @staticmethod
-    def verify_reset_token(token):
+    def verify_token_password(token):
         s = Serializer(current_app.config["SECRET_KEY"])
         try:
-            user_id = s.loads(token)["user_id"]
+            user_id = s.loads(token)["usuario_id"]
         except:
             return None
         return Usuario.query.get(user_id)

@@ -1,10 +1,13 @@
+import random
+import string
 from flask import render_template, url_for, flash, redirect, request, Blueprint, abort
 from flask_login import login_user, current_user, logout_user, login_required
 from Herramienta import db, bcrypt
 from Herramienta.models import Usuario, Rol, Curso
 from Herramienta.usuarios.forms import (RegistrationForm, LoginForm, RequestResetForm, ResetPasswordForm,
                                         EditarNombreUsuarioForm, EditarRolUsuarioForm, AgregarCursoAUsuarioForm, EliminarCursosAUsuarioForm,
-                                        EliminarUsuarioForm)
+                                        EliminarUsuarioForm, EstablecerContraseñaForm)
+from Herramienta.usuarios.utils import send_reset_email
 
 usuarios = Blueprint("usuarios", __name__)
 
@@ -19,16 +22,35 @@ def register():
     roles = [(r.id, r.nombre) for r in Rol.query.all()]
     form = RegistrationForm(request.form)
     form.rol.choices = roles
+    password = randomString(10)
     if form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(
-            form.password.data).decode("utf-8")
+        hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
         user = Usuario(login=form.login.data,
                        password=hashed_password, rol_id=form.rol.data)
         db.session.add(user)
         db.session.commit()
-        flash(f"Usuario creado exitosamente", "success")
+        usuario = Usuario.query.filter_by(login=form.login.data).first()
+        send_reset_email(usuario)
+        flash(f"Usuario creado exitosamente. Es necesario que este usuario ", "success")
         return redirect(url_for("usuarios.get_usuarios"))
     return render_template("usuarios/crear_usuario.html", title="Crear usuario", form=form)
+
+@usuarios.route("/resetPassword/<token>", methods=["GET", "POST"])
+def reset_password(token):
+    if current_user.is_authenticated:
+        return redirect(url_for('main.home'))
+    user = Usuario.verify_token_password(token)
+    if user is None:
+        flash('El token ha expirado. Comunícate con el administrador para pode generlaro de nuevo.', 'warning')
+        return redirect(url_for('main.home'))
+    form = EstablecerContraseñaForm()
+    if form.validate_on_submit():
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user.password = hashed_password
+        db.session.commit()
+        flash('La constreña ha sido definida. Ya puedes iniciar sesión.', 'success')
+        return redirect(url_for('usuarios.login'))
+    return render_template('establecer_contrasena.html', title='Reset Password', form=form)
 
 
 @usuarios.route("/login", methods=["GET", "POST"])
@@ -178,3 +200,7 @@ def eliminar_usuario(usuario_id):
         flash(f"Usuario eliminado exitosamente", "success")
         return redirect(url_for("usuarios.get_usuarios"))
     return render_template("usuarios/eliminar_usuario.html", title="Eliminar usuario", form=form, usuario=usuario)
+
+def randomString(stringLength):
+    letters = string.ascii_letters
+    return ''.join(random.choice(letters) for i in range(stringLength))

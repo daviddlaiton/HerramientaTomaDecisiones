@@ -9,10 +9,6 @@ from Herramienta.models import Usuario, Rol
 class RegistrationForm(FlaskForm):
     login = StringField("Usuario", validators=[
                         DataRequired(), Length(min=2, max=20)])
-    password = PasswordField("Contraseña", validators=[
-                             DataRequired(), Length(min=6, max=50)])
-    confirm_password = PasswordField(" Confirmar constraseña", validators=[
-                                     DataRequired(), EqualTo("password")])
     rol = SelectField("Tipo de usuario", choices=[], coerce=int)
     submit = SubmitField("Crear usuario")
 
@@ -64,3 +60,10 @@ class EliminarCursosAUsuarioForm(FlaskForm) :
 
 class EliminarUsuarioForm(FlaskForm) :
     submit = SubmitField("Eliminar usuario") 
+
+class EstablecerContraseñaForm(FlaskForm):
+    password = PasswordField("Contraseña", validators=[
+                             DataRequired(), Length(min=6, max=50)])
+    confirm_password = PasswordField(" Confirmar constraseña", validators=[
+                                     DataRequired(), EqualTo("password")])
+    submit = SubmitField("Establecer contraseña") 

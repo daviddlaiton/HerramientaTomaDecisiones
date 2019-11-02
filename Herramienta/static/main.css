@@ -155,19 +155,20 @@ body {
 
  .variacionText {
   display: inline-block;
-  width: 75%;
+  width: 65%;
  }
 
  .variacionTextInputDiv {
   display: inline-block;
   position: absolute;
-  left: 80%;
+  left: 70%;
  }
 
  .variacionPuntaje {
   display: inline-block;
   position: absolute;
-  left: 90%;
+  left: 80%;
+  text-align: center;
  }
 
  .notaTextInput{
@@ -179,3 +180,28 @@ body {
   font-size: 19px;
  }
 
+ .checkCancelButtons{ 
+   text-align: center;
+ }
+
+ .checkButton, .cancelButton {
+   background-color: white;
+   border: none;
+ }
+
+ .checkCancelButtonsInciso {
+   display: inline-block;
+ }
+
+ .checkButtonInciso, .cancelButtonInciso {
+  background-color: #F7F7F7;
+  border: none;
+}
+
+.checkCancelButtonsCriterio {
+  margin-left: 5px;
+}
+
+.incisoButton,.incisoDescription {
+  display: inline-block;
+}
