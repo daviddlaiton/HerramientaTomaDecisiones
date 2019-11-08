@@ -1,8 +1,7 @@
-import os
-import secrets
 from flask import url_for, current_app
 from flask_mail import Message
 from Herramienta import mail
+from fpdf import FPDF
 
 def send_reset_email(user):
     token = user.get_token_password()

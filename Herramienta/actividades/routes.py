@@ -3,8 +3,9 @@ from flask import render_template, url_for, flash, redirect, request, Blueprint,
 from flask_login import current_user, login_required
 from Herramienta.models import Usuario, Curso, Semestre, Actividad, Punto, Inciso, Criterio, Subcriterio, Variacion
 from Herramienta import db, bcrypt
-from Herramienta.actividades.forms import CrearActividadArchivoForm, EliminarActividad, DescargarActividad, CrearPunto, CambiarEstadoActividad
+from Herramienta.actividades.forms import CrearActividadArchivoForm, EliminarActividad, DescargarActividad, CrearPunto, CambiarEstadoActividad, EnviarReportes
 from openpyxl import load_workbook, Workbook
+from Herramienta.actividades.utils import send_reports
 
 actividades = Blueprint("actividades", __name__)
 
@@ -293,3 +294,14 @@ def crear_punto(curso_id,actividad_id):
     actividad = Actividad.query.get_or_404(actividad_id)
     # form = EliminarActividad()
     # punto = Punto(nombre=, actividad_id=actividad.id, puntajePosible=0)
+
+@actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/enviarInformes", methods=["GET","POST"])
+@login_required
+def enviar_informes(curso_id,actividad_id):
+    actividad = Actividad.query.get_or_404(actividad_id)
+    form = EnviarReportes()
+    if form.validate_on_submit():
+        send_reports(actividad)
+        flash(f"Informes enviados exitosamente", "success")
+        return render_template("actividades/ver_actividad.html", title="Ver actividad", actividad=actividad, curso_id=curso_id)
+    return render_template("actividades/enviarReportes.html", title="Enviar reportes", actividad_id=actividad_id, curso_id=curso_id, form=form)

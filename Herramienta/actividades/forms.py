@@ -22,3 +22,6 @@ class CrearPunto(FlaskForm):
 
 class CambiarEstadoActividad(FlaskForm):
     submit = SubmitField("Cambiar estado")
+
+class EnviarReportes(FlaskForm):
+    submit = SubmitField("Enviar reportes")
