@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
 
+
 {% block content %}
 <div class="row">
     <div class="col-md-3"></div>
@@ -8,58 +9,33 @@
             <form method="POST" action="">
                 {{ form.hidden_tag() }}
                 <fieldset class="form-group">
-                    <legend class="border-bottom mb-2">Crear usuario</legend>
-                    {% extends "layout.html" %}
-
-                    {% block content %}
-                    <div class="row">
-                        <div class="col-md-3"></div>
-                        <div class="col-md-5">
-                            <div class="content-section">
-                                <form method="POST" action="">
-                                    {{ form.hidden_tag() }}
-                                    <fieldset class="form-group">
-                                        <legend class="border-bottom mb-2">Crear usuario</legend>
-                                        <p>Por favor ingresar el usuario del correo Uniandes y el tipo de usuario a
-                                            crear</p>
-                                        <div class="form-group">
-                                            {{ form.login.label(class="form-control-label") }}
-
-                                            {% if form.login.errors %}
-                                            {{ form.login(class="form-control form-control-lg is-invalid") }}
-                                            <div class="invalid-feedbakc">
-                                                {% for error in form.login.errors%}
-                                                <span>{{ error }}</span>
-                                                {% endfor %}
-                                            </div>
-                                            {% else %}
-                                            {{ form.login(class="form-control form-control-lg") }}
-                                            {% endif %}
-
-                                        </div>
-                                        <div class="form-group">
-                                            {{ form.rol.label(class="form-control-label") }}
-                                            {% if form.rol.errors %}
-                                            {{ form.rol(class="form-control form-control-lg is-invalid") }}
-                                            <div class="invalid-feedbakc">
-                                                {% for error in form.rol.errors%}
-                                                <span>{{ error }}</span>
-                                                {% endfor %}
-                                            </div>
-                                            {% else %}
-                                            <br>
-                                            {{ form.rol(size=1, maxlength=50,class="form-control form-control-lg") }}
-                                            {% endif %}
-                                        </div>
-                                    </fieldset>
-                                    <div class="form-group">
-                                        {{ form.submit(class="btn btn-outline-info")}}
-                                    </div>
-                                </form>
-                            </div>
+                    <legend class="border-bottom mb-2">Establecer contraseña</legend>
+                    <div class="form-group">
+                        {{ form.password.label(class="form-control-label") }}
+                        {% if form.password.errors %}
+                        {{ form.password(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedbakc">
+                            {% for error in form.password.errors%}
+                            <span>{{ error }}</span>
+                            {% endfor %}
                         </div>
+                        {% else %}
+                        {{ form.password(class="form-control form-control-lg") }}
+                        {% endif %}
                     </div>
-                    {% endblock content %}
+                    <div class="form-group">
+                        {{ form.confirm_password.label(class="form-control-label") }}
+                        {% if form.confirm_password.errors %}
+                        {{ form.confirm_password(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedbakc">
+                            {% for error in form.confirm_password.errors%}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        {{ form.confirm_password(class="form-control form-control-lg") }}
+                        {% endif %}
+                    </div>
                 </fieldset>
                 <div class="form-group">
                     {{ form.submit(class="btn btn-outline-info")}}

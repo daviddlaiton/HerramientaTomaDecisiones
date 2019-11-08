@@ -31,7 +31,7 @@ def register():
         db.session.commit()
         usuario = Usuario.query.filter_by(login=form.login.data).first()
         send_reset_email(usuario)
-        flash(f"Usuario creado exitosamente. Es necesario que este usuario ", "success")
+        flash(f"Usuario creado exitosamente. Es necesario que este usuario establezca su propia contraseña. Para esto cuenta con 2 días. Pasado este tiempo es necesario que el administrador vuelva a crear tu usuario. ", "success")
         return redirect(url_for("usuarios.get_usuarios"))
     return render_template("usuarios/crear_usuario.html", title="Crear usuario", form=form)
 
@@ -50,7 +50,7 @@ def reset_password(token):
         db.session.commit()
         flash('La constreña ha sido definida. Ya puedes iniciar sesión.', 'success')
         return redirect(url_for('usuarios.login'))
-    return render_template('establecer_contrasena.html', title='Reset Password', form=form)
+    return render_template('usuarios/establecerContrasena.html', title='Reset Password', form=form)
 
 
 @usuarios.route("/login", methods=["GET", "POST"])
