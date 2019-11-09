@@ -17,7 +17,7 @@ Equipo de Asistentes y Profesores
 Opti.
 '''
     create_pdf(actividad)
-    with app.open_resource("../Herramienta/static/files/simple_demo.pdf") as fp:
+    with app.open_resource("./files/simple_demo.pdf") as fp:
         msg.attach(
         "simple_demo.pdf",
         'application/pdf',
@@ -28,6 +28,15 @@ Opti.
 def create_pdf(actividad):
     pdf = FPDF()
     pdf.add_page()
-    pdf.set_font("Arial", size=12)
-    pdf.cell(200, 10, txt="Welcome to Python!", ln=1, align="C")
-    pdf.output("Herramienta/static/files/simple_demo.pdf")
+    pdf.set_font("Times", "B",size=12)
+    pdf.image("Herramienta/static/images/Uniandes_logo.png", x=10, y=8, w=30)
+    pdf.cell(42)
+    pdf.cell(40, 5, txt="Criterios de calificación", ln=1)
+    pdf.cell(42)
+    pdf.cell(40, 5, txt="UNIVERSIDAD DE LOS ANDES", ln=1)
+    pdf.cell(42)
+    pdf.cell(40, 5, txt="DEPARTAMENTO DE INGENIERIA INDUSTRIAL", ln=1)
+    pdf.cell(42)
+    pdf.set_font("Times",size=12)
+    pdf.cell(40, 5, txt=actividad.nombre, ln=1)
+    pdf.output("Herramienta/actividades/files/simple_demo.pdf")
