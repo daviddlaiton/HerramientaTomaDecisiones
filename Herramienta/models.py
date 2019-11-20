@@ -1,3 +1,5 @@
+import json
+from json import JSONEncoder
 from datetime import datetime
 from Herramienta import db, login_manager
 from flask_login import UserMixin
@@ -144,8 +146,7 @@ class Actividad(db.Model):
     puntos = db.relationship("Punto", backref="actividad")
 
     def __repr__(self):
-        return f"Actividad:'{self.nombre}' Semestre:'{self.semestre_id}' Curso: '{self.curso_id}', Puntos:'{self.puntos}')"
-
+        return f"Actividad:'{self.nombre}', Semestre:'{self.semestre_id}', Curso: '{self.curso_id}', Puntos:'{self.puntos}')"
 
 class Punto(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -167,6 +168,8 @@ class Inciso(db.Model):
     punto_id = db.Column(db.Integer, db.ForeignKey(
         "punto.id"), nullable=False)
 
+    def __repr__(self):
+            return f"Punto('{self.nombre}', '{self.incisos}')"
 
 class Criterio(db.Model):
     id = db.Column(db.Integer, primary_key=True)

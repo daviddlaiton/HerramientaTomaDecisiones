@@ -7,49 +7,21 @@
                 <input type="image" class="BackButton" src="https://image.flaticon.com/icons/svg/271/271218.svg" />
             </form>
             <br>
-            {% if current_user.rol_id != 1 %}
-                <article class="media content-section">
-                    <div class="media-body">
-                        <div class="article-metadata">
-                            <h4 class="mr-2">{{ actividad.nombre }} - Acciones sobre la actividad</h4>
-                        </div>
-                        <p class="estadoTextHeader"><strong>Estado de la actividad: </strong></p>
-                        {% if actividad.habilitada %}
-                            <p class="estadoText">Habilitada</p>
-                        {% else %}
-                            <p class="estadoText">Deshabilitada</p>
-                        {% endif%}
-                        <form action="{{ url_for('actividades.cambiarEstado_actividad', actividad_id=actividad.id, curso_id=curso_id) }}">
-                            <button type="submit" class="btn btn-outline-info semestreActions">Cambiar estado actividad</button>
-                        </form>
-                        <form action="{{ url_for('actividades.enviar_informes', actividad_id=actividad.id, curso_id=curso_id) }}">
-                            <button type="submit" class="btn btn-outline-info semestreActions">Enviar informes</button>
-                        </form>
-                        <form action="{{ url_for('actividades.descargar_actividad', actividad_id=actividad.id, curso_id=curso_id) }}">
-                            <button type="submit" class="btn btn-outline-info semestreActions">Descargar actividad</button>
-                        </form>
-                        <form action="{{ url_for('actividades.eliminar_actividad', actividad_id=actividad.id, curso_id=curso_id) }}">
-                            <button type="submit" class="btn btn-outline-danger semestreActions">Eliminar actividad</button>
-                        </form>
-                    </div>
-                </article>
-            {% endif %}
-
             <article class="media content-section">
                 <div class="media-body">
-                    <h4 class="mr-2">{{ actividad.nombre }} - Detalles de la actividad del curso</h4>
+                    <h4 class="mr-2">{{ actividad.nombre }} - Calificar actividad</h4>
                     <ul class="nav nav-pills" id="myTab" role="tablist">
                         {% for punto in actividad.puntos %}
                             <li class="nav-item">
                                 <a class="nav-link activityDescription" id="home-tab" data-toggle="tab"
                                     href={{'#punto' + punto.id|string}} role="tab"
                                     aria-selected="true"><strong>Punto: </strong>{{ punto.nombre }}</a>
+                                <div class="checkCancelButtons">
+                                    <button class="checkButton"><img src="/static/icons/check.svg" alt="check image"></button>
+                                    <button class="cancelButton"><img src="/static/icons/cancel.svg" alt="cancel image"></button>
+                                </div>
                             </li>
                         {% endfor %}
-                        <li class="nav-item">
-                            <a class="nav-link activityDescription" id="home-tab" data-toggle="tab" href="#anadirPunto"
-                                role="tab" aria-selected="true">Añadir punto</a>
-                        </li>
                     </ul>
                     <div class="tab-content" id="myTabContent">
                         {% for punto in actividad.puntos %}
@@ -64,6 +36,10 @@
                                                 data-target={{"#inciso" + inciso.id|string + "delPunto" + punto.id|string}} aria-expanded="true" aria-controls={{"#inciso" + inciso.id|string + "delPunto" + punto.id|string }}>
                                                 <strong>Inciso: </strong>{{ inciso.nombre }}
                                             </button>
+                                            <div class="checkCancelButtonsInciso">
+                                                <button class="checkButtonInciso"><img src="/static/icons/check.svg" alt="check image" onclick={{"todoIncisoCorrecto(" + inciso.id|string + ")"}}></button>
+                                                <button class="cancelButtonInciso"><img src="/static/icons/cancel.svg" alt="cancel image"></button>
+                                            </div>
                                         </h2>
                                     </div>
                                     <div id={{"inciso" + inciso.id|string + "delPunto" + punto.id|string}} class="collapse" aria-labelledby="headingOne"
@@ -74,7 +50,11 @@
                                                     <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
                                                             <p><strong>Criterio:</strong></p>
                                                         {% for criterio in inciso.criterios %}                                                  
-                                                            <a class="nav-link incisoDescription" id={{"criterio" + criterio.id|string + "-tab"}} data-toggle="pill" href={{"#criterio" + criterio.id|string}}  role="tab" aria-controls={{"criterio" + criterio.id|string}} aria-selected="false">{{criterio.nombre}}</a>                              
+                                                            <a class="nav-link incisoDescription" id={{"criterio" + criterio.id|string + "-tab"}} data-toggle="pill" href={{"#criterio" + criterio.id|string}}  role="tab" aria-controls={{"criterio" + criterio.id|string}} aria-selected="false">{{criterio.nombre}}</a> 
+                                                            <div class="checkCancelButtonsCriterio">
+                                                                <button class="checkButton"><img src="/static/icons/check.svg" alt="check image"></button>
+                                                                <button class="cancelButton"><img src="/static/icons/cancel.svg" alt="cancel image"></button>
+                                                            </div>                               
                                                         {% endfor %}
                                                     </div>
                                                 </div>
@@ -87,7 +67,11 @@
                                                                         <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
                                                                             <p><strong>Subcriterio:</strong></p>
                                                                             {% for subcriterio in criterio.subcriterios %}                                                  
-                                                                                <a class="nav-link subincisoDescription" id={{"subcriterio" + subcriterio.id|string + "-tab"}} data-toggle="pill" href={{"#subcriterio" + subcriterio.id|string}}  role="tab" aria-controls={{"subcriterio" + subcriterio.id|string}} aria-selected="false">{{subcriterio.nombre}}</a>                               
+                                                                                <a class="nav-link subincisoDescription" id={{"subcriterio" + subcriterio.id|string + "-tab"}} data-toggle="pill" href={{"#subcriterio" + subcriterio.id|string}}  role="tab" aria-controls={{"subcriterio" + subcriterio.id|string}} aria-selected="false">{{subcriterio.nombre}}</a>
+                                                                                <div class="checkCancelButtonsCriterio">
+                                                                                    <button class="checkButton"><img src="/static/icons/check.svg" alt="check image"></button>
+                                                                                    <button class="cancelButton"><img src="/static/icons/cancel.svg" alt="cancel image"></button>
+                                                                                </div>                                  
                                                                             {% endfor %}
                                                                         </div>
                                                                     </div>
@@ -99,21 +83,26 @@
                                                                                         <div class="variacionText">
                                                                                             <p><strong>Variación:</strong></p>
                                                                                         </div>
+                                                                                        <div class="variacionTextInputDiv">
+                                                                                            <p><strong>Nota:</strong></p>
+                                                                                        </div>
                                                                                         <div class="variacionPuntaje">
                                                                                             <p><strong>Puntaje máx:</strong></p>
                                                                                         </div>
                                                                                     </div>
                                                                                     {% for variacion in subcriterio.variaciones %}
                                                                                         <div class="variacionGroup">
-                                                                                            <div class="variacionText">
+                                                                                            <div class="variacionText" id={{"variacion" + variacion.id|string}}>
                                                                                                 <p>{{ variacion.descripcion }}</p>
+                                                                                            </div>
+                                                                                            <div class="variacionTextInputDiv">
+                                                                                                <input type="number" class="notaTextInput" name={{"notaVariacion" + variacion.id|string}}>
                                                                                             </div>
                                                                                             <div class="variacionPuntaje">
                                                                                                 <p class="variacionPuntajeText">{{ variacion.puntaje }}</p>
                                                                                             </div>
                                                                                         </div>
                                                                                     {% endfor %}
-
                                                                                 </div>                                                                           
                                                                             {% endfor %}
                                                                         </div> 
@@ -131,37 +120,20 @@
                             </div>
                         </div>
                         {% endfor %}
-                        <div class="tab-pane fade" id="anadirPunto" role="tabpanel">
-                            <div class="accordion">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h2 class="mb-0">
-                                            <button class="btn collapsed" type="button" data-toggle="collapse"
-                                                data-target="#collapseAnadirPunto" aria-expanded="true" aria-controls="collapseOne">
-                                                Añadir punto
-                                            </button>
-                                        </h2>
-                                    </div>
-                                    <div id="collapseAnadirPunto" class="collapse show" aria-labelledby="headingOne"
-                                        data-parent="#accordionExample">
-                                        <div class="card-body">
-                                            <p>Nombre del punto a crear:</p>
-                                            <input type="text" class="crearPuntoTextInput" name="crearPunto">
-                                            <form action="{{ url_for('actividades.crear_punto', actividad_id=actividad.id, curso_id=curso_id) }}">
-                                                <button type="submit" class="btn btn-outline-info semestreActions">Crear punto</button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                     <br>
                     <form action="{{ url_for('actividades.descargar_actividad', actividad_id=actividad.id, curso_id=curso_id) }}">
-                        <button type="submit" class="btn btn-outline-info semestreActions">Guardar cambios en la actividad</button>
+                        <button type="submit" class="btn btn-outline-info semestreActions">Guardar cambios en la calificación</button>
                     </form>
                 </div>
             </article>
         </div>
     </div>
+    <script>
+        function todoIncisoCorrecto(id) {
+            console.log(id);
+            let user = JSON.parse('{{ actividadJSON| tojson | safe}}');
+            console.log(user);
+        }
+    </script>
 {% endblock content %}

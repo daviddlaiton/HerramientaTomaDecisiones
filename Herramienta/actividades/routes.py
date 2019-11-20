@@ -1,4 +1,3 @@
-import os
 from flask import render_template, url_for, flash, redirect, request, Blueprint, abort, current_app, send_file
 from flask_login import current_user, login_required
 from Herramienta.models import Usuario, Curso, Semestre, Actividad, Punto, Inciso, Criterio, Subcriterio, Variacion
@@ -14,6 +13,50 @@ actividades = Blueprint("actividades", __name__)
 def ver_actividad(actividad_id,curso_id):
     actividad = Actividad.query.get_or_404(actividad_id)
     return render_template("actividades/ver_actividad.html", title="Ver actividad", actividad=actividad, curso_id=curso_id)
+
+@actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/calificar", methods=["GET", "POST"])
+@login_required
+def calificar_actividad(actividad_id,curso_id):
+    actividad = Actividad.query.get_or_404(actividad_id)
+    puntos = []
+    for punto in actividad.puntos:
+        incisos = []
+        for inciso in punto.incisos:
+            criterios = []
+            for criterio in inciso.criterios:
+                subcriterios = []
+                for subcriterio in criterio.subcriterios:
+                    variaciones = []
+                    for variacion in subcriterio.variaciones:
+                        variacionJSON = {
+                            "id" : variacion.id
+                        }
+                        variaciones.append(variacionJSON)
+                    subcriterioJSON = {
+                        "id" : subcriterio.id,
+                        "variaciones" : variaciones
+                    }
+                    subcriterios.append(subcriterioJSON)
+                criterioJSON = {
+                    "id" : criterio.id,
+                    "subcriterios" : subcriterios
+                }
+                criterios.append(criterioJSON)
+            incisoJSON = {
+                "id" : inciso.id,
+                "criterios" : criterios
+            }
+            incisos.append(incisoJSON)
+        puntoJSON = {
+            "id" : punto.id,
+            "incisos" : incisos
+        }
+        puntos.append(puntoJSON)
+    actividadToJson = {
+        "id" : actividad.id,
+        "puntos" : puntos
+    }
+    return render_template("actividades/calificar_actividad.html", title="Calificar actividad", actividad=actividad, curso_id=curso_id, actividadJSON = actividadToJson)
 
 @actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/eliminar", methods=["GET", "POST"])
 @login_required
