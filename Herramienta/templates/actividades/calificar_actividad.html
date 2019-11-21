@@ -17,8 +17,8 @@
                                     href={{'#punto' + punto.id|string}} role="tab"
                                     aria-selected="true"><strong>Punto: </strong>{{ punto.nombre }}</a>
                                 <div class="checkCancelButtons">
-                                    <button class="checkButton"><img src="/static/icons/check.svg" alt="check image"></button>
-                                    <button class="cancelButton"><img src="/static/icons/cancel.svg" alt="cancel image"></button>
+                                    <button class="checkButton"><img src="/static/icons/check.svg" alt="check image" onclick={{"corregirPunto(" + punto.id|string + ",'correcto'" +")"}}></button>
+                                    <button class="cancelButton"><img src="/static/icons/cancel.svg" alt="cancel image" onclick={{"corregirPunto(" + punto.id|string + ",'incorrecto'" +")"}}></button>
                                 </div>
                             </li>
                         {% endfor %}
@@ -37,7 +37,7 @@
                                                 <strong>Inciso: </strong>{{ inciso.nombre }}
                                             </button>
                                             <div class="checkCancelButtonsInciso">
-                                                <button class="checkButtonInciso"><img src="/static/icons/check.svg" alt="check image" onclick={{"todoIncisoCorrecto(" + inciso.id|string + ")"}}></button>
+                                                <button class="checkButtonInciso"><img src="/static/icons/check.svg" alt="check image" onclick={{"corregirInciso(" + inciso.id|string + ")"}}></button>
                                                 <button class="cancelButtonInciso"><img src="/static/icons/cancel.svg" alt="cancel image"></button>
                                             </div>
                                         </h2>
@@ -87,7 +87,7 @@
                                                                                             <p><strong>Nota:</strong></p>
                                                                                         </div>
                                                                                         <div class="variacionPuntaje">
-                                                                                            <p><strong>Puntaje máx:</strong></p>
+                                                                                            <p><strong>Puntaje:</strong></p>
                                                                                         </div>
                                                                                     </div>
                                                                                     {% for variacion in subcriterio.variaciones %}
@@ -96,7 +96,7 @@
                                                                                                 <p>{{ variacion.descripcion }}</p>
                                                                                             </div>
                                                                                             <div class="variacionTextInputDiv">
-                                                                                                <input type="number" class="notaTextInput" name={{"notaVariacion" + variacion.id|string}}>
+                                                                                                <input type="number" class="notaTextInput" id={{"notaVariacion" + variacion.id|string}}  name={{"notaVariacion" + variacion.id|string}}>
                                                                                             </div>
                                                                                             <div class="variacionPuntaje">
                                                                                                 <p class="variacionPuntajeText">{{ variacion.puntaje }}</p>
@@ -130,10 +130,54 @@
         </div>
     </div>
     <script>
-        function todoIncisoCorrecto(id) {
-            console.log(id);
-            let user = JSON.parse('{{ actividadJSON| tojson | safe}}');
-            console.log(user);
+
+        function corregirPunto(id,tipo) {
+            let acabo = false;
+            let actividad = JSON.parse('{{ actividadJSON | tojson | safe}}');
+            for (interadorPunto = 0; interadorPunto < actividad.puntos.length; interadorPunto++){
+                let punto = actividad.puntos[interadorPunto];
+                if (punto.id === id){
+                    crearElementosEnHTML(punto, "punto", tipo);
+                    acabo = true;
+                }
+                if(acabo){
+                    break
+                }
+            }
+        }
+
+        function corregirInciso(id){
+            console.log("holandas")
+        }
+
+        function crearElementosEnHTML(elemento, tipoDeElemento, tipo) {
+            switch(tipoDeElemento){
+                case "punto":
+                    elemento.incisos.forEach(inciso => {
+                        inciso.criterios.forEach(criterio => {
+                            criterio.subcriterios.forEach( subcriterio => {
+                                subcriterio.variaciones.forEach( variacion => {
+                                    document.getElementById("notaVariacion" + variacion.id).value = variacion.puntaje;
+                                    console.log(tipo)
+                                });
+                            });
+                        });
+                    });
+                    break;
+                case "inciso":
+                    console.log("switch del inciso");
+                    break;
+                case "criterio":
+                    console.log("switch del criterio");
+                    break;
+                case "subcriterio":
+                    console.log("switch del subcriterio");
+                    break;
+                case "variacion":
+                    console.log("switch del variacion");
+                    break;
+
+            }
         }
     </script>
 {% endblock content %}

@@ -1,3 +1,4 @@
+import os
 from flask import render_template, url_for, flash, redirect, request, Blueprint, abort, current_app, send_file
 from flask_login import current_user, login_required
 from Herramienta.models import Usuario, Curso, Semestre, Actividad, Punto, Inciso, Criterio, Subcriterio, Variacion
@@ -29,7 +30,8 @@ def calificar_actividad(actividad_id,curso_id):
                     variaciones = []
                     for variacion in subcriterio.variaciones:
                         variacionJSON = {
-                            "id" : variacion.id
+                            "id" : variacion.id,
+                            "puntaje" : variacion.puntaje
                         }
                         variaciones.append(variacionJSON)
                     subcriterioJSON = {
@@ -157,8 +159,8 @@ def analizarArchivo(curso_id):
                     celdaSubriterio = hoja.cell(row=fila, column=columna).value
                     #-------------------------------------------------------------------
                     while not finalCriterio:
-                        puntajeMinimo = int(hoja.cell(row=fila, column=7).value)
-                        puntajeMaximo = int(hoja.cell(row=fila, column=8).value)
+                        puntajeMinimo = float(hoja.cell(row=fila, column=7).value)
+                        puntajeMaximo = float(hoja.cell(row=fila, column=8).value)
                         subcriterio = Subcriterio(nombre = celdaSubriterio, maximoPuntaje=puntajeMaximo, minimoPuntaje=puntajeMinimo, criterio_id=criterio.id)
                         db.session.add(subcriterio)
                         db.session.commit()
@@ -169,7 +171,7 @@ def analizarArchivo(curso_id):
                         #-------------------------------------------------------------------
                         while not finalSubcriterio:
                             maximoVeces = int(hoja.cell(row=fila, column=9).value)
-                            puntaje = int(hoja.cell(row=fila, column=8).value)
+                            puntaje = float(hoja.cell(row=fila, column=8).value)
                             esPenalizacion = False
                             if puntaje < 0:
                                 esPenalizacion = True

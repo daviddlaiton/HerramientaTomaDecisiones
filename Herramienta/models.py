@@ -200,3 +200,6 @@ class Variacion(db.Model):
     calificaciones = db.relationship("Calificacion", backref="calificacion")
     subcriterio_id = db.Column(db.Integer, db.ForeignKey(
         "subcriterio.id"), nullable=False)
+
+    def __repr__(self):
+        return f"Variacion('{self.descripcion}', '{self.puntaje}')"
