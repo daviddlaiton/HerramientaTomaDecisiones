@@ -83,26 +83,25 @@
                                                                                         <div class="variacionText">
                                                                                             <p><strong>Variación:</strong></p>
                                                                                         </div>
-                                                                                        <div class="variacionTextInputDiv">
-                                                                                            <p><strong>Nota:</strong></p>
-                                                                                        </div>
                                                                                         <div class="variacionPuntaje">
                                                                                             <p><strong>Puntaje:</strong></p>
                                                                                         </div>
                                                                                     </div>
-                                                                                    {% for variacion in subcriterio.variaciones %}
+                                                                                    <div class="">
+                                                                                        {% for variacion in subcriterio.variaciones %}
                                                                                         <div class="variacionGroup">
                                                                                             <div class="variacionText" id={{"variacion" + variacion.id|string}}>
                                                                                                 <p>{{ variacion.descripcion }}</p>
                                                                                             </div>
                                                                                             <div class="variacionTextInputDiv">
-                                                                                                <input type="number" class="notaTextInput" id={{"notaVariacion" + variacion.id|string}}  name={{"notaVariacion" + variacion.id|string}}>
+                                                                                                <input type="checkbox" class="notaTextInput" id={{"notaVariacion" + variacion.id|string}}  name={{"notaVariacion" + variacion.id|string}} onclick={{"onlyOneSelected(" + variacion.id|string + ","+ subcriterio.id|string +")"}}>
                                                                                             </div>
                                                                                             <div class="variacionPuntaje">
                                                                                                 <p class="variacionPuntajeText">{{ variacion.puntaje }}</p>
                                                                                             </div>
                                                                                         </div>
-                                                                                    {% endfor %}
+                                                                                        {% endfor %}
+                                                                                    </div>
                                                                                 </div>                                                                           
                                                                             {% endfor %}
                                                                         </div> 
@@ -131,9 +130,10 @@
     </div>
     <script>
 
+        var actividad = JSON.parse('{{ actividadJSON | tojson | safe}}');
+
         function corregirPunto(id,tipo) {
             let acabo = false;
-            let actividad = JSON.parse('{{ actividadJSON | tojson | safe}}');
             for (interadorPunto = 0; interadorPunto < actividad.puntos.length; interadorPunto++){
                 let punto = actividad.puntos[interadorPunto];
                 if (punto.id === id){
@@ -156,10 +156,18 @@
                     elemento.incisos.forEach(inciso => {
                         inciso.criterios.forEach(criterio => {
                             criterio.subcriterios.forEach( subcriterio => {
-                                subcriterio.variaciones.forEach( variacion => {
-                                    document.getElementById("notaVariacion" + variacion.id).value = variacion.puntaje;
-                                    console.log(tipo)
+                                elementoMayorPuntaje = 0;
+                                mayorPuntaje = 0;
+                                subcriterio.variaciones.forEach( (variacion, index) => {
+                                    if (variacion.puntaje > mayorPuntaje){
+                                        mayorPuntaje = variacion.puntaje;
+                                        elementoMayorPuntaje = index;
+                                    }
                                 });
+                                if (mayorPuntaje > 0) {
+                                    document.getElementById("notaVariacion" + subcriterio.variaciones[elementoMayorPuntaje].id).checked = true;
+                                }
+                                
                             });
                         });
                     });
@@ -178,6 +186,25 @@
                     break;
 
             }
+        }
+
+        function onlyOneSelected(idCheckbox, idParent) {
+            actividad.puntos.forEach(punto => {
+                punto.incisos.forEach(inciso => {
+                    inciso.criterios.forEach(criterio => {
+                        criterio.subcriterios.forEach( subcriterio => {
+                            if (subcriterio.id == idParent) {
+                                subcriterio.variaciones.forEach( variacion => {
+                                    let idElementToChange = variacion.id;
+                                    if (idElementToChange !== idCheckbox) {
+                                        document.getElementById("notaVariacion" + idElementToChange).checked = false;
+                                    }
+                                });
+                            }
+                        });
+                    });
+                });
+            })
         }
     </script>
 {% endblock content %}
