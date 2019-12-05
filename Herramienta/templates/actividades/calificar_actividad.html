@@ -156,18 +156,27 @@
                     elemento.incisos.forEach(inciso => {
                         inciso.criterios.forEach(criterio => {
                             criterio.subcriterios.forEach( subcriterio => {
-                                elementoMayorPuntaje = 0;
-                                mayorPuntaje = 0;
-                                subcriterio.variaciones.forEach( (variacion, index) => {
-                                    if (variacion.puntaje > mayorPuntaje){
-                                        mayorPuntaje = variacion.puntaje;
-                                        elementoMayorPuntaje = index;
-                                    }
-                                });
-                                if (mayorPuntaje > 0) {
-                                    document.getElementById("notaVariacion" + subcriterio.variaciones[elementoMayorPuntaje].id).checked = true;
+                                let elementoSeleccionar = 0;
+                                if (tipo === "correcto") {
+                                    mayorPuntaje = 0;
+                                    subcriterio.variaciones.forEach( (variacion, index) => {
+                                        if (variacion.puntaje > mayorPuntaje){
+                                            mayorPuntaje = variacion.puntaje;
+                                            elementoSeleccionar = index;
+                                        }
+                                    });
+                                } else {
+                                    let menorPuntaje = 100;
+                                    subcriterio.variaciones.forEach( (variacion, index) => {
+                                        if (variacion.puntaje < menorPuntaje){
+                                            menorPuntaje = variacion.puntaje;
+                                            elementoSeleccionar = index;
+                                        }
+                                    });
                                 }
-                                
+                                    let idElemento = subcriterio.variaciones[elementoSeleccionar].id;
+                                    document.getElementById("notaVariacion" + idElemento ).checked = true;
+                                    onlyOneSelected(idElemento, subcriterio.id);
                             });
                         });
                     });
