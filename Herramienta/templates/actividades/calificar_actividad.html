@@ -17,8 +17,8 @@
                                     href={{'#punto' + punto.id|string}} role="tab"
                                     aria-selected="true"><strong>Punto: </strong>{{ punto.nombre }}</a>
                                 <div class="checkCancelButtons">
-                                    <button class="checkButton"><img src="/static/icons/check.svg" alt="check image" onclick={{"corregirPunto(" + punto.id|string + ",'correcto'" +")"}}></button>
-                                    <button class="cancelButton"><img src="/static/icons/cancel.svg" alt="cancel image" onclick={{"corregirPunto(" + punto.id|string + ",'incorrecto'" +")"}}></button>
+                                    <button class="checkButton"><img src="/static/icons/check.svg" alt="check image" onclick={{"corregirPunto(" + punto.id|string + ",'correcto')"}}></button>
+                                    <button class="cancelButton"><img src="/static/icons/cancel.svg" alt="cancel image" onclick={{"corregirPunto(" + punto.id|string + ",'incorrecto')"}}></button>
                                 </div>
                             </li>
                         {% endfor %}
@@ -37,8 +37,8 @@
                                                 <strong>Inciso: </strong>{{ inciso.nombre }}
                                             </button>
                                             <div class="checkCancelButtonsInciso">
-                                                <button class="checkButtonInciso"><img src="/static/icons/check.svg" alt="check image" onclick={{"corregirInciso(" + inciso.id|string + ")"}}></button>
-                                                <button class="cancelButtonInciso"><img src="/static/icons/cancel.svg" alt="cancel image"></button>
+                                                <button class="checkButtonInciso"><img src="/static/icons/check.svg" alt="check image" onclick={{"corregirInciso(" + inciso.id|string + ",'correcto')"}}></button>
+                                                <button class="cancelButtonInciso"><img src="/static/icons/cancel.svg" alt="cancel image" onclick={{"corregirInciso(" + inciso.id|string + ",'incorrecto')"}}></button>
                                             </div>
                                         </h2>
                                     </div>
@@ -52,8 +52,8 @@
                                                         {% for criterio in inciso.criterios %}                                                  
                                                             <a class="nav-link incisoDescription" id={{"criterio" + criterio.id|string + "-tab"}} data-toggle="pill" href={{"#criterio" + criterio.id|string}}  role="tab" aria-controls={{"criterio" + criterio.id|string}} aria-selected="false">{{criterio.nombre}}</a> 
                                                             <div class="checkCancelButtonsCriterio">
-                                                                <button class="checkButton"><img src="/static/icons/check.svg" alt="check image"></button>
-                                                                <button class="cancelButton"><img src="/static/icons/cancel.svg" alt="cancel image"></button>
+                                                                <button class="checkButton"><img src="/static/icons/check.svg" alt="check image" onclick={{"corregirCriterio(" + criterio.id|string + ",'correcto')"}}></button>
+                                                                <button class="cancelButton"><img src="/static/icons/cancel.svg" alt="cancel image" onclick={{"corregirCriterio(" + criterio.id|string + ",'incorrecto')"}}></button>
                                                             </div>                               
                                                         {% endfor %}
                                                     </div>
@@ -69,8 +69,8 @@
                                                                             {% for subcriterio in criterio.subcriterios %}                                                  
                                                                                 <a class="nav-link subincisoDescription" id={{"subcriterio" + subcriterio.id|string + "-tab"}} data-toggle="pill" href={{"#subcriterio" + subcriterio.id|string}}  role="tab" aria-controls={{"subcriterio" + subcriterio.id|string}} aria-selected="false">{{subcriterio.nombre}}</a>
                                                                                 <div class="checkCancelButtonsCriterio">
-                                                                                    <button class="checkButton"><img src="/static/icons/check.svg" alt="check image"></button>
-                                                                                    <button class="cancelButton"><img src="/static/icons/cancel.svg" alt="cancel image"></button>
+                                                                                    <button class="checkButton"><img src="/static/icons/check.svg" alt="check image" onclick={{"corregirCriterio(" + subcriterio.id|string + ",'correcto')"}}></button>
+                                                                                    <button class="cancelButton"><img src="/static/icons/cancel.svg" alt="cancel image" onclick={{"corregirCriterio(" + subcriterio.id|string + ",'incorrecto')"}}></button>
                                                                                 </div>                                  
                                                                             {% endfor %}
                                                                         </div>
@@ -87,7 +87,6 @@
                                                                                             <p><strong>Puntaje:</strong></p>
                                                                                         </div>
                                                                                     </div>
-                                                                                    <div class="">
                                                                                         {% for variacion in subcriterio.variaciones %}
                                                                                         <div class="variacionGroup">
                                                                                             <div class="variacionText" id={{"variacion" + variacion.id|string}}>
@@ -101,7 +100,17 @@
                                                                                             </div>
                                                                                         </div>
                                                                                         {% endfor %}
-                                                                                    </div>
+                                                                                        <div class="variacionGroup">
+                                                                                            <div class="variacionText" id={{"variacionNada" + subcriterio.id|string}}>
+                                                                                                <p>No realizó nada</p>
+                                                                                            </div>
+                                                                                            <div class="variacionTextInputDiv">
+                                                                                                <input type="checkbox" class="notaTextInput" id={{"notaVariacionNada" + subcriterio.id|string}}  name={{"notaVariacionNada" + subcriterio.id|string}} onclick={{"onlyOneSelected('nada'" + ","+ subcriterio.id|string +")"}}>
+                                                                                            </div>
+                                                                                            <div class="variacionPuntaje">
+                                                                                                <p class="variacionPuntajeText">0</p>
+                                                                                            </div>
+                                                                                        </div>
                                                                                 </div>                                                                           
                                                                             {% endfor %}
                                                                         </div> 
@@ -134,20 +143,104 @@
 
         function corregirPunto(id,tipo) {
             let acabo = false;
+            let punto = null;
             for (interadorPunto = 0; interadorPunto < actividad.puntos.length; interadorPunto++){
-                let punto = actividad.puntos[interadorPunto];
+                punto = actividad.puntos[interadorPunto];
                 if (punto.id === id){
                     crearElementosEnHTML(punto, "punto", tipo);
                     acabo = true;
                 }
                 if(acabo){
-                    break
+                    break;
                 }
             }
         }
 
-        function corregirInciso(id){
-            console.log("holandas")
+        function corregirInciso(id, tipo){
+            let acabo = false;
+            let punto = null;
+            let inciso = null;
+            for (let interadorPunto = 0; interadorPunto < actividad.puntos.length; interadorPunto++){
+                punto = actividad.puntos[interadorPunto];
+                for (let interadorInciso = 0; interadorInciso < punto.incisos.length; interadorInciso++){
+                    inciso = punto.incisos[interadorInciso];
+                    if(inciso.id === id) {
+                        crearElementosEnHTML(inciso, "inciso", tipo);
+                        acabo = true;
+                    }
+                    if(acabo){
+                        break;
+                    }
+                }
+                if(acabo){
+                    break;
+                }
+            }
+        }
+
+        function corregirCriterio(id, tipo){
+            let acabo = false;
+            let punto = null;
+            let inciso = null;
+            let criterio = null;
+            for (let interadorPunto = 0; interadorPunto < actividad.puntos.length; interadorPunto++){
+                punto = actividad.puntos[interadorPunto];
+                for (let interadorInciso = 0; interadorInciso < punto.incisos.length; interadorInciso++){
+                    inciso = punto.incisos[interadorInciso];
+                    for (let iteradorCriterio = 0; iteradorCriterio < inciso.criterios.length; iteradorCriterio++) {
+                         criterio = inciso.criterios[iteradorCriterio];
+                        if(criterio.id === id) {
+                            crearElementosEnHTML(criterio, "criterio", tipo);
+                            acabo = true;
+                        }
+                        if(acabo){
+                            break;
+                        }   
+                    }
+                    if(acabo){
+                        break;
+                    }
+                }
+                if(acabo){
+                    break;
+                }
+            }
+        }
+
+        function corregirSubcriterio(id, tipo){
+            let acabo = false;
+            let punto = null;
+            let inciso = null;
+            let criterio = null;
+            let subcriterio = null;
+            for (let interadorPunto = 0; interadorPunto < actividad.puntos.length; interadorPunto++){
+                punto = actividad.puntos[interadorPunto];
+                for (let interadorInciso = 0; interadorInciso < punto.incisos.length; interadorInciso++){
+                    inciso = punto.incisos[interadorInciso];
+                    for (let iteradorCriterio = 0; iteradorCriterio < inciso.criterios.length; iteradorCriterio++) {
+                         criterio = inciso.criterios[iteradorCriterio];
+                        for (let iteradorSubcriterio = 0; iteradorSubcriterio < criterio.subcriterios.length; iteradorSubcriterio++) {
+                            subcriterio = criterio.subcriterios[iteradorSubcriterio];
+                            if(subcriterio.id === id) {
+                                crearElementosEnHTML(subcriterio, "subcriterio", tipo);
+                                acabo = true;
+                            }
+                            if(acabo){
+                                break;
+                            }  
+                        }
+                        if(acabo){
+                            break;
+                        }   
+                    }
+                    if(acabo){
+                        break;
+                    }
+                }
+                if(acabo){
+                    break;
+                }
+            }
         }
 
         function crearElementosEnHTML(elemento, tipoDeElemento, tipo) {
@@ -156,8 +249,8 @@
                     elemento.incisos.forEach(inciso => {
                         inciso.criterios.forEach(criterio => {
                             criterio.subcriterios.forEach( subcriterio => {
-                                let elementoSeleccionar = 0;
                                 if (tipo === "correcto") {
+                                    let elementoSeleccionar = 0;
                                     mayorPuntaje = 0;
                                     subcriterio.variaciones.forEach( (variacion, index) => {
                                         if (variacion.puntaje > mayorPuntaje){
@@ -165,35 +258,78 @@
                                             elementoSeleccionar = index;
                                         }
                                     });
-                                } else {
-                                    let menorPuntaje = 100;
-                                    subcriterio.variaciones.forEach( (variacion, index) => {
-                                        if (variacion.puntaje < menorPuntaje){
-                                            menorPuntaje = variacion.puntaje;
-                                            elementoSeleccionar = index;
-                                        }
-                                    });
-                                }
                                     let idElemento = subcriterio.variaciones[elementoSeleccionar].id;
                                     document.getElementById("notaVariacion" + idElemento ).checked = true;
                                     onlyOneSelected(idElemento, subcriterio.id);
+                                } else {
+                                    document.getElementById("notaVariacionNada" + subcriterio.id).checked = true;
+                                    onlyOneSelected("nada", subcriterio.id);
+                                }
+                                    
                             });
                         });
                     });
                     break;
                 case "inciso":
-                    console.log("switch del inciso");
+                    elemento.criterios.forEach(criterio => {
+                        criterio.subcriterios.forEach( subcriterio => {
+                            if (tipo === "correcto") {
+                                let elementoSeleccionar = 0;
+                                mayorPuntaje = 0;
+                                subcriterio.variaciones.forEach( (variacion, index) => {
+                                    if (variacion.puntaje > mayorPuntaje){
+                                        mayorPuntaje = variacion.puntaje;
+                                        elementoSeleccionar = index;
+                                    }
+                                });
+                                let idElemento = subcriterio.variaciones[elementoSeleccionar].id;
+                                document.getElementById("notaVariacion" + idElemento ).checked = true;
+                                onlyOneSelected(idElemento, subcriterio.id);
+                            } else {
+                                document.getElementById("notaVariacionNada" + subcriterio.id).checked = true;
+                                onlyOneSelected("nada", subcriterio.id);
+                            }
+                        });
+                    });
                     break;
                 case "criterio":
-                    console.log("switch del criterio");
+                    elemento.subcriterios.forEach( subcriterio => {
+                        if (tipo === "correcto") {
+                            let elementoSeleccionar = 0;
+                            mayorPuntaje = 0;
+                            subcriterio.variaciones.forEach( (variacion, index) => {
+                                if (variacion.puntaje > mayorPuntaje){
+                                    mayorPuntaje = variacion.puntaje;
+                                    elementoSeleccionar = index;
+                                }
+                            });
+                            let idElemento = subcriterio.variaciones[elementoSeleccionar].id;
+                            document.getElementById("notaVariacion" + idElemento ).checked = true;
+                            onlyOneSelected(idElemento, subcriterio.id);
+                        } else {
+                            document.getElementById("notaVariacionNada" + subcriterio.id).checked = true;
+                            onlyOneSelected("nada", subcriterio.id);
+                        }   
+                    });
                     break;
                 case "subcriterio":
-                    console.log("switch del subcriterio");
+                        if (tipo === "correcto") {
+                            let elementoSeleccionar = 0;
+                            mayorPuntaje = 0;
+                            elemento.variaciones.forEach( (variacion, index) => {
+                                if (variacion.puntaje > mayorPuntaje){
+                                    mayorPuntaje = variacion.puntaje;
+                                    elementoSeleccionar = index;
+                                }
+                            });
+                            let idElemento = elemento.variaciones[elementoSeleccionar].id;
+                            document.getElementById("notaVariacion" + idElemento ).checked = true;
+                            onlyOneSelected(idElemento, elemento.id);
+                        } else {
+                            document.getElementById("notaVariacionNada" + elemento.id).checked = true;
+                            onlyOneSelected("nada", elemento.id);
+                        }   
                     break;
-                case "variacion":
-                    console.log("switch del variacion");
-                    break;
-
             }
         }
 
@@ -203,12 +339,19 @@
                     inciso.criterios.forEach(criterio => {
                         criterio.subcriterios.forEach( subcriterio => {
                             if (subcriterio.id == idParent) {
-                                subcriterio.variaciones.forEach( variacion => {
-                                    let idElementToChange = variacion.id;
-                                    if (idElementToChange !== idCheckbox) {
-                                        document.getElementById("notaVariacion" + idElementToChange).checked = false;
-                                    }
-                                });
+                                if (idCheckbox === "nada" ){
+                                    subcriterio.variaciones.forEach( variacion => { 
+                                        document.getElementById("notaVariacion" + variacion.id).checked = false;
+                                    });
+                                } else {
+                                    subcriterio.variaciones.forEach( variacion => {
+                                        let idElementToChange = variacion.id;
+                                        if (idElementToChange !== idCheckbox) {
+                                            document.getElementById("notaVariacion" + idElementToChange).checked = false;
+                                        }
+                                    });
+                                    document.getElementById("notaVariacionNada" + subcriterio.id).checked = false;
+                                }
                             }
                         });
                     });
