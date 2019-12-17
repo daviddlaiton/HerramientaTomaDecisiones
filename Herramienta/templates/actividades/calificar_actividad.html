@@ -69,8 +69,8 @@
                                                                             {% for subcriterio in criterio.subcriterios %}                                                  
                                                                                 <a class="nav-link subincisoDescription" id={{"subcriterio" + subcriterio.id|string + "-tab"}} data-toggle="pill" href={{"#subcriterio" + subcriterio.id|string}}  role="tab" aria-controls={{"subcriterio" + subcriterio.id|string}} aria-selected="false">{{subcriterio.nombre}}</a>
                                                                                 <div class="checkCancelButtonsCriterio">
-                                                                                    <button class="checkButton"><img src="/static/icons/check.svg" alt="check image" onclick={{"corregirCriterio(" + subcriterio.id|string + ",'correcto')"}}></button>
-                                                                                    <button class="cancelButton"><img src="/static/icons/cancel.svg" alt="cancel image" onclick={{"corregirCriterio(" + subcriterio.id|string + ",'incorrecto')"}}></button>
+                                                                                    <button class="checkButton"><img src="/static/icons/check.svg" alt="check image" onclick={{"corregirSubcriterio(" + subcriterio.id|string + ",'correcto')"}}></button>
+                                                                                    <button class="cancelButton"><img src="/static/icons/cancel.svg" alt="cancel image" onclick={{"corregirSubcriterio(" + subcriterio.id|string + ",'incorrecto')"}}></button>
                                                                                 </div>                                  
                                                                             {% endfor %}
                                                                         </div>
