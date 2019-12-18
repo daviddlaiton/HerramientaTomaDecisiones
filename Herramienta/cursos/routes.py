@@ -52,8 +52,6 @@ def editar_curso(curso_id):
 @cursos.route("/cursos/<int:curso_id>", methods=["GET", "POST"])
 @login_required
 def ver_curso(curso_id):
-    user_id = current_user.get_id()
-    user = Usuario.query.filter_by(id=user_id).first()
     curso = Curso.query.get_or_404(curso_id)
     return render_template("cursos/ver_curso.html", title="Ver curso", curso=curso)
 

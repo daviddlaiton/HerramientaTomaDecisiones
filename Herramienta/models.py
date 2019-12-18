@@ -169,7 +169,7 @@ class Inciso(db.Model):
         "punto.id"), nullable=False)
 
     def __repr__(self):
-            return f"Punto('{self.nombre}', '{self.incisos}')"
+            return f"Inciso('{self.nombre}', '{self.criterios}')"
 
 class Criterio(db.Model):
     id = db.Column(db.Integer, primary_key=True)

@@ -39,9 +39,14 @@
                                         <li>
                                             <div class="cursoTextButtonLayout">
                                                 {{ semestre.nombre }}
-                                                <form action="{{ url_for('cursos.eliminarCurso_semestre', semestre_id=semestre.id,  curso_id=curso.id) }}">
-                                                    <button type="submit" class="btn btn-outline-danger eliminarCursoSemestre">Eliminar semestre</button>
-                                                </form>
+                                                {% if current_user.rol_id != 1 %}
+                                                    <form action="{{ url_for('main.home') }}">
+                                                        <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Ver lista de estudiantes</button>
+                                                    </form>
+                                                    <form action="{{ url_for('cursos.eliminarCurso_semestre', semestre_id=semestre.id,  curso_id=curso.id) }}">
+                                                        <button type="submit" class="btn btn-outline-danger eliminarCursoSemestre">Eliminar semestre</button>
+                                                    </form>
+                                                {% endif %}
                                             </div>
                                         </li>
                                     {% endfor %}
@@ -66,19 +71,26 @@
                                             <li>Ninguna</li>
                                         {% else %}
                                             {% for actividad in curso.actividades %}
-                                                <li>
-                                                    <div class="cursoTextButtonLayout">
-                                                        {{ actividad.nombre }}
-                                                        {% if current_user.rol_id != 1 %}
-                                                            <form action="{{ url_for('actividades.ver_actividad', actividad_id=actividad.id, curso_id=curso.id) }}">
-                                                                <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Ver actividad</button>
-                                                            </form>
-                                                        {% endif %}
-                                                        <form action="{{ url_for('actividades.calificar_actividad', actividad_id=actividad.id, curso_id=curso.id) }}">
-                                                            <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Calificar actividad</button>
-                                                        </form>
-                                                    </div>
-                                                </li>
+                                                {% for semestre in curso.semestres %}
+                                                    {% if actividad.semestre_id == semestre.id %}
+                                                        <li>
+                                                            <div class="cursoTextButtonLayout">
+                                                                <p> ({{semestre.nombre}}) - {{ actividad.nombre }}</p>
+                                                                {% if current_user.rol_id != 1 %}
+                                                                    <form action="{{ url_for('actividades.ver_actividad', actividad_id=actividad.id, curso_id=curso.id) }}">
+                                                                        <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Crear/modificar grupos</button>
+                                                                    </form>
+                                                                    <form action="{{ url_for('actividades.ver_actividad', actividad_id=actividad.id, curso_id=curso.id) }}">
+                                                                        <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Ver actividad</button>
+                                                                    </form>
+                                                                {% endif %}
+                                                                <form action="{{ url_for('actividades.calificar_actividad', actividad_id=actividad.id, curso_id=curso.id) }}">
+                                                                    <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Calificar actividad</button>
+                                                                </form>
+                                                            </div>
+                                                        </li>
+                                                    {% endif %}
+                                                {% endfor %}
                                             {% endfor %}
                                         {% endif %}
                             </ul>
