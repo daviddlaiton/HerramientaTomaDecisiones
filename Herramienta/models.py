@@ -18,6 +18,13 @@ grupos = db.Table("integrantes",
                   db.Column("Estudiante_id", db.Integer, db.ForeignKey(
                       "estudiante.id"), primary_key=True)
                   )
+            
+estudiantes = db.Table("Estudiantes",
+                  db.Column("Estudiante_id", db.Integer, db.ForeignKey(
+                      "estudiante.id"), primary_key=True),
+                  db.Column("Semestre_id", db.Integer, db.ForeignKey(
+                      "semestre.id"), primary_key=True)
+                  )
 
 cursos = db.Table("cursos",
                   db.Column("usuario_id", db.Integer, db.ForeignKey(
@@ -77,8 +84,6 @@ class Estudiante(db.Model):
     apellido = db.Column(db.String(50), nullable=False)
     magistral = db.Column(db.String(50), nullable=False)
     complementaria = db.Column(db.String(50), nullable=False)
-    semestre_id = db.Column(db.Integer, db.ForeignKey(
-        "semestre.id"), nullable=False)
     grupos = db.relationship("Grupo", secondary=grupos, lazy="subquery",
                              backref=db.backref("estudiantes", lazy=True))
 
@@ -102,12 +107,13 @@ class Semestre(db.Model):
     nombre = db.Column(db.String(50), unique=True, nullable=False)
     # Creo que debe ser una relación (profesores y asistentes)
     # profesores = db.Column(db.String(50), nullable=False)
-    # asistentes = db.Column(db.String(50), nullable=False
-    lista = db.relationship("Estudiante", backref="lista")
+    # asistentes = db.Column(db.String(50), nullable=False)
+    estudiantes = db.relationship("Estudiante", secondary=estudiantes, lazy="subquery",
+        backref=db.backref("semestres", lazy=True))
     actividades = db.relationship("Actividad", backref="semestre")
 
     def __repr__(self):
-        return f"Semestre('{self.nombre}', '{self.id}'), Actividades('{self.actividades}') "
+        return f"Semestre('{self.nombre}', '{self.id}'), Actividades('{self.actividades}', Estudiantes('{self.estudiantes}')) "
 
 
 class Calificacion(db.Model):
@@ -146,7 +152,7 @@ class Actividad(db.Model):
     puntos = db.relationship("Punto", backref="actividad")
 
     def __repr__(self):
-        return f"Actividad:'{self.nombre}', Semestre:'{self.semestre_id}', Curso: '{self.curso_id}', Puntos:'{self.puntos}')"
+        return f"Actividad:'{self.nombre}', Grupos: '{self.grupos}', Semestre:'{self.semestre_id}', Curso: '{self.curso_id}', Puntos:'{self.puntos}')"
 
 class Punto(db.Model):
     id = db.Column(db.Integer, primary_key=True)

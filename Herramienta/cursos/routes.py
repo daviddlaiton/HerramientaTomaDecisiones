@@ -1,6 +1,6 @@
 from flask import render_template, url_for, flash, redirect, request, Blueprint, abort
 from flask_login import current_user, login_required
-from Herramienta.models import Usuario, Curso, Semestre
+from Herramienta.models import Usuario, Curso, Semestre, Actividad
 from Herramienta import db, bcrypt
 from Herramienta.cursos.forms import CrearUsuarioForm, EditarNombreCursoForm, AgregarSemestreACursoForm, EliminarSemestreACursoForm, EliminarCursoForm
 

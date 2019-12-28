@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            <form action="{{ url_for('cursos.ver_curso', curso_id=curso_id) }}">
+                    <input type="image" class="BackButton" src="https://image.flaticon.com/icons/svg/271/271218.svg" />
+            </form>
+            <article class="media content-section">
+                <div class="media-body">
+                    <div class="article-metadata">
+                        <h4 class="mr-2">{{ semestre.nombre }} - Lista de estudiantes</h4>
+                    </div>
+                    <form action="{{ url_for('semestres.anadirEstudiante_semestre', curso_id=curso_id, semestre_id=semestre.id) }}">
+                        <button type="submit" class="btn btn-outline-info semestreActions">Crear estudiante en el sistema y agregarlo a este semestre</button>
+                    </form>
+                    <form action="{{ url_for('semestres.anadirEstudianteExistente_semestre', curso_id=curso_id, semestre_id=semestre.id) }}">
+                        <button type="submit" class="btn btn-outline-info semestreActions">Añadir estudiante existente en el sistema a este semestre</button>
+                    </form>
+
+                    {% if not semestre.estudiantes %}
+                        <p>No hay estudiantes asignados a este semestre</p>
+                    {% else %}
+                        <ul>
+                        {% for estudiante in semestre.estudiantes %}
+                            <li>{{ estudiante.login }}</li>
+                        {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </article>
+        </div>
+    </div>
+{% endblock content %}

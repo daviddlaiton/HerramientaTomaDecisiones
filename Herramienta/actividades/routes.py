@@ -350,3 +350,9 @@ def enviar_informes(curso_id,actividad_id):
         flash(f"Informes enviados exitosamente", "success")
         return render_template("actividades/ver_actividad.html", title="Ver actividad", actividad=actividad, curso_id=curso_id)
     return render_template("actividades/enviarReportes.html", title="Enviar reportes", actividad_id=actividad_id, curso_id=curso_id, form=form)
+
+@actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/verGrupos", methods=["GET", "POST"])
+@login_required
+def ver_grupos_actividad(actividad_id,curso_id):
+    actividad = Actividad.query.get_or_404(actividad_id)
+    return render_template("actividades/ver_grupos_actividad.html", title="Ver grupos", actividad=actividad, curso_id=curso_id)

@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            <form action="{{ url_for('cursos.ver_curso', curso_id=curso_id) }}">
+                <input type="image" class="BackButton" src="https://image.flaticon.com/icons/svg/271/271218.svg" />
+            </form>
+            <article class="media content-section">
+                <div class="media-body">
+                    <div class="article-metadata">
+                        <h4 class="mr-2">{{ actividad.nombre }} - Acciones sobre los grupos</h4>
+                    </div>
+                    <form
+                        action="{{ url_for('actividades.cambiarEstado_actividad', actividad_id=actividad.id, curso_id=curso_id) }}">
+                        <button type="submit" class="btn btn-outline-info semestreActions">Añadir </button>
+                    </form>
+                    <form
+                        action="{{ url_for('actividades.enviar_informes', actividad_id=actividad.id, curso_id=curso_id) }}">
+                        <button type="submit" class="btn btn-outline-info semestreActions">Enviar informes</button>
+                    </form>
+                    <form
+                        action="{{ url_for('actividades.descargar_actividad', actividad_id=actividad.id, curso_id=curso_id) }}">
+                        <button type="submit" class="btn btn-outline-info semestreActions">Descargar actividad</button>
+                    </form>
+                    <form
+                        action="{{ url_for('actividades.eliminar_actividad', actividad_id=actividad.id, curso_id=curso_id) }}">
+                        <button type="submit" class="btn btn-outline-danger semestreActions">Eliminar actividad</button>
+                    </form>
+                </div>
+            </article>
+        </div>
+    </div>
+{% endblock content %}
