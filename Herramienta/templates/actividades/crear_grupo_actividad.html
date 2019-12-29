@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-7">
+            <form action="{{ url_for('actividades.crear_actividad', curso_id=curso_id) }}">
+                <input type="image" class="BackButton" src="https://image.flaticon.com/icons/svg/271/271218.svg" />
+            </form>
+            <div class="content-section">
+                <form method="POST" action="" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+                    <fieldset class="form-group">
+                        <legend class="border-bottom mb-4">Crear actividad desde integrantes</legend>
+                        <div class="form-group">
+                            {% for e in form.integrantes %}
+                                {{ opciones.codigo.label(class="form-control-label") }}
+                                {% if opciones.codigo.errors %}
+                                    {{ opciones.codigo(class="form-control form-control-lg is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in e.form.codigo.errors%}
+                                        <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                    {% else %}
+                                        <br>
+                                        {{ opciones.codigo(size=1, maxlength=50,class="form-control form-control-lg") }}
+                                    {% endif %}
+                            {% endfor %}
+                        </div>
+                    </fieldset>
+                    <div class="form-group">
+                        {{ form.submit(class="btn btn-outline-info")}}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

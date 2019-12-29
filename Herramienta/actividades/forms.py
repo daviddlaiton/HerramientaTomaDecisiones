@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectField, IntegerField, FieldList, FormField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from flask_login import current_user
 from Herramienta.models import Curso
@@ -25,3 +25,6 @@ class CambiarEstadoActividad(FlaskForm):
 
 class EnviarReportes(FlaskForm):
     submit = SubmitField("Enviar reportes")
+
+class IntegranteForm(FlaskForm):
+    codigo = SelectField("Código", choices=[], coerce=int)

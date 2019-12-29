@@ -140,7 +140,7 @@ class Grupo(db.Model):
 
 class Actividad(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    #No se como limitar para que los grupos sean del número de integrantes especificado. 
+    numeroIntegrantes = db.Column(db.Integer, nullable=False) 
     nombre = db.Column(db.String(50), nullable=False)
     porcentaje = db.Column(db.Integer, nullable=False)
     habilitada = db.Column(db.Boolean, nullable=False)
@@ -152,7 +152,7 @@ class Actividad(db.Model):
     puntos = db.relationship("Punto", backref="actividad")
 
     def __repr__(self):
-        return f"Actividad:'{self.nombre}', Grupos: '{self.grupos}', Semestre:'{self.semestre_id}', Curso: '{self.curso_id}', Puntos:'{self.puntos}')"
+        return f"Actividad:'{self.nombre}':'{self.id}, Grupos: '{self.grupos}', Semestre:'{self.semestre_id}', Curso: '{self.curso_id}', Puntos:'{self.puntos}')"
 
 class Punto(db.Model):
     id = db.Column(db.Integer, primary_key=True)

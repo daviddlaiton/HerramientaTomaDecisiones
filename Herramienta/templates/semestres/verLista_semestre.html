@@ -9,7 +9,7 @@
             <article class="media content-section">
                 <div class="media-body">
                     <div class="article-metadata">
-                        <h4 class="mr-2">{{ semestre.nombre }} - Lista de estudiantes</h4>
+                        <h4 class="mr-2">{{ semestre.nombre }}</h4>
                     </div>
                     <form action="{{ url_for('semestres.anadirEstudiante_semestre', curso_id=curso_id, semestre_id=semestre.id) }}">
                         <button type="submit" class="btn btn-outline-info semestreActions">Crear estudiante en el sistema y agregarlo a este semestre</button>
@@ -17,13 +17,24 @@
                     <form action="{{ url_for('semestres.anadirEstudianteExistente_semestre', curso_id=curso_id, semestre_id=semestre.id) }}">
                         <button type="submit" class="btn btn-outline-info semestreActions">Añadir estudiante existente en el sistema a este semestre</button>
                     </form>
-
+                    <br>
+                    <h4>Lista de estudiantes</h4>
                     {% if not semestre.estudiantes %}
                         <p>No hay estudiantes asignados a este semestre</p>
                     {% else %}
-                        <ul>
+                        <ul style="list-style-type:disc;" class="cursosListInSemestre">
                         {% for estudiante in semestre.estudiantes %}
-                            <li>{{ estudiante.login }}</li>
+                            <li>
+                                <div class="cursoTextButtonLayout">
+                                    <p>{{ estudiante.login }}</p>
+                                    <form action="{{ url_for('main.home') }}">
+                                        <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Editar estudiante</button>
+                                    </form>
+                                    <form action="{{ url_for('main.home') }}">
+                                        <button type="submit" class="btn btn-outline-danger eliminarCursoSemestre">Eliminar estudiante</button>
+                                    </form>
+                                </div>
+                            </li>
                         {% endfor %}
                         </ul>
                     {% endif %}

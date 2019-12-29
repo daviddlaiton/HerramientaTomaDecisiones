@@ -11,21 +11,10 @@
                     <div class="article-metadata">
                         <h4 class="mr-2">{{ actividad.nombre }} - Acciones sobre los grupos</h4>
                     </div>
+                    <h4>Esta actividad está asignada para {{ actividad.numeroIntegrantes }} personas</h4>
                     <form
-                        action="{{ url_for('actividades.cambiarEstado_actividad', actividad_id=actividad.id, curso_id=curso_id) }}">
-                        <button type="submit" class="btn btn-outline-info semestreActions">Añadir </button>
-                    </form>
-                    <form
-                        action="{{ url_for('actividades.enviar_informes', actividad_id=actividad.id, curso_id=curso_id) }}">
-                        <button type="submit" class="btn btn-outline-info semestreActions">Enviar informes</button>
-                    </form>
-                    <form
-                        action="{{ url_for('actividades.descargar_actividad', actividad_id=actividad.id, curso_id=curso_id) }}">
-                        <button type="submit" class="btn btn-outline-info semestreActions">Descargar actividad</button>
-                    </form>
-                    <form
-                        action="{{ url_for('actividades.eliminar_actividad', actividad_id=actividad.id, curso_id=curso_id) }}">
-                        <button type="submit" class="btn btn-outline-danger semestreActions">Eliminar actividad</button>
+                        action="{{ url_for('actividades.crear_grupo_actividad', curso_id=curso_id, actividad_id=actividad.id, numero_integrantes=actividad.numeroIntegrantes) }}">
+                        <button type="submit" class="btn btn-outline-info semestreActions">Crear grupos</button>
                     </form>
                 </div>
             </article>

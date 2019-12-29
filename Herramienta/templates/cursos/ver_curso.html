@@ -57,45 +57,45 @@
             {% endif %}
                 <article class="media content-section">
                     <div class="media-body">
-                            <div class="article-metadata">
-                                <h3 class="mr-2">{{ curso.nombre }} - Actividades del curso</h3>
-                            </div>
-                            {% if current_user.rol_id != 1 %}
-                            <form action="{{ url_for('actividades.crear_actividad', curso_id=curso.id) }}">
-                                <button type="submit" class="btn btn-outline-info semestreActions">Crear actividad</button>
-                            </form>
-                            {% endif %}
-                            <h4>Lista de actividades:</h4>
-                            <ul style="list-style-type:disc;" class="cursosListInSemestre">
-                                        {% if not curso.semestres %}
-                                            <p>Es necesario tener por lo menos un semestre asignado para tener actividades asignadas</p>
-                                        {% elif not curso.actividades  %}
-                                            <li>Ninguna</li>
-                                        {% else %}
-                                            {% for actividad in curso.actividades %}
-                                                {% for semestre in curso.semestres %}
-                                                    {% if actividad.semestre_id == semestre.id %}
-                                                        <li>
-                                                            <div class="cursoTextButtonLayout">
-                                                                <p> ({{semestre.nombre}}) - {{ actividad.nombre }}</p>
-                                                                {% if current_user.rol_id != 1 %}
-                                                                    <form action="{{ url_for('actividades.ver_grupos_actividad', actividad_id=actividad.id, curso_id=curso.id) }}">
-                                                                        <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Ver grupos</button>
-                                                                    </form>
-                                                                    <form action="{{ url_for('actividades.ver_actividad', actividad_id=actividad.id, curso_id=curso.id) }}">
-                                                                        <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Ver actividad</button>
-                                                                    </form>
-                                                                {% endif %}
-                                                                <form action="{{ url_for('actividades.calificar_actividad', actividad_id=actividad.id, curso_id=curso.id) }}">
-                                                                    <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Calificar actividad</button>
-                                                                </form>
-                                                            </div>
-                                                        </li>
+                        <div class="article-metadata">
+                            <h3 class="mr-2">{{ curso.nombre }} - Actividades del curso</h3>
+                        </div>
+                        {% if current_user.rol_id != 1 and curso.semestres %}
+                        <form action="{{ url_for('actividades.crear_actividad', curso_id=curso.id) }}">
+                            <button type="submit" class="btn btn-outline-info semestreActions">Crear actividad</button>
+                        </form>
+                        {% endif %}
+                        <h4>Lista de actividades:</h4>
+                        <ul style="list-style-type:disc;" class="cursosListInSemestre">
+                            {% if not curso.semestres %}
+                                <p>Es necesario tener por lo menos un semestre asignado para tener actividades asignadas</p>
+                            {% elif not curso.actividades  %}
+                                <li>Ninguna</li>
+                            {% else %}
+                                {% for actividad in curso.actividades %}
+                                    {% for semestre in curso.semestres %}
+                                        {% if actividad.semestre_id == semestre.id %}
+                                            <li>
+                                                <div class="cursoTextButtonLayout">
+                                                    <p> ({{semestre.nombre}}) - {{ actividad.nombre }}</p>
+                                                    {% if current_user.rol_id != 1 %}
+                                                        <form action="{{ url_for('actividades.ver_grupos_actividad', actividad_id=actividad.id, curso_id=curso.id) }}">
+                                                            <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Ver grupos</button>
+                                                        </form>
+                                                        <form action="{{ url_for('actividades.ver_actividad', actividad_id=actividad.id, curso_id=curso.id) }}">
+                                                            <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Ver actividad</button>
+                                                        </form>
                                                     {% endif %}
-                                                {% endfor %}
-                                            {% endfor %}
+                                                    <form action="{{ url_for('actividades.calificar_actividad', actividad_id=actividad.id, curso_id=curso.id) }}">
+                                                        <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Calificar actividad</button>
+                                                    </form>
+                                                </div>
+                                            </li>
                                         {% endif %}
-                            </ul>
+                                    {% endfor %}
+                                {% endfor %}
+                            {% endif %}
+                        </ul>
                     </div>
                 </article>
         </div>
