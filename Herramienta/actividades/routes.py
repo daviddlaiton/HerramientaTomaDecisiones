@@ -380,4 +380,4 @@ def crear_grupo_actividad(actividad_id,curso_id, numero_integrantes):
     if form.validate_on_submit():
         flash(f"Informes enviados exitosamente", "success")
         return render_template("actividades/ver_actividad.html", title="Ver actividad", actividad=actividad, curso_id=curso_id)
-    return render_template("actividades/crear_grupo_actividad.html", title="Crear grupos", actividad=actividad, curso_id=curso_id, form=form, opciones=opciones)
+    return render_template("actividades/crear_grupo_actividad.html", title="Crear grupos", actividad=actividad, curso_id=curso_id, form=form, opciones=opciones, numero_integrantes=numero_integrantes)

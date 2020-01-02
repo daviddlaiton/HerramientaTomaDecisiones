@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 
 {% block content %}
+    <p id="numeroIntegrantes">{{numero_integrantes}}</p>
     <div class="row">
         <div class="col-md-2"></div>
         <div class="col-md-7">
@@ -8,7 +9,7 @@
                 <input type="image" class="BackButton" src="https://image.flaticon.com/icons/svg/271/271218.svg" />
             </form>
             <div class="content-section">
-                <form method="POST" action="" enctype="multipart/form-data">
+                <form method="POST" action="" enctype="multipart/form-data" id="createForm" name="createForm">
                     {{ form.hidden_tag() }}
                     <fieldset class="form-group">
                         <legend class="border-bottom mb-4">Crear actividad desde integrantes</legend>
@@ -24,16 +25,38 @@
                                     </div>
                                     {% else %}
                                         <br>
-                                        {{ opciones.codigo(size=1, maxlength=50,class="form-control form-control-lg") }}
+                                        {{ opciones.codigo(size=1, maxlength=50,class="form-control form-control-lg", id=e.id) }}
                                     {% endif %}
                             {% endfor %}
                         </div>
                     </fieldset>
-                    <div class="form-group">
-                        {{ form.submit(class="btn btn-outline-info")}}
-                    </div>
+                    <button class="btn btn-outline-info semestreActions" onclick="verificarEstudiantesSeleccionados(event)">Crear grupo</button>
                 </form>
             </div>
         </div>
     </div>
+    <script>
+        var numero_integrantes = document.getElementById("numeroIntegrantes");
+        numero_integrantes.style.display = "none";
+
+        function verificarEstudiantesSeleccionados(e){
+            e.preventDefault()
+            let estudiantesEnDropdown = [];
+            let todoCorrecto = true;
+            for(let i = 0; i< numero_integrantes.innerHTML && todoCorrecto; i++){
+                let dropdownToCheck = document.getElementById("integrantes-" + i).value;
+                if(!estudiantesEnDropdown.includes(dropdownToCheck)){
+                    estudiantesEnDropdown.push(dropdownToCheck);
+                } else {
+                    todoCorrecto = false;
+                }
+            }
+
+            if(todoCorrecto){
+                //Aqui llamo a un url_for
+            } else {
+                alert("Uno o más estudiantes están repetidos. Por favor verificar la elección de los grupos.");
+            }
+        }
+    </script>
 {% endblock content %}
