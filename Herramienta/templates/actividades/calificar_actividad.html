@@ -10,6 +10,7 @@
             <article class="media content-section">
                 <div class="media-body">
                     <h4 class="mr-2">{{ actividad.nombre }} - Calificar actividad</h4>
+                    <h5>Grupo: {{grupo.estudiantes}}</h5>
                     <ul class="nav nav-pills" id="myTab" role="tablist">
                         {% for punto in actividad.puntos %}
                             <li class="nav-item">
@@ -342,6 +343,7 @@
                                 if (idCheckbox === "nada" ){
                                     subcriterio.variaciones.forEach( variacion => { 
                                         document.getElementById("notaVariacion" + variacion.id).checked = false;
+                                        console.log(document.getElementById("notaVariacion" + variacion.id).innerHTML)
                                     });
                                 } else {
                                     subcriterio.variaciones.forEach( variacion => {

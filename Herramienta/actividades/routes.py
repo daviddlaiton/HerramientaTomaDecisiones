@@ -32,6 +32,7 @@ def elegir_grupo_calificar_actividad(actividad_id,curso_id):
 @login_required
 def calificar_actividad(actividad_id,curso_id,grupo_id):
     actividad = Actividad.query.get_or_404(actividad_id)
+    grupo = Grupo.query.get_or_404(grupo_id)
     puntos = []
     for punto in actividad.puntos:
         incisos = []
@@ -71,17 +72,22 @@ def calificar_actividad(actividad_id,curso_id,grupo_id):
         "id" : actividad.id,
         "puntos" : puntos
     }
-    return render_template("actividades/calificar_actividad.html", title="Calificar actividad", actividad=actividad, curso_id=curso_id, actividadJSON = actividadToJson, grupo_id=grupo_id)
+    return render_template("actividades/calificar_actividad.html", title="Calificar actividad", actividad=actividad, curso_id=curso_id, actividadJSON = actividadToJson, grupo_id=grupo_id, grupo=grupo)
 
 @actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/eliminar", methods=["GET", "POST"])
 @login_required
 def eliminar_actividad(actividad_id, curso_id):
     user_id = current_user.get_id()
     user = Usuario.query.filter_by(id=user_id).first()
+    actividad = Actividad.query.get_or_404(actividad_id)
+    grupos = Grupo.query.filter_by(actividad_id=actividad.id).all()
     if user.rol_id == 1:
         abort(403)
     form = EliminarActividad()
     if form.validate_on_submit():
+        for grupo in grupos:
+            db.session.delete(grupo)
+            db.session.commit()
         eliminarActividad(actividad_id)
         flash(f"Actividad eliminada exitosamente", "success")
         return redirect(url_for("cursos.ver_curso", curso_id=curso_id))
@@ -92,7 +98,6 @@ def eliminar_actividad(actividad_id, curso_id):
 def cambiarEstado_actividad(actividad_id,curso_id):
     actividad = Actividad.query.get_or_404(actividad_id)
     estadoACambiar = not actividad.habilitada
-    print(estadoACambiar)
     form = CambiarEstadoActividad()
     if form.validate_on_submit():
         actividad.habilitada = estadoACambiar
