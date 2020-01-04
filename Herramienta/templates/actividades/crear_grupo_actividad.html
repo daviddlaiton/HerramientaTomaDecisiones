@@ -2,42 +2,63 @@
 
 {% block content %}
     <p id="numeroIntegrantes">{{numero_integrantes}}</p>
+    <p id="cursoId">{{curso_id}}</p>
+    <p id="actividadId">{{actividad.id}}</p>
     <div class="row">
         <div class="col-md-2"></div>
         <div class="col-md-7">
-            <form action="{{ url_for('actividades.crear_actividad', curso_id=curso_id) }}">
+            <form action="{{ url_for('actividades.ver_grupos_actividad', curso_id=curso_id, actividad_id=actividad.id) }}">
                 <input type="image" class="BackButton" src="https://image.flaticon.com/icons/svg/271/271218.svg" />
             </form>
-            <div class="content-section">
-                <form method="POST" action="" enctype="multipart/form-data" id="createForm" name="createForm">
-                    {{ form.hidden_tag() }}
-                    <fieldset class="form-group">
-                        <legend class="border-bottom mb-4">Crear actividad desde integrantes</legend>
-                        <div class="form-group">
-                            {% for e in form.integrantes %}
-                                {{ opciones.codigo.label(class="form-control-label") }}
-                                {% if opciones.codigo.errors %}
-                                    {{ opciones.codigo(class="form-control form-control-lg is-invalid") }}
-                                    <div class="invalid-feedback">
-                                        {% for error in e.form.codigo.errors%}
-                                        <span>{{ error }}</span>
-                                        {% endfor %}
-                                    </div>
-                                    {% else %}
-                                        <br>
-                                        {{ opciones.codigo(size=1, maxlength=50,class="form-control form-control-lg", id=e.id) }}
-                                    {% endif %}
-                            {% endfor %}
-                        </div>
-                    </fieldset>
-                    <button class="btn btn-outline-info semestreActions" onclick="verificarEstudiantesSeleccionados(event)">Crear grupo</button>
-                </form>
-            </div>
+            {% if vacio %}
+                <h4>No hay estudiantes disponibles para incluir en un grupo</h4>
+            {% else %}
+                <div class="content-section">
+                    <form method="POST" action="" enctype="multipart/form-data" id="createForm" name="createForm">
+                        {{ form.hidden_tag() }}
+                        <fieldset class="form-group">
+                            <legend class="border-bottom mb-4">Crear actividad desde integrantes</legend>
+                            <div class="form-group">
+                                {% for e in form.integrantes %}
+                                    {{ opciones.codigo.label(class="form-control-label") }}
+                                    {% if opciones.codigo.errors %}
+                                        {{ opciones.codigo(class="form-control form-control-lg is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in e.form.codigo.errors%}
+                                            <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                        {% else %}
+                                            <br>
+                                            {{ opciones.codigo(size=1, maxlength=50,class="form-control form-control-lg", id=e.id) }}
+                                        {% endif %}
+                                {% endfor %}
+                            </div>
+                        </fieldset>
+                        <button class="btn btn-outline-info semestreActions" onclick="verificarEstudiantesSeleccionados(event)">Crear grupo</button>
+                    </form>
+                    <form
+                        action="{{ url_for('actividades.grupo_creado_actividad', curso_id=curso_id, actividad_id=actividad.id,integrantesSeleccionados='2') }}" id="formCrearGrupo">
+                        <button type="submit" class="btn btn-outline-info semestreActions" id="buttonCrearGrupo">Crear grupo</button>
+                    </form>
+                </div>
+            {% endif %}
         </div>
     </div>
     <script>
         var numero_integrantes = document.getElementById("numeroIntegrantes");
         numero_integrantes.style.display = "none";
+
+        var curso_id = document.getElementById("cursoId");
+        curso_id.style.display = "none";
+
+        var actividad_id = document.getElementById("actividadId");
+        actividad_id.style.display = "none";
+
+        var buttonCrearGrupo = document.getElementById("buttonCrearGrupo");
+        buttonCrearGrupo.style.display = "none";
+
+        var actionFormButtonCrearGrupo = document.getElementById("formCrearGrupo")
 
         function verificarEstudiantesSeleccionados(e){
             e.preventDefault()
@@ -53,7 +74,12 @@
             }
 
             if(todoCorrecto){
-                //Aqui llamo a un url_for
+                let grupoCreado = "";
+                for(let j = 0; j < estudiantesEnDropdown.length; j++) {
+                    grupoCreado = grupoCreado + estudiantesEnDropdown[j] + ":" ;
+                }
+                actionFormButtonCrearGrupo.action = "/actividades/" + curso_id.innerHTML + "/"+ actividad_id.innerHTML + "/grupoCreado/" + grupoCreado;
+                buttonCrearGrupo.click();
             } else {
                 alert("Uno o más estudiantes están repetidos. Por favor verificar la elección de los grupos.");
             }

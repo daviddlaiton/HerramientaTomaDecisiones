@@ -132,7 +132,7 @@ class Grupo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     numero = db.Column(db.Integer, unique=True, nullable=False)
     usuario_id = db.Column(db.Integer, db.ForeignKey(
-        "usuario.id"), nullable=False)
+        "usuario.id"))
     actividad_id = db.Column(db.Integer, db.ForeignKey(
         "actividad.id"), nullable=False)
     calificaciones = db.relationship("Calificacion", backref="grupos")

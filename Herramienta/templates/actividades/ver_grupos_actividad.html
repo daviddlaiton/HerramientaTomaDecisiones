@@ -16,6 +16,17 @@
                         action="{{ url_for('actividades.crear_grupo_actividad', curso_id=curso_id, actividad_id=actividad.id, numero_integrantes=actividad.numeroIntegrantes) }}">
                         <button type="submit" class="btn btn-outline-info semestreActions">Crear grupos</button>
                     </form>
+                    <br>
+                    <h4>Lista de grupos</h4>
+                    <ul>
+                    {% for grupo in actividad.grupos %}
+                        <li>
+                            {% for integrante in grupo.estudiantes %}
+                                <p class="integranteEnGrupo">{{integrante.login}}</p>
+                            {% endfor %}
+                        </li>
+                    {% endfor %}
+                    </ul>
                 </div>
             </article>
         </div>

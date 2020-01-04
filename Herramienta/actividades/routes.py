@@ -377,7 +377,24 @@ def crear_grupo_actividad(actividad_id,curso_id, numero_integrantes):
     form = CrearGrupo()
     opciones = IntegranteForm()
     opciones.codigo.choices = estudiantes
-    if form.validate_on_submit():
-        flash(f"Informes enviados exitosamente", "success")
-        return render_template("actividades/ver_actividad.html", title="Ver actividad", actividad=actividad, curso_id=curso_id)
-    return render_template("actividades/crear_grupo_actividad.html", title="Crear grupos", actividad=actividad, curso_id=curso_id, form=form, opciones=opciones, numero_integrantes=numero_integrantes)
+    vacio = False
+    if not estudiantes:
+        vacio = True
+    return render_template("actividades/crear_grupo_actividad.html", title="Crear grupos", actividad=actividad, curso_id=curso_id, form=form, opciones=opciones, numero_integrantes=numero_integrantes, vacio=vacio)
+
+@actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/grupoCreado/<integrantesSeleccionados>", methods=["GET", "POST"])
+@login_required
+def grupo_creado_actividad(actividad_id,curso_id,integrantesSeleccionados):
+    actividad = Actividad.query.get_or_404(actividad_id)
+    integrantes = []
+    numeroGrupo = len(Grupo.query.filter_by(actividad_id=actividad.id).all()) + 1
+    idIntegrantes = integrantesSeleccionados.split(":")
+    for idIntegrante in idIntegrantes:
+        if idIntegrante is not "":
+            integrante = Estudiante.query.filter_by(id=idIntegrante).first()
+            integrantes.append(integrante)
+    grupo = Grupo(actividad_id=actividad_id, estudiantes=integrantes, numero=numeroGrupo)
+    db.session.add(grupo)
+    db.session.commit()
+    flash(f"Informes enviados exitosamente", "success")
+    return render_template("actividades/ver_grupos_actividad.html", title="Ver grupos", actividad=actividad, curso_id=curso_id)
