@@ -85,9 +85,12 @@
                                                         <form action="{{ url_for('actividades.ver_actividad', actividad_id=actividad.id, curso_id=curso.id) }}">
                                                             <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Ver actividad</button>
                                                         </form>
+                                                        <form action="{{ url_for('actividades.elegir_grupo_calificar_actividad', actividad_id=actividad.id, curso_id=curso.id) }}">
+                                                            <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Ver calificaciones</button>
+                                                        </form>
                                                     {% endif %}
                                                     <form action="{{ url_for('actividades.elegir_grupo_calificar_actividad', actividad_id=actividad.id, curso_id=curso.id) }}">
-                                                        <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Calificar actividad</button>
+                                                        <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Calificar</button>
                                                     </form>
                                                 </div>
                                             </li>
