@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-7">
+            <form action="{{ url_for('cursos.ver_curso', curso_id=curso_id) }}">
+                <input type="image" class="BackButton" src="https://image.flaticon.com/icons/svg/271/271218.svg" />
+            </form>
+            {% if not grupos %}
+                <p>No hay grupos disponibles para calificar</p>
+            {% else %}
+                <div class="content-section">
+                    <form method="POST" action="">
+                        {{ form.hidden_tag() }}
+                        <fieldset class="form-group">
+                            <legend class="border-bottom mb-2">Elegir grupo para calificar</legend>
+                            <div class="form-group">
+                                {{ form.grupo.label(class="form-control-label") }}
+                                {% if form.grupo.errors %}
+                                {{ form.grupo(class="form-control form-control-lg is-invalid") }}
+                                <div class="invalid-feedbakc">
+                                    {% for error in form.grupo.errors%}
+                                    <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                <br>
+                                {{ form.grupo(size=1, maxlength=50,class="form-control form-control-lg") }}
+                                {% endif %}
+                            </div>
+                        </fieldset>
+                        <div class="form-group">
+                            {{ form.submit(class="btn btn-outline-info")}}
+                        </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock content %}

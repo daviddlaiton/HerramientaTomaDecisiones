@@ -5,7 +5,7 @@ from wtforms import FieldList, FormField, SubmitField
 from flask_login import current_user, login_required
 from Herramienta.models import Usuario, Curso, Semestre, Actividad, Punto, Inciso, Criterio, Subcriterio, Variacion, Grupo, Estudiante
 from Herramienta import db, bcrypt
-from Herramienta.actividades.forms import CrearActividadArchivoForm, EliminarActividad, DescargarActividad, CrearPunto, CambiarEstadoActividad, EnviarReportes, IntegranteForm
+from Herramienta.actividades.forms import CrearActividadArchivoForm, EliminarActividad, DescargarActividad, CrearPunto, CambiarEstadoActividad, EnviarReportes, IntegranteForm, EscogerGrupoParaCalificar
 from openpyxl import load_workbook, Workbook
 from Herramienta.actividades.utils import send_reports
 
@@ -17,9 +17,20 @@ def ver_actividad(actividad_id,curso_id):
     actividad = Actividad.query.get_or_404(actividad_id)
     return render_template("actividades/ver_actividad.html", title="Ver actividad", actividad=actividad, curso_id=curso_id)
 
-@actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/calificar", methods=["GET", "POST"])
+@actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/elegirGrupoCalificar", methods=["GET", "POST"])
 @login_required
-def calificar_actividad(actividad_id,curso_id):
+def elegir_grupo_calificar_actividad(actividad_id,curso_id):
+    actividad = Actividad.query.get_or_404(actividad_id)
+    grupos = [(g.id, g.estudiantes) for g in Grupo.query.filter_by(actividad_id=actividad.id, calificaciones=None).all()]
+    form = EscogerGrupoParaCalificar(request.form)
+    form.grupo.choices = grupos
+    if form.validate_on_submit():
+        return redirect(url_for("actividades.calificar_actividad", curso_id=curso_id, actividad_id=actividad_id, grupo_id=form.grupo.data))
+    return render_template("actividades/elegir_grupo_calificar.html", title="Elegir grupo para calificar actividad", actividad=actividad, curso_id=curso_id,form=form, grupos=grupos)
+
+@actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/calificar/<int:grupo_id>", methods=["GET", "POST"])
+@login_required
+def calificar_actividad(actividad_id,curso_id,grupo_id):
     actividad = Actividad.query.get_or_404(actividad_id)
     puntos = []
     for punto in actividad.puntos:
@@ -60,7 +71,7 @@ def calificar_actividad(actividad_id,curso_id):
         "id" : actividad.id,
         "puntos" : puntos
     }
-    return render_template("actividades/calificar_actividad.html", title="Calificar actividad", actividad=actividad, curso_id=curso_id, actividadJSON = actividadToJson)
+    return render_template("actividades/calificar_actividad.html", title="Calificar actividad", actividad=actividad, curso_id=curso_id, actividadJSON = actividadToJson, grupo_id=grupo_id)
 
 @actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/eliminar", methods=["GET", "POST"])
 @login_required

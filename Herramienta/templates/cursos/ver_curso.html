@@ -86,7 +86,7 @@
                                                             <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Ver actividad</button>
                                                         </form>
                                                     {% endif %}
-                                                    <form action="{{ url_for('actividades.calificar_actividad', actividad_id=actividad.id, curso_id=curso.id) }}">
+                                                    <form action="{{ url_for('actividades.elegir_grupo_calificar_actividad', actividad_id=actividad.id, curso_id=curso.id) }}">
                                                         <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Calificar actividad</button>
                                                     </form>
                                                 </div>

@@ -88,7 +88,7 @@ class Estudiante(db.Model):
                              backref=db.backref("estudiantes", lazy=True))
 
     def __repr__(self):
-        return f"Estudiante('{self.login}')"
+        return f"'{self.nombre}' '{self.apellido}'"
 
 
 class Curso(db.Model):
@@ -136,7 +136,9 @@ class Grupo(db.Model):
     actividad_id = db.Column(db.Integer, db.ForeignKey(
         "actividad.id"), nullable=False)
     calificaciones = db.relationship("Calificacion", backref="grupos")
-
+    
+    def __repr__(self):
+        return f"Grupo('{self.id}'), Calificaciones('{self.calificaciones})', ) "
 
 class Actividad(db.Model):
     id = db.Column(db.Integer, primary_key=True)

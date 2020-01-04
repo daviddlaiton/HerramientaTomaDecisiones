@@ -28,3 +28,7 @@ class EnviarReportes(FlaskForm):
 
 class IntegranteForm(FlaskForm):
     codigo = SelectField("Código", choices=[], coerce=int)
+
+class EscogerGrupoParaCalificar(FlaskForm):
+    grupo = SelectField("Grupo", choices=[], coerce=int)
+    submit = SubmitField("Seleccionar grupo para calificar")
