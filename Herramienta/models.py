@@ -18,13 +18,6 @@ grupos = db.Table("integrantes",
                   db.Column("Estudiante_id", db.Integer, db.ForeignKey(
                       "estudiante.id"), primary_key=True)
                   )
-            
-estudiantes = db.Table("Estudiantes",
-                  db.Column("Estudiante_id", db.Integer, db.ForeignKey(
-                      "estudiante.id"), primary_key=True),
-                  db.Column("Semestre_id", db.Integer, db.ForeignKey(
-                      "semestre.id"), primary_key=True)
-                  )
 
 cursos = db.Table("cursos",
                   db.Column("usuario_id", db.Integer, db.ForeignKey(
@@ -78,14 +71,16 @@ class Usuario(db.Model, UserMixin):
 
 class Estudiante(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    codigo = db.Column(db.Integer, nullable=False, unique=True)
-    login = db.Column(db.String(20), unique=True, nullable=False)
+    codigo = db.Column(db.Integer, nullable=False)
+    login = db.Column(db.String(20), nullable=False)
     nombre = db.Column(db.String(50), nullable=False)
     apellido = db.Column(db.String(50), nullable=False)
     magistral = db.Column(db.String(50), nullable=False)
     complementaria = db.Column(db.String(50), nullable=False)
     grupos = db.relationship("Grupo", secondary=grupos, lazy="subquery",
                              backref=db.backref("estudiantes", lazy=True))
+    semestre = db.Column(db.Integer, db.ForeignKey(
+        "semestre.id"), nullable=False)
 
     def __repr__(self):
         return f"'{self.nombre}' '{self.apellido}'"
@@ -108,8 +103,7 @@ class Semestre(db.Model):
     # Creo que debe ser una relación (profesores y asistentes)
     # profesores = db.Column(db.String(50), nullable=False)
     # asistentes = db.Column(db.String(50), nullable=False)
-    estudiantes = db.relationship("Estudiante", secondary=estudiantes, lazy="subquery",
-        backref=db.backref("semestres", lazy=True))
+    estudiantes = db.relationship("Estudiante", backref="rol")
     actividades = db.relationship("Actividad", backref="semestre")
 
     def __repr__(self):
@@ -130,7 +124,7 @@ class Calificacion(db.Model):
 
 class Grupo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    numero = db.Column(db.Integer, unique=True, nullable=False)
+    numero = db.Column(db.Integer, nullable=False)
     usuario_id = db.Column(db.Integer, db.ForeignKey(
         "usuario.id"))
     actividad_id = db.Column(db.Integer, db.ForeignKey(

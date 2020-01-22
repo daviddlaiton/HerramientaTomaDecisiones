@@ -6,7 +6,7 @@ from flask_login import current_user
 from Herramienta.models import Curso
 
 class CrearActividadArchivoForm(FlaskForm):
-    archivo = FileField(u'Archivo de Excel', validators=[FileAllowed(['xls', 'xlsx'])])
+    archivo = FileField(u'Archivo de Excel', validators=[FileAllowed(['xlsx'])])
     submit = SubmitField("Crear actividad")
 
 class EliminarActividad(FlaskForm):

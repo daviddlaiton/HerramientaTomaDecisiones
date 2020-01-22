@@ -380,23 +380,8 @@ def ver_grupos_actividad(actividad_id,curso_id):
 @login_required
 def crear_grupo_actividad(actividad_id,curso_id, numero_integrantes):
     actividad = Actividad.query.get_or_404(actividad_id)
-    grupos = Grupo.query.filter_by(actividad_id=actividad_id).first()
-    semestre = Semestre.query.filter_by(id=actividad.semestre_id).first()
-    estudiantesActuales = []
-    if grupos is not None:
-        estudiantesActuales = [(e) for e in grupos.estudiantes]
-    estudiantes = [(e.id, e.login)
-              for e in Estudiante.query.all() if e not in estudiantesActuales and semestre in e.semestres]
-    class CrearGrupo(FlaskForm):pass
-    CrearGrupo.integrantes = FieldList(FormField(IntegranteForm), min_entries=numero_integrantes)
-    CrearGrupo.submit = SubmitField("Crear grupo")
-    form = CrearGrupo()
-    opciones = IntegranteForm()
-    opciones.codigo.choices = estudiantes
-    vacio = False
-    if not estudiantes:
-        vacio = True
-    return render_template("actividades/crear_grupo_actividad.html", title="Crear grupos", actividad=actividad, curso_id=curso_id, form=form, opciones=opciones, numero_integrantes=numero_integrantes, vacio=vacio)
+    estudiantes = Semestre.query.get_or_404(actividad.semestre_id).estudiantes
+    return render_template("actividades/crear_grupo_actividad.html", title="Crear grupos", actividad=actividad, curso_id=curso_id, numero_integrantes=numero_integrantes, estudiantes=estudiantes)
 
 @actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/grupoCreado/<integrantesSeleccionados>", methods=["GET", "POST"])
 @login_required

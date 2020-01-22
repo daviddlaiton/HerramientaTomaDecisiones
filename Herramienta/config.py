@@ -7,5 +7,5 @@ class Config:
     MAIL_SERVER = "pod51044.outlook.com"
     MAIL_PORT = 25
     MAIL_USE_TLS = True
-    MAIL_USERNAME = os.environ.get("MAIL_USERNAME")
-    MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
+    MAIL_USERNAME = "ad.laiton10@uniandes.edu.co"
+    MAIL_PASSWORD = "flogin97"

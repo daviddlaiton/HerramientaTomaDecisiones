@@ -1,9 +1,11 @@
-from flask import render_template, url_for, flash, redirect, request, Blueprint, abort
+import os
+from flask import render_template, url_for, flash, redirect, request, Blueprint, abort, current_app, send_file
 from flask_login import current_user, login_required
 from Herramienta.models import Usuario, Semestre, Curso, Estudiante
 from Herramienta import db, bcrypt
 from Herramienta.semestres.forms import (CrearSemestreForm, EditarNombreSemestreForm,
-                                         AgregarCursoASemestreForm, EliminarCursoASemestreForm, EliminarSemestreForm, CrearEstudianteForm, AgregarEstudianteExistenteASemestreForm)
+                                         AgregarCursoASemestreForm, EliminarCursoASemestreForm, EliminarSemestreForm, CargarListaEstudiantesForm)
+from openpyxl import load_workbook, Workbook
 
 semestres = Blueprint("semestres", __name__)
 
@@ -130,42 +132,52 @@ def verLista_semestre(semestre_id,curso_id):
     semestre = Semestre.query.get_or_404(semestre_id)
     return render_template("semestres/verLista_semestre.html", title="Ver lista estudiantes", semestre=semestre, curso_id=curso_id)
 
-@semestres.route("/semestres/<int:semestre_id>/<int:curso_id>/anadirEstudiante", methods=["GET", "POST"])
+@semestres.route("/semestres/<int:semestre_id>/<int:curso_id>/cargarLista", methods=["GET", "POST"])
 @login_required
-def anadirEstudiante_semestre(semestre_id,curso_id):
+def cargarListaEstudiantes_semestre(semestre_id,curso_id):
     user_id = current_user.get_id()
     user = Usuario.query.filter_by(id=user_id).first()
     if user.rol_id == 1:
         abort(403)
     semestre = Semestre.query.get_or_404(semestre_id)
-    form = CrearEstudianteForm()
+    form = CargarListaEstudiantesForm()
     if form.validate_on_submit():
-        estudiante = Estudiante(codigo=form.codigo.data, login=form.login.data, apellido=form.apellidos.data, nombre=form.nombres.data, magistral=form.magistral.data, complementaria=form.complementaria.data)
-        semestre.estudiantes.append(estudiante)
-        db.session.add(estudiante)
-        db.session.commit()
-        flash(f"Estudiante creado exitosamente.", "success")
-        return redirect(url_for("semestres.verLista_semestre", semestre_id=semestre_id, curso_id=curso_id))
-    return render_template("semestres/anadirEstudiante_semestre.html", title="Crear estudiante", semestre=semestre, curso_id=curso_id, form=form)
+        if form.archivo.data:
+            if request.method == 'POST':
+                f = request.files['archivo']
+                f.save(os.path.join(current_app.root_path, 'static/files', "ListaEstudiantes.xlsx"))
+                analisis = analizarArchivoListEstudiantes(semestre)
+                if analisis:
+                    flash(f"Lista de estudiantes importada exitosamente", "success")
+                    return redirect(url_for("cursos.ver_curso", curso_id=curso_id))
+                else:
+                    flash(f"El archivo no pudo ser procesado porque no cumple con la estructura.", "danger")
+                    return redirect(url_for("cursos.ver_curso", curso_id=curso_id))
+    return render_template("semestres/cargarLista_semestre.html", title="Añadir estudiante", semestre=semestre, curso_id=curso_id, form=form)
 
-@semestres.route("/semestres/<int:semestre_id>/<int:curso_id>/anadirEstudianteExistente", methods=["GET", "POST"])
-@login_required
-def anadirEstudianteExistente_semestre(semestre_id,curso_id):
-    user_id = current_user.get_id()
-    user = Usuario.query.filter_by(id=user_id).first()
-    if user.rol_id == 1:
-        abort(403)
-    semestre = Semestre.query.get_or_404(semestre_id)
-    estudiantesActuales = semestre.estudiantes
-    estudiantes = [(e.id, e.login)
-              for e in Estudiante.query.all() if e not in estudiantesActuales]
-    form = AgregarEstudianteExistenteASemestreForm(request.form)
-    form.login.choices = estudiantes
-    if form.validate_on_submit():
-        estudiante = Estudiante.query.get_or_404(form.login.data)
-        semestre.estudiantes.append(estudiante)
-        db.session.add(estudiante)
-        db.session.commit()
-        flash(f"Estudiante añadido exitosamente.", "success")
-        return redirect(url_for("semestres.verLista_semestre", semestre_id=semestre_id, curso_id=curso_id))
-    return render_template("semestres/anadirEstudianteExistente_semestre.html", title="Añadir estudiante", semestre=semestre, curso_id=curso_id, form=form, estudiantes=estudiantes)
+def analizarArchivoListEstudiantes(semestre):
+    exito = True
+    archivoExcel = load_workbook(current_app.root_path + '/static/files/ListaEstudiantes.xlsx')
+    hoja = archivoExcel.active
+    fila = 2
+    final = False
+    while not final:
+        codigo = hoja.cell(row=fila, column=1).value
+        apellidos = hoja.cell(row=fila, column=2).value
+        nombres = hoja.cell(row=fila, column=3).value
+        login = hoja.cell(row=fila, column=4).value
+        magistral = hoja.cell(row=fila, column=5).value
+        complementaria = hoja.cell(row=fila, column=6).value
+        if None in (codigo, apellidos, nombres, login, magistral, complementaria):
+            final = True
+        else:
+            if (Estudiante.query.filter_by(codigo=codigo, semestre=semestre.id).first() == None and Estudiante.query.filter_by(login=login, semestre=semestre.id).first() == None):
+                estudiante = Estudiante(codigo=codigo, login=login, apellido=apellidos, nombre=nombres, magistral=magistral, complementaria=complementaria)
+                semestre.estudiantes.append(estudiante)
+                db.session.add(estudiante)
+                db.session.commit()
+                fila = fila + 1
+            else:
+                exito = False
+                final = True
+    return exito

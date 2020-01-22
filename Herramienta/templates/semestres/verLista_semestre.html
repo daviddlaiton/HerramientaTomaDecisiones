@@ -11,35 +11,55 @@
                     <div class="article-metadata">
                         <h4 class="mr-2">{{ semestre.nombre }}</h4>
                     </div>
-                    <form action="{{ url_for('semestres.anadirEstudiante_semestre', curso_id=curso_id, semestre_id=semestre.id) }}">
-                        <button type="submit" class="btn btn-outline-info semestreActions">Crear estudiante en el sistema y agregarlo a este semestre</button>
-                    </form>
-                    <form action="{{ url_for('semestres.anadirEstudianteExistente_semestre', curso_id=curso_id, semestre_id=semestre.id) }}">
-                        <button type="submit" class="btn btn-outline-info semestreActions">Añadir estudiante existente en el sistema a este semestre</button>
+                    <form action="{{ url_for('semestres.cargarListaEstudiantes_semestre', curso_id=curso_id, semestre_id=semestre.id) }}">
+                        <button type="submit" class="btn btn-outline-info semestreActions">Cargar lista de estudiantes</button>
                     </form>
                     <br>
                     <h4>Lista de estudiantes</h4>
                     {% if not semestre.estudiantes %}
                         <p>No hay estudiantes asignados a este semestre</p>
                     {% else %}
-                        <ul style="list-style-type:disc;" class="cursosListInSemestre">
+                    <table id="listaEstudiantes" class="hover" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Login</th>
+                                <th>Código</th>
+                                <th>Apellidos</th>
+                                <th>Nombres</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                         {% for estudiante in semestre.estudiantes %}
-                            <li>
-                                <div class="cursoTextButtonLayout">
-                                    <p>{{ estudiante.login }}</p>
-                                    <form action="{{ url_for('main.home') }}">
-                                        <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Editar estudiante</button>
-                                    </form>
-                                    <form action="{{ url_for('main.home') }}">
-                                        <button type="submit" class="btn btn-outline-danger eliminarCursoSemestre">Eliminar estudiante</button>
-                                    </form>
-                                </div>
-                            </li>
+                            <tr>
+                                <td>{{ estudiante.login }}</td>
+                                <td>{{ estudiante.codigo }}</td>
+                                <td>{{ estudiante.apellido }}</td>
+                                <td>{{ estudiante.nombre }}</td>
+                            </tr>
                         {% endfor %}
-                        </ul>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>Login</th>
+                                <th>Código</th>
+                                <th>Apellidos</th>
+                                <th>Nombres</th>
+                            </tr>
+                        </tfoot>
+                    </table>
                     {% endif %}
                 </div>
             </article>
         </div>
     </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#listaEstudiantes').DataTable({
+                "language" : {
+                    "url" : "//cdn.datatables.net/plug-ins/1.10.20/i18n/Spanish.json"
+                }
+            });
+        } );
+    </script>
 {% endblock content %}

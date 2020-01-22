@@ -1,6 +1,6 @@
 from flask import render_template, url_for, flash, redirect, request, Blueprint, abort
 from flask_login import current_user, login_required
-from Herramienta.models import Usuario, Curso, Semestre, Actividad
+from Herramienta.models import Usuario, Curso, Semestre, Actividad, Grupo
 from Herramienta import db, bcrypt
 from Herramienta.cursos.forms import CrearUsuarioForm, EditarNombreCursoForm, AgregarSemestreACursoForm, EliminarSemestreACursoForm, EliminarCursoForm
 
@@ -121,10 +121,48 @@ def eliminar_curso(curso_id):
     if user.rol_id == 1:
         abort(403)
     curso = Curso.query.get_or_404(curso_id)
+    actividades = Actividad.query.filter_by(curso_id=curso.id).all()
     form = EliminarCursoForm()
     if form.validate_on_submit():
+        for actividad in actividades:
+            grupos = Grupo.query.filter_by(actividad_id=actividad.id).all()
+            for grupo in grupos:
+                db.session.delete(grupo)
+                db.session.commit()
+            eliminarActividad(actividad.id)
+            db.session.commit()
         db.session.delete(curso)
         db.session.commit()
         flash(f"Curso eliminado exitosamente", "success")
         return redirect(url_for("cursos.get_cursos"))
     return render_template("cursos/eliminar_curso.html", title="Eliminar curso", form=form, curso=curso)
+
+def eliminarActividad(actividad_id):
+    actividad = Actividad.query.get_or_404(actividad_id)
+
+    for punto in actividad.puntos:
+        #-------------------------------------------------------------------
+        for inciso in punto.incisos:
+            #-------------------------------------------------------------------
+            for criterio in inciso.criterios:
+                #-------------------------------------------------------------------
+                for subcriterio in criterio.subcriterios:
+                    #-------------------------------------------------------------------
+                    for variacion in subcriterio.variaciones:
+                        db.session.delete(variacion)
+                        db.session.commit()
+                    #-------------------------------------------------------------------
+                    db.session.delete(subcriterio)
+                    db.session.commit()
+                #-------------------------------------------------------------------
+                db.session.delete(criterio)
+                db.session.commit()
+            #-------------------------------------------------------------------
+            db.session.delete(inciso)
+            db.session.commit()
+        #-------------------------------------------------------------------
+        db.session.delete(punto)
+        db.session.commit()
+    
+    db.session.delete(actividad)
+    db.session.commit()

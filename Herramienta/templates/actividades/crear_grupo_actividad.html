@@ -5,37 +5,51 @@
     <p id="cursoId">{{curso_id}}</p>
     <p id="actividadId">{{actividad.id}}</p>
     <div class="row">
-        <div class="col-md-2"></div>
-        <div class="col-md-7">
+        <div class="col-md-12">
             <form action="{{ url_for('actividades.ver_grupos_actividad', curso_id=curso_id, actividad_id=actividad.id) }}">
                 <input type="image" class="BackButton" src="https://image.flaticon.com/icons/svg/271/271218.svg" />
             </form>
-            {% if vacio %}
+            {% if not estudiantes %}
                 <h4>No hay estudiantes disponibles para incluir en un grupo</h4>
             {% else %}
                 <div class="content-section">
                     <form method="POST" action="" enctype="multipart/form-data" id="createForm" name="createForm">
-                        {{ form.hidden_tag() }}
                         <fieldset class="form-group">
-                            <legend class="border-bottom mb-4">Crear actividad desde integrantes</legend>
+                            <legend class="border-bottom mb-4">Crear grupo - {{ actividad.nombre }}</legend>
                             <div class="form-group">
-                                {% for e in form.integrantes %}
-                                    {{ opciones.codigo.label(class="form-control-label") }}
-                                    {% if opciones.codigo.errors %}
-                                        {{ opciones.codigo(class="form-control form-control-lg is-invalid") }}
-                                        <div class="invalid-feedback">
-                                            {% for error in e.form.codigo.errors%}
-                                            <span>{{ error }}</span>
-                                            {% endfor %}
-                                        </div>
-                                        {% else %}
-                                            <br>
-                                            {{ opciones.codigo(size=1, maxlength=50,class="form-control form-control-lg", id=e.id) }}
-                                        {% endif %}
-                                {% endfor %}
+                                <table id="listaEstudiantes" class="hover" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th>Login</th>
+                                            <th>Código</th>
+                                            <th>Apellidos</th>
+                                            <th>Nombres</th>
+                                            <th>Eliminar estudiante</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><input type="text" name="codigo" value=""></td>
+                                            <td><input type="text" name="login" value=""></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td><button class="btn btn-outline-danger" >Eliminar</button></td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th>Login</th>
+                                            <th>Código</th>
+                                            <th>Apellidos</th>
+                                            <th>Nombres</th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
                             </div>
                         </fieldset>
-                        <button class="btn btn-outline-info semestreActions" onclick="verificarEstudiantesSeleccionados(event)">Crear grupo</button>
+                        <button class="btn btn-outline-info semestreActions" onclick="">Añadir estudiante</button>
+                        <br>
+                        <button class="btn btn-success" onclick="verificarEstudiantesSeleccionados(event)">Crear grupo</button>
                     </form>
                     <form
                         action="{{ url_for('actividades.grupo_creado_actividad', curso_id=curso_id, actividad_id=actividad.id,integrantesSeleccionados='2') }}" id="formCrearGrupo">
@@ -46,6 +60,13 @@
         </div>
     </div>
     <script>
+        $(document).ready(function() {
+                    $('#listaEstudiantes').DataTable({
+                        "language" : {
+                            "url" : "//cdn.datatables.net/plug-ins/1.10.20/i18n/Spanish.json"
+                        }
+                    });
+                } );
         var numero_integrantes = document.getElementById("numeroIntegrantes");
         numero_integrantes.style.display = "none";
 
