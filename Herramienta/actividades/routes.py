@@ -381,7 +381,17 @@ def ver_grupos_actividad(actividad_id,curso_id):
 def crear_grupo_actividad(actividad_id,curso_id, numero_integrantes):
     actividad = Actividad.query.get_or_404(actividad_id)
     estudiantes = Semestre.query.get_or_404(actividad.semestre_id).estudiantes
-    return render_template("actividades/crear_grupo_actividad.html", title="Crear grupos", actividad=actividad, curso_id=curso_id, numero_integrantes=numero_integrantes, estudiantes=estudiantes)
+
+    estudiantesJSON = []
+    for estudiante in estudiantes:
+        estudianteAnadir = {
+            "codigo" : estudiante.codigo,
+            "login" : estudiante.login,
+            "nombres" : estudiante.nombre,
+            "apellidos" : estudiante.apellido
+        }
+        estudiantesJSON.append(estudianteAnadir)
+    return render_template("actividades/crear_grupo_actividad.html", title="Crear grupos", actividad=actividad, curso_id=curso_id, numero_integrantes=numero_integrantes, estudiantesJSON = estudiantesJSON)
 
 @actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/grupoCreado/<integrantesSeleccionados>", methods=["GET", "POST"])
 @login_required
