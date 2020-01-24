@@ -385,7 +385,7 @@ def crear_grupo_actividad(actividad_id,curso_id, numero_integrantes):
     estudiantesJSON = []
     for estudiante in estudiantes:
         estudianteAnadir = {
-            "codigo" : estudiante.codigo,
+            "codigo" : str(estudiante.codigo),
             "login" : estudiante.login,
             "nombres" : estudiante.nombre,
             "apellidos" : estudiante.apellido
