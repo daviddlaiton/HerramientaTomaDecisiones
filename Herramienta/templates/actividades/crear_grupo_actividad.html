@@ -16,23 +16,33 @@
                     <form method="POST" action="" enctype="multipart/form-data" id="createForm" name="createForm">
                         <fieldset class="form-group">
                             <legend class="border-bottom mb-4">Crear grupo - {{ actividad.nombre }}</legend>
-                            <div class="form-group">
+                            <div class="form-group" id="listaEstudiantes">
                                 <div class="row">
                                     <div class="col-md-2">
-                                        <p><strong>Login</strong></p>
-                                        <input type="text" name="login" id="login1">
+                                        <p style="text-align: center;"><strong>Login</strong></p>
                                     </div>
                                     <div class="col-md-2">
-                                        <p><strong>Código</strong></p>
-                                        <input type="text" name="codigo" id="codigo1">
+                                        <p style="text-align: center;"><strong>Código</strong></p>
                                     </div>
                                     <div class="col-md-3">
-                                        <p><strong>Apellidos</strong></p>
+                                        <p style="text-align: center;"><strong>Apellidos</strong></p style="text-align: center;">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <p style="text-align: center;"><strong>Nombres</strong></p style="text-align: center;">
+                                    </div>
+                                </div>
+                                <div class="row estudiante1">
+                                    <div class="col-md-2">
+                                        <input type="text" class="form-control" name="login1" id="login1">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <input type="text" class="form-control" name="codigo1" id="codigo1">
+                                    </div>
+                                    <div class="col-md-3">
                                         <p id="apellidos1" class="notFound">Apellidos</p>
                                     </div>
                                     <div class="col-md-3">
-                                        <p><strong>Nombres</strong></p>
-                                        <p id="nombres1" class="notFound">Nombre</p>
+                                        <p id="nombres1" class="notFound">Nombres</p>
                                     </div>
                                     <div class="col-md-2">
                                         <button class="btn btn-outline-danger" >Eliminar</button>
@@ -40,124 +50,132 @@
                                 </div>
                             </div>
                         </fieldset>
-                        <button class="btn btn-outline-info semestreActions" onclick="">Añadir estudiante</button>
+                        <button class="btn btn-outline-info semestreActions" onclick="anadirEstudiante(event)">Añadir estudiante</button>
                         <br>
                         <button class="btn btn-success semestreActions" onclick="verificarEstudiantesSeleccionados(event)">Crear grupo</button>
                     </form>
                     <form
                         action="{{ url_for('actividades.grupo_creado_actividad', curso_id=curso_id, actividad_id=actividad.id,integrantesSeleccionados='2') }}" id="formCrearGrupo">
-                        <button type="submit" class="btn btn-outline-info semestreActions" id="buttonCrearGrupo">Crear grupo</button>
+                        <button type="submit" class="btn btn-outline-info semestreActions" id="buttonCrearGrupo"></button>
                     </form>
                 </div>
             {% endif %}
         </div>
     </div>
     <script>
-        let estudiantes = JSON.parse('{{ estudiantesJSON | tojson | safe}}');
-
-        new autoComplete({
-            data: {                              // Data src [Array, Function, Async] | (REQUIRED)
-            src: estudiantes,
-            key: ["login"],
-            cache: true
-            },
-            sort: (a, b) => {                    // Sort rendered results ascendingly | (Optional)
-                if (a.match < b.match) return -1;
-                if (a.match > b.match) return 1;
-                return 0;
-            },
-            placeHolder: "Login",     // Place Holder text                 | (Optional)
-            selector: "#login1",           // Input field selector              | (Optional)
-            threshold: 0,                        // Min. Chars length to start Engine | (Optional)
-            debounce: 300,                       // Post duration for engine to start | (Optional)
-            searchEngine: "strict",              // Search Engine type/mode           | (Optional)
-            resultsList: {                       // Rendered results list object      | (Optional)
-                render: true,
-                container: source => {
-                    source.setAttribute("id", "login_list");
-                },
-                destination: document.querySelector("#login1"),
-                position: "afterend",
-                element: "ul"
-            },
-            maxResults: 5,                         // Max. number of rendered results | (Optional)
-            highlight: true,                       // Highlight matching results      | (Optional)
-            resultItem: {                          // Rendered result item            | (Optional)
-                content: (data, source) => {
-                    source.innerHTML = data.match;
-                },
-                element: "li"
-            },
-            noResults: () => {                     // Action script on noResults      | (Optional)
-                const result = document.createElement("li");
-                result.setAttribute("class", "no_result");
-                result.setAttribute("tabindex", "1");
-                result.innerHTML = "Sin resultados";
-                document.querySelector("#login_list").appendChild(result);
-            },
-            onSelection: feedback => {             // Action script onSelection event | (Optional)
-                estudianteSeleccionado(feedback.selection.value)
-            }
-        });
-
-        new autoComplete({
-            data: {                              // Data src [Array, Function, Async] | (REQUIRED)
-            src: estudiantes,
-            key: ["codigo"],
-            cache: true
-            },
-            sort: (a, b) => {                    // Sort rendered results ascendingly | (Optional)
-                if (a.match < b.match) return -1;
-                if (a.match > b.match) return 1;
-                return 0;
-            },
-            placeHolder: "Código",     // Place Holder text                 | (Optional)
-            selector: "#codigo1",           // Input field selector              | (Optional)
-            threshold: 0,                        // Min. Chars length to start Engine | (Optional)
-            debounce: 300,                       // Post duration for engine to start | (Optional)
-            searchEngine: "strict",              // Search Engine type/mode           | (Optional)
-            resultsList: {                       // Rendered results list object      | (Optional)
-                render: true,
-                container: source => {
-                    source.setAttribute("id", "codigo_list");
-                },
-                destination: document.querySelector("#codigo1"),
-                position: "afterend",
-                element: "ul"
-            },
-            maxResults: 5,                         // Max. number of rendered results | (Optional)
-            highlight: true,                       // Highlight matching results      | (Optional)
-            resultItem: {                          // Rendered result item            | (Optional)
-                content: (data, source) => {
-                    source.innerHTML = data.match;
-                },
-                element: "li"
-            },
-            noResults: () => {                     // Action script on noResults      | (Optional)
-                const result = document.createElement("li");
-                result.setAttribute("class", "no_result");
-                result.setAttribute("tabindex", "1");
-                result.innerHTML = "Sin resultados";
-                document.querySelector("#codigo_list").appendChild(result);
-            },
-            onSelection: feedback => {             // Action script onSelection event | (Optional)
-                estudianteSeleccionado(feedback.selection.value)
-            }
-        });
-
-        function estudianteSeleccionado(estudiante) {
-            document.getElementById("login1").value = estudiante.login;
-            document.getElementById("codigo1").value = estudiante.codigo;
-            document.getElementById("nombres1").innerHTML = estudiante.nombres;
-            document.getElementById("nombres1").classList.remove("notFound");
-            document.getElementById("nombres1").classList.add("found");
-            document.getElementById("apellidos1").innerHTML = estudiante.apellidos;
-            document.getElementById("apellidos1").classList.remove("notFound");
-            document.getElementById("apellidos1").classList.add("found");
-        }
-
         let numero_integrantes = document.getElementById("numeroIntegrantes");
         numero_integrantes.style.display = "none";
+        let estudiantes = JSON.parse('{{ estudiantesJSON | tojson | safe}}');
+
+        let numEstudiantes = 1;
+
+        createAutoComplete("login1", "login");
+        createAutoComplete("codigo1", "codigo");
+
+        function createAutoComplete(id, tipo){
+            new autoComplete({
+                data: {                              // Data src [Array, Function, Async] | (REQUIRED)
+                src: estudiantes,
+                key: [tipo],
+                cache: true
+                },
+                sort: (a, b) => {                    // Sort rendered results ascendingly | (Optional)
+                    if (a.match < b.match) return -1;
+                    if (a.match > b.match) return 1;
+                    return 0;
+                },
+                placeHolder: tipo,     // Place Holder text                 | (Optional)
+                selector: "#" + id,           // Input field selector              | (Optional)
+                threshold: 0,                        // Min. Chars length to start Engine | (Optional)
+                debounce: 300,                       // Post duration for engine to start | (Optional)
+                searchEngine: "strict",              // Search Engine type/mode           | (Optional)
+                resultsList: {                       // Rendered results list object      | (Optional)
+                    render: true,
+                    container: source => {
+                        source.setAttribute("id", tipo + "_list");
+                    },
+                    destination: document.querySelector("#"+id),
+                    position: "afterend",
+                    element: "ul"
+                },
+                maxResults: 5,                         // Max. number of rendered results | (Optional)
+                highlight: true,                       // Highlight matching results      | (Optional)
+                resultItem: {                          // Rendered result item            | (Optional)
+                    content: (data, source) => {
+                        source.innerHTML = data.match;
+                    },
+                    element: "li"
+                },
+                noResults: () => {                     // Action script on noResults      | (Optional)
+                    const result = document.createElement("li");
+                    result.setAttribute("class", "no_result");
+                    result.setAttribute("tabindex", "1");
+                    result.innerHTML = "Sin resultados";
+                    document.querySelector("#"+ tipo + "_list").appendChild(result);
+                },
+                onSelection: feedback => {             // Action script onSelection event | (Optional)
+                    estudianteSeleccionado(feedback.selection.value, id)
+                }
+            });
+        }
+
+        function estudianteSeleccionado(estudiante, idString) {
+            let id = idString.match(/\d+/)[0];
+            document.getElementById("login" + id ).value = estudiante.login;
+            document.getElementById("codigo" + id ).value = estudiante.codigo;
+            document.getElementById("nombres" + id ).innerHTML = estudiante.nombres;
+            document.getElementById("nombres" + id ).classList.remove("notFound");
+            document.getElementById("nombres" + id ).classList.add("found");
+            document.getElementById("apellidos" + id ).innerHTML = estudiante.apellidos;
+            document.getElementById("apellidos" + id ).classList.remove("notFound");
+            document.getElementById("apellidos" + id ).classList.add("found");
+        }
+
+        function anadirEstudiante(e){
+            e.preventDefault();
+            if(numEstudiantes< numero_integrantes.innerHTML){
+                numEstudiantes = numEstudiantes + 1;
+                let div = document.createElement("div");
+                div.classList.add("row");
+                div.classList.add("estudiante" + numEstudiantes)
+                document.getElementById("listaEstudiantes").appendChild(div);
+
+                crearInput("login", div);
+                crearInput("codigo", div);
+
+                crearTexto("apellidos", div);
+                crearTexto("nombres", div);
+            } else {
+                alert("El número máximo de estudiantes es de " + numero_integrantes.innerHTML);
+            }
+        }
+
+        function crearInput(tipo, padre){
+            let div = document.createElement("div");+
+            div.classList.add("col-md-2");
+            padre.appendChild(div);
+            
+            let input = document.createElement("input");
+            input.type = "text";
+            input.name = tipo + numEstudiantes;
+            input.id = tipo + numEstudiantes;
+            input.classList.add("form-control");
+            div.appendChild(input);
+
+            createAutoComplete(tipo + numEstudiantes, tipo);
+        }
+
+        function crearTexto(tipo, padre){
+            let div = document.createElement("div");+
+            div.classList.add("col-md-3");
+            padre.appendChild(div);
+
+            let p = document.createElement("p");
+            p.id = tipo + numEstudiantes;
+            p.classList.add("notFound");
+            p.innerHTML = tipo[0].toUpperCase() +  tipo.slice(1);
+            div.appendChild(p);
+        }
 
         let curso_id = document.getElementById("cursoId");
         curso_id.style.display = "none";

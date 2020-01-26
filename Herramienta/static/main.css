@@ -212,11 +212,16 @@ body {
 
 .notFound {
   color: rgb(123, 123, 123);
+  margin-top: 5px;
+  text-align: center;
 }
 
 .found {
   color: black;
+  margin-top: 5px;
+ text-align: center;
 }
+
 
 
 /* Autocomplete css */
