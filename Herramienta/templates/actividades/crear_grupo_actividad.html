@@ -31,7 +31,7 @@
                                         <p style="text-align: center;"><strong>Nombres</strong></p style="text-align: center;">
                                     </div>
                                 </div>
-                                <div class="row estudiante1">
+                                <div class="row" id="estudiante1">
                                     <div class="col-md-2">
                                         <input type="text" class="form-control" name="login1" id="login1">
                                     </div>
@@ -45,7 +45,7 @@
                                         <p id="nombres1" class="notFound">Nombres</p>
                                     </div>
                                     <div class="col-md-2">
-                                        <button class="btn btn-outline-danger" >Eliminar</button>
+                                        <button class="btn btn-outline-danger" id="eliminar1" onclick="eliminarEstudiante(1)">Eliminar</button>
                                     </div>
                                 </div>
                             </div>
@@ -137,7 +137,7 @@
                 numEstudiantes = numEstudiantes + 1;
                 let div = document.createElement("div");
                 div.classList.add("row");
-                div.classList.add("estudiante" + numEstudiantes)
+                div.id = "estudiante" + numEstudiantes;
                 document.getElementById("listaEstudiantes").appendChild(div);
 
                 crearInput("login", div);
@@ -145,8 +145,10 @@
 
                 crearTexto("apellidos", div);
                 crearTexto("nombres", div);
+
+                crearBotonEliminar(div);
             } else {
-                alert("El número máximo de estudiantes es de " + numero_integrantes.innerHTML);
+                alert("El número máximo de estudiantes en esta actividad es de " + numero_integrantes.innerHTML);
             }
         }
 
@@ -160,13 +162,14 @@
             input.name = tipo + numEstudiantes;
             input.id = tipo + numEstudiantes;
             input.classList.add("form-control");
+
             div.appendChild(input);
 
             createAutoComplete(tipo + numEstudiantes, tipo);
         }
 
         function crearTexto(tipo, padre){
-            let div = document.createElement("div");+
+            let div = document.createElement("div");
             div.classList.add("col-md-3");
             padre.appendChild(div);
 
@@ -174,7 +177,55 @@
             p.id = tipo + numEstudiantes;
             p.classList.add("notFound");
             p.innerHTML = tipo[0].toUpperCase() +  tipo.slice(1);
+
             div.appendChild(p);
+        }
+
+        function crearBotonEliminar(padre){
+            let div = document.createElement("div");
+            div.classList.add("col-md-2");
+            padre.appendChild(div);
+
+            let boton = document.createElement("button");
+            boton.id = "eliminar" + numEstudiantes;
+            boton.classList.add("btn");
+            boton.classList.add("btn-outline-danger");
+            boton.innerHTML = "Eliminar";
+            boton.setAttribute("onclick","eliminarEstudiante(" + numEstudiantes + ")");
+
+            div.appendChild(boton);
+        }
+
+        function eliminarEstudiante(id){
+            if(numEstudiantes > 1) {
+                let div = document.getElementById("estudiante" + id);
+                div.parentNode.removeChild(div);
+
+                for (let i = id; i < numEstudiantes; i++){
+                    let divElementoCambiarID = document.getElementById("estudiante"+(i+1));
+                    divElementoCambiarID.id = "estudiante" + i;
+
+                    let loginInputCambiarID = document.getElementById("login" + (i+1));
+                    loginInputCambiarID.name = "login" + i;
+                    loginInputCambiarID.id = "login" + i;
+
+                    let codigoInputCambiarID = document.getElementById("codigo" + (i+1));
+                    codigoInputCambiarID.name = "codigo" + i;
+                    codigoInputCambiarID.id = "codigo" + i;
+
+                    let apellidosPCambiarID = document.getElementById("apellidos" + (i+1));
+                    apellidosPCambiarID.id = "apellidos" + i
+
+                    let nombresPCambiarID = document.getElementById("nombres" + (i+1));
+                    nombresPCambiarID.id = "nombres" + i
+                }
+
+            numEstudiantes = numEstudiantes - 1;
+            } else {
+                alert("El grupo debe tener por lo menos 1 integrante.")
+            }
+
+            
         }
 
         let curso_id = document.getElementById("cursoId");
@@ -190,25 +241,32 @@
 
         function verificarEstudiantesSeleccionados(e){
             e.preventDefault()
-            let estudiantesEnDropdown = [];
+            let estudiantesSeleccionados = [];
             let todoCorrecto = true;
-            for(let i = 0; i< numero_integrantes.innerHTML && todoCorrecto; i++){
-                let dropdownToCheck = document.getElementById("integrantes-" + i).value;
-                if(!estudiantesEnDropdown.includes(dropdownToCheck)){
-                    estudiantesEnDropdown.push(dropdownToCheck);
+            let campoVacio = false;
+            for(let i = 0; i< numEstudiantes && todoCorrecto && !campoVacio; i++){
+                let loginEstudiante = document.getElementById("codigo" + (i+1)).value;
+                if (loginEstudiante === ""){
+                    campoVacio = true;
+                }
+                else if(!estudiantesSeleccionados.includes(loginEstudiante)){
+                    estudiantesSeleccionados.push(loginEstudiante);
                 } else {
                     todoCorrecto = false;
                 }
             }
 
-            if(todoCorrecto){
+            if(todoCorrecto && !campoVacio){
                 let grupoCreado = "";
-                for(let j = 0; j < estudiantesEnDropdown.length; j++) {
-                    grupoCreado = grupoCreado + estudiantesEnDropdown[j] + ":" ;
+                for(let j = 0; j < estudiantesSeleccionados.length; j++) {
+                    grupoCreado = grupoCreado + estudiantesSeleccionados[j] + ":" ;
                 }
                 actionFormButtonCrearGrupo.action = "/actividades/" + curso_id.innerHTML + "/"+ actividad_id.innerHTML + "/grupoCreado/" + grupoCreado;
                 buttonCrearGrupo.click();
-            } else {
+            } else if (campoVacio){
+                alert("Uno o más campos están vacíos.")
+            }
+            else {
                 alert("Uno o más estudiantes están repetidos. Por favor verificar la elección de los grupos.");
             }
         }
