@@ -18,17 +18,53 @@
                     </form>
                     <br>
                     <h4>Lista de grupos</h4>
-                    <ul>
-                    {% for grupo in actividad.grupos %}
-                        <li>
-                            {% for integrante in grupo.estudiantes %}
-                                <p class="integranteEnGrupo">{{integrante.login}}</p>
+                    {% if not actividad.grupos %}
+                        <p>No hay grupos creados hasta el momento.</p>
+                    {% else %}
+                        <table id="listaEstudiantes" class="hover" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>ID grupo</th>
+                                    <th>Núm. Integrantes</th>
+                                    <th>Nota</th>
+                                    <th>Calificador</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for grupo in actividad.grupos %}
+                                <tr>
+                                    <td>{{ grupo.numero }}</td>
+                                    <td>{{ grupo.estudiantes|length }}</td>
+                                    <td>{{ grupo.calificaciones }}</td>
+                                    <td>Calificador</td>
+                                    <td>Estado</td>
+                                </tr>
                             {% endfor %}
-                        </li>
-                    {% endfor %}
-                    </ul>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th>ID grupo</th>
+                                    <th>Núm. Integrantes</th>
+                                    <th>Nota</th>
+                                    <th>Calificador</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    {% endif %}
                 </div>
             </article>
         </div>
     </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#listaEstudiantes').DataTable({
+                "language" : {
+                    "url" : "//cdn.datatables.net/plug-ins/1.10.20/i18n/Spanish.json"
+                }
+            });
+        } );
+    </script>
 {% endblock content %}

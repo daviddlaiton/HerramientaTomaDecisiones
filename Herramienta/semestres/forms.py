@@ -39,3 +39,9 @@ class EliminarSemestreForm(FlaskForm) :
 class CargarListaEstudiantesForm(FlaskForm):
     archivo = FileField(u'Archivo de Excel', validators=[FileAllowed(['xlsx'])])
     submit = SubmitField("Cargar lista de estudiantes")
+
+class DescargarListaEstudiantesForm(FlaskForm):
+    submit = SubmitField("Descargar lista de estudiantes") 
+
+class DescargarFormatoListaEstudiantesForm(FlaskForm):
+    submit = SubmitField("Descargar formato lista de estudiantes") 

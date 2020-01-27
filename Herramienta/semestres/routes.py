@@ -4,7 +4,7 @@ from flask_login import current_user, login_required
 from Herramienta.models import Usuario, Semestre, Curso, Estudiante
 from Herramienta import db, bcrypt
 from Herramienta.semestres.forms import (CrearSemestreForm, EditarNombreSemestreForm,
-                                         AgregarCursoASemestreForm, EliminarCursoASemestreForm, EliminarSemestreForm, CargarListaEstudiantesForm)
+                                         AgregarCursoASemestreForm, EliminarCursoASemestreForm, EliminarSemestreForm, CargarListaEstudiantesForm, DescargarListaEstudiantesForm, DescargarFormatoListaEstudiantesForm)
 from openpyxl import load_workbook, Workbook
 
 semestres = Blueprint("semestres", __name__)
@@ -149,10 +149,10 @@ def cargarListaEstudiantes_semestre(semestre_id,curso_id):
                 analisis = analizarArchivoListEstudiantes(semestre)
                 if analisis:
                     flash(f"Lista de estudiantes importada exitosamente", "success")
-                    return redirect(url_for("cursos.ver_curso", curso_id=curso_id))
+                    return redirect(url_for("semestres.verLista_semestre", curso_id=curso_id, semestre_id=semestre_id))
                 else:
                     flash(f"El archivo no pudo ser procesado porque no cumple con la estructura.", "danger")
-                    return redirect(url_for("cursos.ver_curso", curso_id=curso_id))
+                    return redirect(url_for("semestre.verLista_semestre", curso_id=curso_id, semestre_id=semestre_id))
     return render_template("semestres/cargarLista_semestre.html", title="Añadir estudiante", semestre=semestre, curso_id=curso_id, form=form)
 
 def analizarArchivoListEstudiantes(semestre):
@@ -181,3 +181,70 @@ def analizarArchivoListEstudiantes(semestre):
                 exito = False
                 final = True
     return exito
+
+@semestres.route("/semestres/<int:semestre_id>/<int:curso_id>/descargarLista", methods=["GET", "POST"])
+@login_required
+def descargarListaEstudiantes_semestre(semestre_id,curso_id):
+    user_id = current_user.get_id()
+    user = Usuario.query.filter_by(id=user_id).first()
+    if user.rol_id == 1:
+        abort(403)
+    semestre = Semestre.query.get_or_404(semestre_id)
+    wb = Workbook()
+    dest_filename = 'Herramienta/static/files/ListaDeEstudiantesExportar.xlsx'
+    hoja = wb.active
+    hoja.cell(column=1, row=1, value="Código:")
+    hoja.cell(column=2, row=1, value="Apellidos:")
+    hoja.cell(column=3, row=1, value="Nombres:")
+    hoja.cell(column=4, row=1, value="Login:")
+    hoja.cell(column=5, row=1, value="Magistral:")
+    hoja.cell(column=6, row=1, value="Complementaria:")
+
+    fila = 2
+
+    for estudiante in semestre.estudiantes:
+        hoja.cell(column=1, row=fila, value=estudiante.codigo)
+        hoja.cell(column=2, row=fila, value=estudiante.apellido)
+        hoja.cell(column=3, row=fila, value=estudiante.nombre)
+        hoja.cell(column=4, row=fila, value=estudiante.login)
+        hoja.cell(column=5, row=fila, value=estudiante.magistral)
+        hoja.cell(column=6, row=fila, value=estudiante.complementaria)
+        fila = fila + 1
+
+    wb.save(filename = dest_filename)
+
+    form = DescargarListaEstudiantesForm()
+    if form.validate_on_submit():
+        return send_file('static/files/ListaDeEstudiantesExportar.xlsx',
+                     mimetype='text/xlsx',
+                     attachment_filename='ListaDeEstudiantesExportar.xlsx',
+                     as_attachment=True)
+    return render_template("semestres/descargarListaEstudiantes.html", title="Descargar lista de estudiantes", semestre=semestre, curso_id=curso_id, form=form, semestre_id=semestre_id)
+
+@semestres.route("/semestres/<int:semestre_id>/<int:curso_id>/descargarFormatoLista", methods=["GET", "POST"])
+@login_required
+def descargarFormatoListaEstudiantes_semestre(semestre_id,curso_id):
+    user_id = current_user.get_id()
+    user = Usuario.query.filter_by(id=user_id).first()
+    if user.rol_id == 1:
+        abort(403)
+    semestre = Semestre.query.get_or_404(semestre_id)
+    wb = Workbook()
+    dest_filename = 'Herramienta/static/files/FormatoListaDeEstudiantesExportar.xlsx'
+    hoja = wb.active
+    hoja.cell(column=1, row=1, value="Código:")
+    hoja.cell(column=2, row=1, value="Apellidos:")
+    hoja.cell(column=3, row=1, value="Nombres:")
+    hoja.cell(column=4, row=1, value="Login:")
+    hoja.cell(column=5, row=1, value="Magistral:")
+    hoja.cell(column=6, row=1, value="Complementaria:")
+
+    wb.save(filename = dest_filename)
+
+    form = DescargarFormatoListaEstudiantesForm()
+    if form.validate_on_submit():
+        return send_file('static/files/FormatoListaDeEstudiantesExportar.xlsx',
+                     mimetype='text/xlsx',
+                     attachment_filename='FormatoListaDeEstudiantesExportar.xlsx',
+                     as_attachment=True)
+    return render_template("semestres/descargarFormatoListaEstudiantes.html", title="Descargar formato lista de estudiantes", semestre=semestre, curso_id=curso_id, form=form, semestre_id=semestre_id)

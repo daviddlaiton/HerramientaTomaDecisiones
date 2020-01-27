@@ -11,12 +11,15 @@
                     <div class="article-metadata">
                         <h4 class="mr-2">{{ semestre.nombre }}</h4>
                     </div>
-                    <form action="{{ url_for('semestres.cargarListaEstudiantes_semestre', curso_id=curso_id, semestre_id=semestre.id) }}">
-                        <button type="submit" class="btn btn-outline-info semestreActions">Cargar lista de estudiantes</button>
-                    </form>
-                    <br>
                     <h4>Lista de estudiantes</h4>
                     {% if not semestre.estudiantes %}
+                        <form action="{{ url_for('semestres.cargarListaEstudiantes_semestre', curso_id=curso_id, semestre_id=semestre.id) }}">
+                            <button type="submit" class="btn btn-outline-info semestreActions">Cargar lista de estudiantes</button>
+                        </form>
+                        <form action="{{ url_for('semestres.descargarFormatoListaEstudiantes_semestre', curso_id=curso_id, semestre_id=semestre.id) }}">
+                            <button type="submit" class="btn btn-outline-info semestreActions">Descargar formato lista de estudiantes</button>
+                        </form>
+                        <br>
                         <p>No hay estudiantes asignados a este semestre</p>
                     {% else %}
                     <table id="listaEstudiantes" class="hover" style="width:100%">
@@ -47,6 +50,10 @@
                             </tr>
                         </tfoot>
                     </table>
+                    <br>
+                    <form action="{{ url_for('semestres.descargarListaEstudiantes_semestre', curso_id=curso_id, semestre_id=semestre.id) }}">
+                        <button type="submit" class="btn btn-outline-info semestreActions">Descargar lista de estudiantes</button>
+                    </form>
                     {% endif %}
                 </div>
             </article>

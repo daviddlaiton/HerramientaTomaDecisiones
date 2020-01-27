@@ -64,6 +64,9 @@
                         <form action="{{ url_for('actividades.crear_actividad', curso_id=curso.id) }}">
                             <button type="submit" class="btn btn-outline-info semestreActions">Crear actividad</button>
                         </form>
+                        <form action="{{ url_for('actividades.crear_actividad', curso_id=curso.id) }}">
+                            <button type="submit" class="btn btn-outline-info semestreActions">Descargar formato actividad</button>
+                        </form>
                         {% endif %}
                         <h4>Lista de actividades:</h4>
                         <ul style="list-style-type:disc;" class="cursosListInSemestre">

@@ -125,7 +125,7 @@ def crear_actividadArchivo(curso_id):
                     flash(f"Actividad creada exitosamente", "success")
                     return redirect(url_for("cursos.ver_curso", curso_id=curso_id))
                 else:
-                    flash(f"El archivo no pudo ser procesado porque no cumple con la estructura.", "danger")
+                    flash(f"El archivo no pudo ser procesado porque el semestre no existe", "danger")
                     return redirect(url_for("cursos.ver_curso", curso_id=curso_id))
     return render_template("actividades/crear_actividadArchivo.html", title="Crear actividad desde archivo", curso_id=curso_id, form=form)
 
@@ -136,15 +136,17 @@ def analizarArchivo(curso_id):
     hoja = archivoExcel.active
     nombre = hoja["B1"].value
     nombreSemestre = hoja["B2"].value
-    porcentaje = float(hoja["B6"].value)
-    numeroIntegrantes = int(hoja["B8"].value)
-    #Falta mandar errores cuando el semestre no existe. De igual cuando no cumple con cosas como que es un número y eso. 
+    porcentaje = float(hoja["B3"].value)
+    numeroIntegrantes = int(hoja["B4"].value) 
     semestre = Semestre.query.filter_by(nombre=nombreSemestre).first()
+    if semestre is None:
+        exito = False
+        return exito
     actividad = Actividad(nombre=nombre, porcentaje=porcentaje, habilitada=False, semestre_id=semestre.id, curso_id=curso_id, numeroIntegrantes=numeroIntegrantes)
     db.session.add(actividad)
     db.session.commit()
     #Siempre se debe comenzar ahí, el formato se tiene que respetar.
-    fila = 10
+    fila = 6
     columna = 2
     final = False
     celdaPunto = hoja.cell(row=fila, column=columna).value
@@ -245,7 +247,6 @@ def crear_actividadWeb(curso_id):
 def descargar_actividad(actividad_id,curso_id):
     actividad = Actividad.query.get_or_404(actividad_id)
     semestre = Semestre.query.get_or_404(actividad.semestre_id)
-    curso = Curso.query.get_or_404(actividad.curso_id)
     form = DescargarActividad()
     wb = Workbook()
     dest_filename = 'Herramienta/static/files/ExportarActividad.xlsx'
@@ -254,29 +255,25 @@ def descargar_actividad(actividad_id,curso_id):
     hoja.cell(column=2, row=1, value=actividad.nombre)
     hoja.cell(column=1, row=2, value="Semestre:")
     hoja.cell(column=2, row=2, value=semestre.nombre)
-    hoja.cell(column=1, row=3, value="ID Tarea:")
-    hoja.cell(column=1, row=4, value="Creado:")
-    hoja.cell(column=1, row=5, value="Curso:")
-    hoja.cell(column=1, row=5, value=curso.nombre)
-    hoja.cell(column=1, row=6, value="Porcentaje sobre la nota:")
-    hoja.cell(column=1, row=6, value=actividad.porcentaje)
-    hoja.cell(column=1, row=7, value="Nota estándar:")
-    hoja.cell(column=1, row=8, value="Integrantes por grupo:")
+    hoja.cell(column=1, row=3, value="Porcentaje sobre la nota:")
+    hoja.cell(column=2, row=3, value=actividad.porcentaje)
+    hoja.cell(column=1, row=4, value="Integrantes por grupo:")
+    hoja.cell(column=2, row=4, value=actividad.numeroIntegrantes)
 
 
-    hoja.cell(column=1, row=9, value="ID")
-    hoja.cell(column=2, row=9, value="Punto")
-    hoja.cell(column=3, row=9, value="Inciso")
-    hoja.cell(column=4, row=9, value="Criterio")
-    hoja.cell(column=5, row=9, value="Subcriterio")
-    hoja.cell(column=6, row=9, value="Variación/Penalización")
-    hoja.cell(column=7, row=9, value="Puntaje minimo")
-    hoja.cell(column=8, row=9, value="Puntaje")
-    hoja.cell(column=9, row=9, value="Máximo veces")
+    hoja.cell(column=1, row=5, value="ID")
+    hoja.cell(column=2, row=5, value="Punto")
+    hoja.cell(column=3, row=5, value="Inciso")
+    hoja.cell(column=4, row=5, value="Criterio")
+    hoja.cell(column=5, row=5, value="Subcriterio")
+    hoja.cell(column=6, row=5, value="Variación/Penalización")
+    hoja.cell(column=7, row=5, value="Puntaje minimo")
+    hoja.cell(column=8, row=5, value="Puntaje")
+    hoja.cell(column=9, row=5, value="Máximo veces")
 
     
     #------------------------------------------------------------------
-    fila = 10
+    fila = 6
     idPunto = 1
     idInciso = 1
     idCriterio = 1
@@ -399,13 +396,13 @@ def grupo_creado_actividad(actividad_id,curso_id,integrantesSeleccionados):
     actividad = Actividad.query.get_or_404(actividad_id)
     integrantes = []
     numeroGrupo = len(Grupo.query.filter_by(actividad_id=actividad.id).all()) + 1
-    idIntegrantes = integrantesSeleccionados.split(":")
-    for idIntegrante in idIntegrantes:
-        if idIntegrante is not "":
-            integrante = Estudiante.query.filter_by(id=idIntegrante).first()
+    codigosIntegrantes = integrantesSeleccionados.split(":")
+    for codigoIntegrante in codigosIntegrantes:
+        if codigoIntegrante is not "":
+            integrante = Estudiante.query.filter_by(codigo=codigoIntegrante).first()
             integrantes.append(integrante)
     grupo = Grupo(actividad_id=actividad_id, estudiantes=integrantes, numero=numeroGrupo)
     db.session.add(grupo)
     db.session.commit()
-    flash(f"Informes enviados exitosamente", "success")
+    flash(f"Grupo creado exitosamente", "success")
     return render_template("actividades/ver_grupos_actividad.html", title="Ver grupos", actividad=actividad, curso_id=curso_id)

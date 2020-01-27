@@ -92,7 +92,7 @@
                 resultsList: {                       // Rendered results list object      | (Optional)
                     render: true,
                     container: source => {
-                        source.setAttribute("id", tipo + "_list");
+                        source.setAttribute("id", tipo + "_list"+id);
                     },
                     destination: document.querySelector("#"+id),
                     position: "afterend",
@@ -111,7 +111,7 @@
                     result.setAttribute("class", "no_result");
                     result.setAttribute("tabindex", "1");
                     result.innerHTML = "Sin resultados";
-                    document.querySelector("#"+ tipo + "_list").appendChild(result);
+                    document.querySelector("#"+ tipo + "_list"+id).appendChild(result);
                 },
                 onSelection: feedback => {             // Action script onSelection event | (Optional)
                     estudianteSeleccionado(feedback.selection.value, id)
@@ -219,7 +219,6 @@
                     let nombresPCambiarID = document.getElementById("nombres" + (i+1));
                     nombresPCambiarID.id = "nombres" + i
                 }
-
             numEstudiantes = numEstudiantes - 1;
             } else {
                 alert("El grupo debe tener por lo menos 1 integrante.")
