@@ -33,6 +33,8 @@ def elegir_grupo_calificar_actividad(actividad_id,curso_id):
 def calificar_actividad(actividad_id,curso_id,grupo_id):
     actividad = Actividad.query.get_or_404(actividad_id)
     grupo = Grupo.query.get_or_404(grupo_id)
+    puntaje = 0
+    numSubcriterios = 0
     puntos = []
     for punto in actividad.puntos:
         incisos = []
@@ -48,6 +50,8 @@ def calificar_actividad(actividad_id,curso_id,grupo_id):
                             "puntaje" : variacion.puntaje
                         }
                         variaciones.append(variacionJSON)
+                    puntaje = puntaje + subcriterio.maximoPuntaje
+                    numSubcriterios = numSubcriterios + 1
                     subcriterioJSON = {
                         "id" : subcriterio.id,
                         "variaciones" : variaciones
@@ -70,7 +74,9 @@ def calificar_actividad(actividad_id,curso_id,grupo_id):
         puntos.append(puntoJSON)
     actividadToJson = {
         "id" : actividad.id,
-        "puntos" : puntos
+        "puntos" : puntos,
+        "puntaje" : puntaje,
+        "numSubcriterios" : numSubcriterios
     }
     return render_template("actividades/calificar_actividad.html", title="Calificar actividad", actividad=actividad, curso_id=curso_id, actividadJSON = actividadToJson, grupo_id=grupo_id, grupo=grupo)
 
@@ -406,3 +412,15 @@ def grupo_creado_actividad(actividad_id,curso_id,integrantesSeleccionados):
     db.session.commit()
     flash(f"Grupo creado exitosamente", "success")
     return render_template("actividades/ver_grupos_actividad.html", title="Ver grupos", actividad=actividad, curso_id=curso_id)
+
+@actividades.route("/actividades/<int:curso_id>/<int:semestre_id>/", methods=["GET", "POST"])
+@login_required
+def verActividades_semestre(semestre_id,curso_id):
+    curso = Curso.query.get_or_404(curso_id)
+    semestre = Semestre.query.get_or_404(curso_id)
+    todasActividades = curso.actividades 
+    actividades = []
+    for actividad in todasActividades:
+        if actividad.semestre_id == semestre_id:
+            actividades.append(actividad)
+    return render_template("actividades/ver_actividades_semestre.html", title="Ver actividades", actividades=actividades, curso=curso, semestre=semestre)

@@ -222,6 +222,13 @@ body {
  text-align: center;
 }
 
+.noFinalizado{
+  color: red;
+}
+
+.finalizado{
+  color: green;
+}
 
 
 /* Autocomplete css */

@@ -11,99 +11,70 @@
                 <article class="media content-section">
                     <div class="media-body">
                         <div class="article-metadata">
-                            <h3 class="mr-2">{{ curso.nombre }} - Acciones sobre el curso</h3>
+                            <h3 class="mr-2">{{ curso.nombre }}</h3>
                         </div>
-                        <form action="{{ url_for('cursos.editarNombre_curso', curso_id=curso.id) }}">
-                            <button type="submit" class="btn btn-outline-info semestreActions">Cambiar nombre curso</button>
-                        </form>
-                        <form action="{{ url_for('cursos.eliminar_curso', curso_id=curso.id) }}">
-                            <button type="submit" class="btn btn-outline-danger semestreActions">Eliminar curso</button>
-                        </form>
-                    </div>
-                </article>
-
-                <article class="media content-section">
-                    <div class="media-body">
-                            <div class="article-metadata">
-                                <h3 class="mr-2">{{ curso.nombre }} - Acciones sobre los semestres del curso</h3>
-                            </div>
-                            <form action="{{ url_for('cursos.agregarSemestre_curso', curso_id=curso.id) }}">
-                                <button type="submit" class="btn btn-outline-info semestreActions">Agregar semestre a curso</button>
-                            </form>
-                            <h4>Lista de semestres:</h4>
-                            <ul style="list-style-type:disc;" class="cursosListInSemestre">
-                                {% if not curso.semestres %}
-                                    <li>Ninguno</li>
-                                {% else %}
-                                    {% for semestre in curso.semestres %}
-                                        <li>
-                                            <div class="cursoTextButtonLayout">
-                                                {{ semestre.nombre }}
-                                                {% if current_user.rol_id != 1 %}
+                        {% if not curso.semestres %}
+                            No hay semestres asignados a este curso
+                        {% else %}
+                            {% for semestre in curso.semestres %}
+                                <table id="listaEstudiantes" class="hover" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th>Semestre</th>
+                                            <th>Ver actividades</th>
+                                            {% if current_user.rol_id != 1 %}
+                                                <th>Ver lista de estudiantes</th>
+                                                <th>Eliminar semestre</th>
+                                            {% endif %}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>{{ semestre.nombre }}</td>
+                                            <td>
+                                                <form action="{{ url_for('actividades.verActividades_semestre', curso_id=curso.id, semestre_id=semestre.id) }}">
+                                                    <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Ver actividades</button>
+                                                </form>
+                                            </td>
+                                            {% if current_user.rol_id != 1 %}
+                                                <td>
                                                     <form action="{{ url_for('semestres.verLista_semestre', curso_id=curso.id, semestre_id=semestre.id) }}">
                                                         <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Ver lista de estudiantes</button>
                                                     </form>
+                                                </td>
+                                                <td>
                                                     <form action="{{ url_for('cursos.eliminarCurso_semestre', semestre_id=semestre.id,  curso_id=curso.id) }}">
                                                         <button type="submit" class="btn btn-outline-danger eliminarCursoSemestre">Eliminar semestre</button>
                                                     </form>
-                                                {% endif %}
-                                            </div>
-                                        </li>
-                                    {% endfor %}
-                                {% endif %}
-                            </ul>
+                                                </td>
+                                            {% endif %}
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th>Semestre</th>
+                                            <th>Ver actividades</th>
+                                            {% if current_user.rol_id != 1 %}
+                                                <th>Ver lista de estudiantes</th>
+                                                <th>Eliminar semestre</th>
+                                            {% endif %}
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            {% endfor %}
+                        {% endif %}
                     </div>
                 </article>
             {% endif %}
-                <article class="media content-section">
-                    <div class="media-body">
-                        <div class="article-metadata">
-                            <h3 class="mr-2">{{ curso.nombre }} - Actividades del curso</h3>
-                        </div>
-                        {% if current_user.rol_id != 1 and curso.semestres %}
-                        <form action="{{ url_for('actividades.crear_actividad', curso_id=curso.id) }}">
-                            <button type="submit" class="btn btn-outline-info semestreActions">Crear actividad</button>
-                        </form>
-                        <form action="{{ url_for('actividades.crear_actividad', curso_id=curso.id) }}">
-                            <button type="submit" class="btn btn-outline-info semestreActions">Descargar formato actividad</button>
-                        </form>
-                        {% endif %}
-                        <h4>Lista de actividades:</h4>
-                        <ul style="list-style-type:disc;" class="cursosListInSemestre">
-                            {% if not curso.semestres %}
-                                <p>Es necesario tener por lo menos un semestre asignado para tener actividades asignadas</p>
-                            {% elif not curso.actividades  %}
-                                <li>Ninguna</li>
-                            {% else %}
-                                {% for actividad in curso.actividades %}
-                                    {% for semestre in curso.semestres %}
-                                        {% if actividad.semestre_id == semestre.id %}
-                                            <li>
-                                                <div class="cursoTextButtonLayout">
-                                                    <p> ({{semestre.nombre}}) - {{ actividad.nombre }}</p>
-                                                    {% if current_user.rol_id != 1 %}
-                                                        <form action="{{ url_for('actividades.ver_grupos_actividad', actividad_id=actividad.id, curso_id=curso.id) }}">
-                                                            <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Ver grupos</button>
-                                                        </form>
-                                                        <form action="{{ url_for('actividades.ver_actividad', actividad_id=actividad.id, curso_id=curso.id) }}">
-                                                            <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Ver actividad</button>
-                                                        </form>
-                                                        <form action="{{ url_for('actividades.elegir_grupo_calificar_actividad', actividad_id=actividad.id, curso_id=curso.id) }}">
-                                                            <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Ver calificaciones</button>
-                                                        </form>
-                                                    {% endif %}
-                                                    <form action="{{ url_for('actividades.elegir_grupo_calificar_actividad', actividad_id=actividad.id, curso_id=curso.id) }}">
-                                                        <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Calificar</button>
-                                                    </form>
-                                                </div>
-                                            </li>
-                                        {% endif %}
-                                    {% endfor %}
-                                {% endfor %}
-                            {% endif %}
-                        </ul>
-                    </div>
-                </article>
         </div>
     </div>
+    <script>
+        $(document).ready(function() {
+            $('#listaEstudiantes').DataTable({
+                "language" : {
+                    "url" : "//cdn.datatables.net/plug-ins/1.10.20/i18n/Spanish.json"
+                }
+            });
+        } );
+    </script>
 {% endblock content %}
