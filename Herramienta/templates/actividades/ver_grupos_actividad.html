@@ -29,6 +29,7 @@
                                     <th>Nota</th>
                                     <th>Calificador</th>
                                     <th>Estado</th>
+                                    <th>Eliminar</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -37,8 +38,13 @@
                                     <td>{{ grupo.numero }}</td>
                                     <td>{{ grupo.estudiantes|length }}</td>
                                     <td>{{ grupo.calificaciones }}</td>
-                                    <td>Calificador</td>
+                                    <td>{{ grupo.creador}}</td>
                                     <td>Estado</td>
+                                    <td>
+                                        <form action="{{ url_for('actividades.eliminar_grupo_semestre', curso_id=curso_id, actividad_id=actividad.id,grupo_id=grupo.id) }}">
+                                            <button type="submit" class="btn btn-outline-danger eliminarCursoSemestre">Eliminar</button>
+                                        </form>
+                                    </td>
                                 </tr>
                             {% endfor %}
                             </tbody>
@@ -49,6 +55,7 @@
                                     <th>Nota</th>
                                     <th>Calificador</th>
                                     <th>Estado</th>
+                                    <th>Eliminar</th>
                                 </tr>
                             </tfoot>
                         </table>

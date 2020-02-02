@@ -66,6 +66,8 @@
         let numero_integrantes = document.getElementById("numeroIntegrantes");
         numero_integrantes.style.display = "none";
         let estudiantes = JSON.parse('{{ estudiantesJSON | tojson | safe}}');
+        let estudiantesEnGrupo = JSON.parse('{{ estudiantesEnGrupo | tojson | safe}}');
+        console.log(estudiantesEnGrupo)
 
         let numEstudiantes = 1;
 
@@ -243,19 +245,25 @@
             let estudiantesSeleccionados = [];
             let todoCorrecto = true;
             let campoVacio = false;
-            for(let i = 0; i< numEstudiantes && todoCorrecto && !campoVacio; i++){
-                let loginEstudiante = document.getElementById("codigo" + (i+1)).value;
-                if (loginEstudiante === ""){
-                    campoVacio = true;
+            let grupoNuevo = true;
+            for(let i = 0; i< numEstudiantes && todoCorrecto && !campoVacio && grupoNuevo; i++){
+                let codigoEstudiante = document.getElementById("codigo" + (i+1)).value;
+                for(let j = 0; j< estudiantesEnGrupo.length && grupoNuevo; j++){
+                    let estudianteEnGrupo = estudiantesEnGrupo[j];
+                    if (estudianteEnGrupo === parseInt(codigoEstudiante)){
+                        grupoNuevo = false;
+                    }
                 }
-                else if(!estudiantesSeleccionados.includes(loginEstudiante)){
-                    estudiantesSeleccionados.push(loginEstudiante);
+                 if (codigoEstudiante === ""){
+                    campoVacio = true;
+                } else if(!estudiantesSeleccionados.includes(codigoEstudiante)){
+                    estudiantesSeleccionados.push(codigoEstudiante);
                 } else {
                     todoCorrecto = false;
                 }
             }
 
-            if(todoCorrecto && !campoVacio){
+            if(todoCorrecto && !campoVacio && grupoNuevo){
                 let grupoCreado = "";
                 for(let j = 0; j < estudiantesSeleccionados.length; j++) {
                     grupoCreado = grupoCreado + estudiantesSeleccionados[j] + ":" ;
@@ -264,7 +272,9 @@
                 buttonCrearGrupo.click();
             } else if (campoVacio){
                 alert("Uno o más campos están vacíos.")
-            }
+            } else if (!grupoNuevo){
+                alert("Uno o más integrantes ya pertenecen a un grupo")
+            }   
             else {
                 alert("Uno o más estudiantes están repetidos. Por favor verificar la elección de los grupos.");
             }

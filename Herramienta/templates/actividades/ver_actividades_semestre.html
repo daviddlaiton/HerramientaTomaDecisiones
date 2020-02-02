@@ -13,8 +13,14 @@
                         <div class="article-metadata">
                             <h3 class="mr-2">Actividades del semestre {{ semestre.nombre}} del curso {{ curso.nombre }} </h3>
                         </div>
+                        <form action="{{ url_for('actividades.crear_actividad', curso_id=curso.id) }}">
+                            <button type="submit" class="btn btn-outline-info semestreActions">Crear actividad</button>
+                        </form>
+                        <form action="{{ url_for('actividades.crear_actividad', curso_id=curso.id) }}">
+                            <button type="submit" class="btn btn-outline-info semestreActions">Descargar formato actividad</button>
+                        </form>
                         {% if not actividades %}
-                            No hay actividades asignados a este curso en este semestre
+                            No hay actividades asignadoas a este curso en este semestre
                         {% else %}
                             {% for actividad in actividades %}
                                 <table id="listaEstudiantes" class="hover" style="width:100%">

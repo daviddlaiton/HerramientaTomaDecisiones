@@ -13,6 +13,15 @@
                         <div class="article-metadata">
                             <h3 class="mr-2">{{ curso.nombre }}</h3>
                         </div>
+                        <form action="{{ url_for('cursos.editarNombre_curso', curso_id=curso.id) }}">
+                            <button type="submit" class="btn btn-outline-info semestreActions">Cambiar nombre curso</button>
+                        </form>
+                        <form action="{{ url_for('cursos.eliminar_curso', curso_id=curso.id) }}">
+                            <button type="submit" class="btn btn-outline-danger semestreActions">Eliminar curso</button>
+                        </form>
+                        <form action="{{ url_for('cursos.agregarSemestre_curso', curso_id=curso.id) }}">
+                            <button type="submit" class="btn btn-outline-info semestreActions">Agregar semestre a curso</button>
+                        </form>
                         {% if not curso.semestres %}
                             No hay semestres asignados a este curso
                         {% else %}

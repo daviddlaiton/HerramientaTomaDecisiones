@@ -272,9 +272,13 @@
                                             elementoSeleccionar = index;
                                         }
                                     });
-                                    let idElemento = subcriterio.variaciones[elementoSeleccionar].id;
-                                    document.getElementById("notaVariacion" + idElemento ).checked = true;
-                                    onlyOneSelected(idElemento, subcriterio.id);
+                                    let elemento = subcriterio.variaciones[elementoSeleccionar];
+                                    if(elemento.puntaje > 0){
+                                        let idElemento = elemento.id;
+                                        document.getElementById("notaVariacion" + idElemento ).checked = true;
+                                        onlyOneSelected(idElemento, subcriterio.id);
+                                    }
+                                    
                                 } else {
                                     document.getElementById("notaVariacionNada" + subcriterio.id).checked = true;
                                     onlyOneSelected("nada", subcriterio.id);

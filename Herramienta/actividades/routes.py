@@ -5,7 +5,7 @@ from wtforms import FieldList, FormField, SubmitField
 from flask_login import current_user, login_required
 from Herramienta.models import Usuario, Curso, Semestre, Actividad, Punto, Inciso, Criterio, Subcriterio, Variacion, Grupo, Estudiante
 from Herramienta import db, bcrypt
-from Herramienta.actividades.forms import CrearActividadArchivoForm, EliminarActividad, DescargarActividad, CrearPunto, CambiarEstadoActividad, EnviarReportes, IntegranteForm, EscogerGrupoParaCalificar
+from Herramienta.actividades.forms import CrearActividadArchivoForm, EliminarActividad, DescargarActividad, CrearPunto, CambiarEstadoActividad, EnviarReportes, IntegranteForm, EscogerGrupoParaCalificar, EliminarGrupo
 from openpyxl import load_workbook, Workbook
 from Herramienta.actividades.utils import send_reports
 
@@ -51,7 +51,8 @@ def calificar_actividad(actividad_id,curso_id,grupo_id):
                         }
                         variaciones.append(variacionJSON)
                     puntaje = puntaje + subcriterio.maximoPuntaje
-                    numSubcriterios = numSubcriterios + 1
+                    if subcriterio.maximoPuntaje > 0:
+                        numSubcriterios = numSubcriterios + 1
                     subcriterioJSON = {
                         "id" : subcriterio.id,
                         "variaciones" : variaciones
@@ -148,7 +149,7 @@ def analizarArchivo(curso_id):
     if semestre is None:
         exito = False
         return exito
-    actividad = Actividad(nombre=nombre, porcentaje=porcentaje, habilitada=False, semestre_id=semestre.id, curso_id=curso_id, numeroIntegrantes=numeroIntegrantes)
+    actividad = Actividad(nombre=nombre, porcentaje=porcentaje, habilitada=False, semestre_id=semestre.id, curso_id=curso_id, numeroIntegrantes=numeroIntegrantes, numGrupos=0)
     db.session.add(actividad)
     db.session.commit()
     #Siempre se debe comenzar ahí, el formato se tiene que respetar.
@@ -384,7 +385,7 @@ def ver_grupos_actividad(actividad_id,curso_id):
 def crear_grupo_actividad(actividad_id,curso_id, numero_integrantes):
     actividad = Actividad.query.get_or_404(actividad_id)
     estudiantes = Semestre.query.get_or_404(actividad.semestre_id).estudiantes
-
+    estudiantesEnGrupo = []
     estudiantesJSON = []
     for estudiante in estudiantes:
         estudianteAnadir = {
@@ -394,33 +395,55 @@ def crear_grupo_actividad(actividad_id,curso_id, numero_integrantes):
             "apellidos" : estudiante.apellido
         }
         estudiantesJSON.append(estudianteAnadir)
-    return render_template("actividades/crear_grupo_actividad.html", title="Crear grupos", actividad=actividad, curso_id=curso_id, numero_integrantes=numero_integrantes, estudiantesJSON = estudiantesJSON)
+    for grupo in actividad.grupos:
+        estudiantesGrupo = []
+        for estudiante in grupo.estudiantes:
+            estudiantesEnGrupo.append(estudiante.codigo)
+        estudiantesEnGrupo.append(estudiantesGrupo)
+
+    return render_template("actividades/crear_grupo_actividad.html", title="Crear grupos", actividad=actividad, curso_id=curso_id, numero_integrantes=numero_integrantes, estudiantesJSON = estudiantesJSON, estudiantesEnGrupo=estudiantesEnGrupo)
 
 @actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/grupoCreado/<integrantesSeleccionados>", methods=["GET", "POST"])
 @login_required
 def grupo_creado_actividad(actividad_id,curso_id,integrantesSeleccionados):
     actividad = Actividad.query.get_or_404(actividad_id)
     integrantes = []
-    numeroGrupo = len(Grupo.query.filter_by(actividad_id=actividad.id).all()) + 1
+    actividad.numGrupos = actividad.numGrupos + 1
+    numeroGrupo = actividad.numGrupos
     codigosIntegrantes = integrantesSeleccionados.split(":")
     for codigoIntegrante in codigosIntegrantes:
         if codigoIntegrante is not "":
             integrante = Estudiante.query.filter_by(codigo=codigoIntegrante).first()
             integrantes.append(integrante)
-    grupo = Grupo(actividad_id=actividad_id, estudiantes=integrantes, numero=numeroGrupo)
+    grupo = Grupo(actividad_id=actividad_id, estudiantes=integrantes, numero=numeroGrupo, usuario_id=current_user.get_id(), creador=current_user.login)
     db.session.add(grupo)
     db.session.commit()
     flash(f"Grupo creado exitosamente", "success")
-    return render_template("actividades/ver_grupos_actividad.html", title="Ver grupos", actividad=actividad, curso_id=curso_id)
+    return redirect(url_for("actividades.ver_grupos_actividad", curso_id=curso_id, actividad_id=actividad_id))
 
 @actividades.route("/actividades/<int:curso_id>/<int:semestre_id>/", methods=["GET", "POST"])
 @login_required
 def verActividades_semestre(semestre_id,curso_id):
     curso = Curso.query.get_or_404(curso_id)
-    semestre = Semestre.query.get_or_404(curso_id)
+    semestre = Semestre.query.get_or_404(semestre_id)
     todasActividades = curso.actividades 
     actividades = []
     for actividad in todasActividades:
         if actividad.semestre_id == semestre_id:
             actividades.append(actividad)
     return render_template("actividades/ver_actividades_semestre.html", title="Ver actividades", actividades=actividades, curso=curso, semestre=semestre)
+
+@actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/eliminarGrupo/<int:grupo_id>", methods=["GET", "POST"])
+@login_required
+def eliminar_grupo_semestre(actividad_id,curso_id,grupo_id):
+    curso = Curso.query.get_or_404(curso_id)
+    actividad = Actividad.query.get_or_404(actividad_id)
+    grupo = Grupo.query.get_or_404(grupo_id)
+    form = EliminarGrupo()
+    if form.validate_on_submit():
+        actividad.grupos.remove(grupo)
+        db.session.delete(grupo)
+        db.session.commit()
+        flash(f"Grupo eliminado exitosamente", "success")
+        return redirect(url_for("actividades.ver_grupos_actividad", curso_id=curso_id, actividad_id=actividad.id))
+    return render_template("actividades/eliminar_grupo.html", title="Eliminar grupo", actividad=actividad, curso=curso,grupo=grupo, form=form)
