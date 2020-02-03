@@ -7,69 +7,64 @@
                 <input type="image" class="BackButton" src="https://image.flaticon.com/icons/svg/271/271218.svg" />
             </form>
             <br>
-            {% if current_user.rol_id != 1 %}
-                <article class="media content-section">
-                    <div class="media-body">
-                        <div class="article-metadata">
-                            <h3 class="mr-2">Actividades del semestre {{ semestre.nombre}} del curso {{ curso.nombre }} </h3>
-                        </div>
+            <article class="media content-section">
+                <div class="media-body">
+                    <div class="article-metadata">
+                        <h3 class="mr-2">Actividades del semestre {{ semestre.nombre}} del curso {{ curso.nombre }} </h3>
+                    </div>
+                    {% if current_user.rol_id != 1 %}
                         <form action="{{ url_for('actividades.crear_actividad', curso_id=curso.id) }}">
                             <button type="submit" class="btn btn-outline-info semestreActions">Crear actividad</button>
                         </form>
                         <form action="{{ url_for('actividades.crear_actividad', curso_id=curso.id) }}">
                             <button type="submit" class="btn btn-outline-info semestreActions">Descargar formato actividad</button>
                         </form>
-                        {% if not actividades %}
-                            No hay actividades asignadoas a este curso en este semestre
-                        {% else %}
-                            {% for actividad in actividades %}
-                                <table id="listaEstudiantes" class="hover" style="width:100%">
-                                    <thead>
-                                        <tr>
-                                            <th>Nombre actividad</th>
-                                            <th>Ver grupos</th>
-                                            {% if current_user.rol_id != 1 %}
-                                                <th>Ver actividad</th>
-                                            {% endif %}
-                                            <th>Calificar</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>{{ actividad.nombre }}</td>
-                                            <td>
-                                                <form action="{{ url_for('actividades.ver_grupos_actividad', actividad_id=actividad.id, curso_id=curso.id) }}">
-                                                    <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Ver grupos</button>
-                                                </form>
-                                            </td>
-                                            <td>
-                                                {% if current_user.rol_id != 1 %}
-                                                    <form action="{{ url_for('actividades.ver_actividad', actividad_id=actividad.id, curso_id=curso.id) }}">
-                                                        <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Ver actividad</button>
-                                                    </form>
-                                                {% endif %}
-                                            </td>
-                                            <td>
-                                                <form action="{{ url_for('actividades.elegir_grupo_calificar_actividad', actividad_id=actividad.id, curso_id=curso.id) }}">
-                                                    <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Calificar</button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <th>Nombre actividad</th>
-                                            <th>Ver grupos</th>
+                    {% endif %}
+                    {% if not actividades %}
+                        No hay actividades asignadoas a este curso en este semestre
+                    {% else %}
+                        {% for actividad in actividades %}
+                            <table id="listaEstudiantes" class="hover" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre actividad</th>
+                                        <th>Ver grupos</th>
+                                        {% if current_user.rol_id != 1 %}
                                             <th>Ver actividad</th>
-                                            <th>Calificar</th>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            {% endfor %}
-                        {% endif %}
-                    </div>
-                </article>
-            {% endif %}
+                                        {% endif %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>{{ actividad.nombre }}</td>
+                                        <td>
+                                            <form action="{{ url_for('actividades.ver_grupos_actividad', actividad_id=actividad.id, curso_id=curso.id) }}">
+                                                <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Ver grupos</button>
+                                            </form>
+                                        </td>
+                                        <td>
+                                            {% if current_user.rol_id != 1 %}
+                                                <form action="{{ url_for('actividades.ver_actividad', actividad_id=actividad.id, curso_id=curso.id) }}">
+                                                    <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Ver actividad</button>
+                                                </form>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th>Nombre actividad</th>
+                                        <th>Ver grupos</th>
+                                        {% if current_user.rol_id != 1 %}
+                                            <th>Ver actividad</th>
+                                        {% endif %}
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </article>
         </div>
     </div>
     <script>

@@ -18,7 +18,7 @@
                     </form>
                     <br>
                     <h4>Lista de grupos</h4>
-                    {% if not actividad.grupos %}
+                    {% if not grupos %}
                         <p>No hay grupos creados hasta el momento.</p>
                     {% else %}
                         <table id="listaEstudiantes" class="hover" style="width:100%">
@@ -29,17 +29,37 @@
                                     <th>Nota</th>
                                     <th>Calificador</th>
                                     <th>Estado</th>
+                                    <th>Editar</th>
+                                    {% if actividad.habilitada%}
+                                        <th>Calificar</th>
+                                    {% endif %}
                                     <th>Eliminar</th>
                                 </tr>
                             </thead>
                             <tbody>
-                            {% for grupo in actividad.grupos %}
+                            {% for grupo in grupos %}
                                 <tr>
                                     <td>{{ grupo.numero }}</td>
                                     <td>{{ grupo.estudiantes|length }}</td>
                                     <td>{{ grupo.calificaciones }}</td>
                                     <td>{{ grupo.creador}}</td>
-                                    <td>Estado</td>
+                                    {% if grupo.estado %}
+                                        <td class="finalizado">Calificado</td>
+                                    {% else %}
+                                        <td class="noFinalizado">No calificado</td>
+                                    {% endif %}
+                                    <td>
+                                        <form action="{{ url_for('actividades.calificar_actividad', curso_id=curso_id, actividad_id=actividad.id,grupo_id=grupo.id) }}">
+                                            <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Editar</button>
+                                        </form>
+                                    </td>
+                                    {% if actividad.habilitada%}
+                                        <td>
+                                            <form action="{{ url_for('actividades.calificar_actividad', curso_id=curso_id, actividad_id=actividad.id,grupo_id=grupo.id) }}">
+                                                <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Calificar</button>
+                                            </form>
+                                        </td>
+                                    {% endif %}
                                     <td>
                                         <form action="{{ url_for('actividades.eliminar_grupo_semestre', curso_id=curso_id, actividad_id=actividad.id,grupo_id=grupo.id) }}">
                                             <button type="submit" class="btn btn-outline-danger eliminarCursoSemestre">Eliminar</button>
@@ -55,6 +75,10 @@
                                     <th>Nota</th>
                                     <th>Calificador</th>
                                     <th>Estado</th>
+                                    <th>Editar</th>
+                                    {% if actividad.habilitada%}
+                                        <th>Calificar</th>
+                                    {% endif %}
                                     <th>Eliminar</th>
                                 </tr>
                             </tfoot>

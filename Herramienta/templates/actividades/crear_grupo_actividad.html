@@ -54,20 +54,31 @@
                         <br>
                         <button class="btn btn-success semestreActions" onclick="verificarEstudiantesSeleccionados(event)">Crear grupo</button>
                     </form>
-                    <form
-                        action="{{ url_for('actividades.grupo_creado_actividad', curso_id=curso_id, actividad_id=actividad.id,integrantesSeleccionados='2') }}" id="formCrearGrupo">
-                        <button type="submit" class="btn btn-outline-info semestreActions" id="buttonCrearGrupo"></button>
-                    </form>
                 </div>
             {% endif %}
+            <form
+            action="{{ url_for('actividades.grupo_creado_actividad', curso_id=curso_id, actividad_id=actividad.id,integrantesSeleccionados='2') }}" id="formCrearGrupo">
+            <button type="submit" class="btn btn-outline-info semestreActions" id="buttonCrearGrupo"></button>
+        </form>
         </div>
     </div>
     <script>
+
+        let curso_id = document.getElementById("cursoId");
+        curso_id.style.display = "none";
+
+        let actividad_id = document.getElementById("actividadId");
+        actividad_id.style.display = "none";
+
+        let buttonCrearGrupo = document.getElementById("buttonCrearGrupo");
+        buttonCrearGrupo.style.display = "none";
+
+        let actionFormButtonCrearGrupo = document.getElementById("formCrearGrupo")
+
         let numero_integrantes = document.getElementById("numeroIntegrantes");
         numero_integrantes.style.display = "none";
         let estudiantes = JSON.parse('{{ estudiantesJSON | tojson | safe}}');
         let estudiantesEnGrupo = JSON.parse('{{ estudiantesEnGrupo | tojson | safe}}');
-        console.log(estudiantesEnGrupo)
 
         let numEstudiantes = 1;
 
@@ -228,17 +239,6 @@
 
             
         }
-
-        let curso_id = document.getElementById("cursoId");
-        curso_id.style.display = "none";
-
-        let actividad_id = document.getElementById("actividadId");
-        actividad_id.style.display = "none";
-
-        let buttonCrearGrupo = document.getElementById("buttonCrearGrupo");
-        buttonCrearGrupo.style.display = "none";
-
-        let actionFormButtonCrearGrupo = document.getElementById("formCrearGrupo")
 
         function verificarEstudiantesSeleccionados(e){
             e.preventDefault()

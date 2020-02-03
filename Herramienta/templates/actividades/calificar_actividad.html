@@ -3,7 +3,7 @@
 {% block content %}
     <div class="row">
         <div class="col-md-12">
-            <form action="{{ url_for('actividades.elegir_grupo_calificar_actividad', curso_id=curso_id, actividad_id=actividad.id, grupo_id=grupo_id) }}">
+            <form action="{{ url_for('actividades.ver_grupos_actividad', curso_id=curso_id, actividad_id=actividad.id) }}">
                 <input type="image" class="BackButton" src="https://image.flaticon.com/icons/svg/271/271218.svg" />
             </form>
             <br>

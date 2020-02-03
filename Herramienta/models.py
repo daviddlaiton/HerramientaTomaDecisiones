@@ -131,6 +131,7 @@ class Grupo(db.Model):
     actividad_id = db.Column(db.Integer, db.ForeignKey(
         "actividad.id"), nullable=False)
     calificaciones = db.relationship("Calificacion", backref="grupos")
+    calificado =  db.Column(db.Boolean, nullable=False)
     
     def __repr__(self):
         return f"Grupo('{self.id}'), Calificaciones('{self.calificaciones})', ) "
@@ -147,7 +148,7 @@ class Actividad(db.Model):
         "curso.id"), nullable=False)
     grupos = db.relationship("Grupo", backref="actividad")
     puntos = db.relationship("Punto", backref="actividad")
-    numGrupos = db.Column(db.Integer, nullable=False) 
+    numGrupos = db.Column(db.Integer, nullable=False)
 
     def __repr__(self):
         return f"Actividad:'{self.nombre}':'{self.id}, Grupos: '{self.grupos}', Semestre:'{self.semestre_id}', Curso: '{self.curso_id}', Puntos:'{self.puntos}')"

@@ -378,7 +378,14 @@ def enviar_informes(curso_id,actividad_id):
 @login_required
 def ver_grupos_actividad(actividad_id,curso_id):
     actividad = Actividad.query.get_or_404(actividad_id)
-    return render_template("actividades/ver_grupos_actividad.html", title="Ver grupos", actividad=actividad, curso_id=curso_id)
+    grupos = []
+    user_id = current_user.get_id()
+    user = Usuario.query.filter_by(id=user_id).first()
+    if user.rol_id == 1:
+        grupos = Grupo.query.filter_by(actividad_id=actividad_id,usuario_id=user_id).all()
+    else:
+        grupos = Grupo.query.filter_by(actividad_id=actividad_id).all()
+    return render_template("actividades/ver_grupos_actividad.html", title="Ver grupos", actividad=actividad, curso_id=curso_id, grupos=grupos)
 
 @actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/crearGrupo/<int:numero_integrantes>", methods=["GET", "POST"])
 @login_required
@@ -415,7 +422,7 @@ def grupo_creado_actividad(actividad_id,curso_id,integrantesSeleccionados):
         if codigoIntegrante is not "":
             integrante = Estudiante.query.filter_by(codigo=codigoIntegrante).first()
             integrantes.append(integrante)
-    grupo = Grupo(actividad_id=actividad_id, estudiantes=integrantes, numero=numeroGrupo, usuario_id=current_user.get_id(), creador=current_user.login)
+    grupo = Grupo(actividad_id=actividad_id, estudiantes=integrantes, numero=numeroGrupo, usuario_id=current_user.get_id(), creador=current_user.login, calificado = False)
     db.session.add(grupo)
     db.session.commit()
     flash(f"Grupo creado exitosamente", "success")

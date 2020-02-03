@@ -7,12 +7,12 @@
                 <input type="image" class="BackButton" src="https://image.flaticon.com/icons/svg/271/271218.svg" />
             </form>
             <br>
-            {% if current_user.rol_id != 1 %}
-                <article class="media content-section">
-                    <div class="media-body">
-                        <div class="article-metadata">
-                            <h3 class="mr-2">{{ curso.nombre }}</h3>
-                        </div>
+            <article class="media content-section">
+                <div class="media-body">
+                    <div class="article-metadata">
+                        <h3 class="mr-2">{{ curso.nombre }}</h3>
+                    </div>
+                    {% if current_user.rol_id != 1 %}
                         <form action="{{ url_for('cursos.editarNombre_curso', curso_id=curso.id) }}">
                             <button type="submit" class="btn btn-outline-info semestreActions">Cambiar nombre curso</button>
                         </form>
@@ -22,59 +22,59 @@
                         <form action="{{ url_for('cursos.agregarSemestre_curso', curso_id=curso.id) }}">
                             <button type="submit" class="btn btn-outline-info semestreActions">Agregar semestre a curso</button>
                         </form>
-                        {% if not curso.semestres %}
-                            No hay semestres asignados a este curso
-                        {% else %}
-                            {% for semestre in curso.semestres %}
-                                <table id="listaEstudiantes" class="hover" style="width:100%">
-                                    <thead>
-                                        <tr>
-                                            <th>Semestre</th>
-                                            <th>Ver actividades</th>
-                                            {% if current_user.rol_id != 1 %}
-                                                <th>Ver lista de estudiantes</th>
-                                                <th>Eliminar semestre</th>
-                                            {% endif %}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>{{ semestre.nombre }}</td>
+                    {% endif %}
+                    {% if not curso.semestres %}
+                        No hay semestres asignados a este curso
+                    {% else %}
+                        {% for semestre in curso.semestres %}
+                            <table id="listaEstudiantes" class="hover" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th>Semestre</th>
+                                        <th>Ver actividades</th>
+                                        {% if current_user.rol_id != 1 %}
+                                            <th>Ver lista de estudiantes</th>
+                                            <th>Eliminar semestre</th>
+                                        {% endif %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>{{ semestre.nombre }}</td>
+                                        <td>
+                                            <form action="{{ url_for('actividades.verActividades_semestre', curso_id=curso.id, semestre_id=semestre.id) }}">
+                                                <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Ver actividades</button>
+                                            </form>
+                                        </td>
+                                        {% if current_user.rol_id != 1 %}
                                             <td>
-                                                <form action="{{ url_for('actividades.verActividades_semestre', curso_id=curso.id, semestre_id=semestre.id) }}">
-                                                    <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Ver actividades</button>
+                                                <form action="{{ url_for('semestres.verLista_semestre', curso_id=curso.id, semestre_id=semestre.id) }}">
+                                                    <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Ver lista de estudiantes</button>
                                                 </form>
                                             </td>
-                                            {% if current_user.rol_id != 1 %}
-                                                <td>
-                                                    <form action="{{ url_for('semestres.verLista_semestre', curso_id=curso.id, semestre_id=semestre.id) }}">
-                                                        <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Ver lista de estudiantes</button>
-                                                    </form>
-                                                </td>
-                                                <td>
-                                                    <form action="{{ url_for('cursos.eliminarCurso_semestre', semestre_id=semestre.id,  curso_id=curso.id) }}">
-                                                        <button type="submit" class="btn btn-outline-danger eliminarCursoSemestre">Eliminar semestre</button>
-                                                    </form>
-                                                </td>
-                                            {% endif %}
-                                        </tr>
-                                    </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <th>Semestre</th>
-                                            <th>Ver actividades</th>
-                                            {% if current_user.rol_id != 1 %}
-                                                <th>Ver lista de estudiantes</th>
-                                                <th>Eliminar semestre</th>
-                                            {% endif %}
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            {% endfor %}
-                        {% endif %}
-                    </div>
-                </article>
-            {% endif %}
+                                            <td>
+                                                <form action="{{ url_for('cursos.eliminarCurso_semestre', semestre_id=semestre.id,  curso_id=curso.id) }}">
+                                                    <button type="submit" class="btn btn-outline-danger eliminarCursoSemestre">Eliminar semestre</button>
+                                                </form>
+                                            </td>
+                                        {% endif %}
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th>Semestre</th>
+                                        <th>Ver actividades</th>
+                                        {% if current_user.rol_id != 1 %}
+                                            <th>Ver lista de estudiantes</th>
+                                            <th>Eliminar semestre</th>
+                                        {% endif %}
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </article>
         </div>
     </div>
     <script>
