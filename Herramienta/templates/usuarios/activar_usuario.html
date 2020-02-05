@@ -8,39 +8,36 @@
                 <form method="POST" action="">
                     {{ form.hidden_tag() }}
                     <fieldset class="form-group">
-                        <legend class="border-bottom mb-4">Iniciar sesión</legend>
+                        <legend class="border-bottom mb-4">Activar usuario</legend>
                         <div class="form-group">
-                            {{ form.login.label(class="form-control-label") }}
-                            {% if form.login.errors %}
-                            {{ form.login(class="form-control form-control-lg is-invalid") }}
+                            {{ form.nombres.label(class="form-control-label") }}
+                            {% if form.nombres.errors %}
+                            {{ form.nombres(class="form-control form-control-lg is-invalid") }}
                             <div class="invalid-feedbakc">
-                                {% for error in form.login.errors%}
+                                {% for error in form.nombres.errors%}
                                 <span>{{ error }}</span>
                                 {% endfor %}
                             </div>
                             {% else %}
-                            {{ form.login(class="form-control form-control-lg") }}
+                            {{ form.nombres(class="form-control form-control-lg") }}
                             {% endif %}
                         </div>
                         <div class="form-group">
-                            {{ form.password.label(class="form-control-label") }}
-                            {% if form.password.errors %}
-                            {{ form.password(class="form-control form-control-lg is-invalid") }}
+                            {{ form.apellidos.label(class="form-control-label") }}
+                            {% if form.apellidos.errors %}
+                            {{ form.apellidos(class="form-control form-control-lg is-invalid") }}
                             <div class="invalid-feedbakc">
-                                {% for error in form.password.errors%}
+                                {% for error in form.apellidos.errors%}
                                 <span>{{ error }}</span>
                                 {% endfor %}
                             </div>
                             {% else %}
-                            {{ form.password(class="form-control form-control-lg") }}
+                            {{ form.apellidos(class="form-control form-control-lg") }}
                             {% endif %}
                         </div>
                     </fieldset>
                     <div class="form-group">
                         {{ form.submit(class="btn btn-outline-info")}}
-                        <small class="text-muted ml-2">
-                            <a href="/reset_password">¿Olvidaste la contraseña?</a>
-                        </small>
                     </div>
                 </form>
             </div>

@@ -47,10 +47,13 @@ class Usuario(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     login = db.Column(db.String(20), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
+    nombres = db.Column(db.String(50))
+    apellidos = db.Column(db.String(50))
     rol_id = db.Column(db.Integer, db.ForeignKey("rol.id"), nullable=False)
     grupos = db.relationship("Grupo", backref="Calificador")
     cursos = db.relationship("Curso", secondary=cursos, lazy="subquery",
                              backref=db.backref("usuarios", lazy=True))
+    activado = db.Column(db.Boolean, nullable=False)
 
     def get_token_password(self, expired_sec=172800):
         s = Serializer(current_app.config["SECRET_KEY"], expired_sec)
@@ -66,8 +69,17 @@ class Usuario(db.Model, UserMixin):
         return Usuario.query.get(user_id)
 
     def __repr__(self):
-        return f"Usuario('{self.login}','{self.rol_id}')"
+        return f"Usuario('{self.login}','{self.rol_id}', activado: '{self.activado}', nombres: '{self.nombres}')"
 
+class ListaUsuariosSemestreCurso(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    semestre_id = db.Column(db.Integer, db.ForeignKey(
+        "semestre.id"), nullable=False)
+    curso_id = db.Column(db.Integer, db.ForeignKey(
+        "curso.id"), nullable=False)
+    usuario_id = db.Column(db.Integer, db.ForeignKey(
+        "usuario.id"))
+    
 
 class Estudiante(db.Model):
     id = db.Column(db.Integer, primary_key=True)

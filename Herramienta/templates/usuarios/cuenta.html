@@ -16,7 +16,7 @@
         <div class="col-md-5">
             <div class="content-section">
                 <h3>Acciones sobre la cuenta</h3>
-                <form action="">
+                <form action="{{ url_for('usuarios.cambiar_contrasena', usuario_id=usuario.id) }}">
                     <button type="submit" class="btn btn-outline-info usuariossActionsButton">Cambiar contraseña</button>
                 </form>
             </div>

@@ -4,11 +4,10 @@ from flask_login import current_user, login_required
 from Herramienta.models import Usuario, Semestre, Curso, Estudiante
 from Herramienta import db, bcrypt
 from Herramienta.semestres.forms import (CrearSemestreForm, EditarNombreSemestreForm,
-                                         AgregarCursoASemestreForm, EliminarCursoASemestreForm, EliminarSemestreForm, CargarListaEstudiantesForm, DescargarListaEstudiantesForm, DescargarFormatoListaEstudiantesForm)
+                                         AgregarCursoASemestreForm, EliminarCursoASemestreForm, EliminarSemestreForm, CargarListaEstudiantesForm, DescargarListaEstudiantesForm, DescargarFormatoListaEstudiantesForm, EstudianteForm, EliminarEstudianteForm)
 from openpyxl import load_workbook, Workbook
 
 semestres = Blueprint("semestres", __name__)
-
 
 @semestres.route("/semestres")
 @login_required
@@ -146,7 +145,7 @@ def cargarListaEstudiantes_semestre(semestre_id,curso_id):
             if request.method == 'POST':
                 f = request.files['archivo']
                 f.save(os.path.join(current_app.root_path, 'static/files', "ListaEstudiantes.xlsx"))
-                analisis = analizarArchivoListEstudiantes(semestre)
+                analisis = analizarArchivoListaEstudiantes(semestre)
                 if analisis:
                     flash(f"Lista de estudiantes importada exitosamente", "success")
                     return redirect(url_for("semestres.verLista_semestre", curso_id=curso_id, semestre_id=semestre_id))
@@ -155,7 +154,7 @@ def cargarListaEstudiantes_semestre(semestre_id,curso_id):
                     return redirect(url_for("semestre.verLista_semestre", curso_id=curso_id, semestre_id=semestre_id))
     return render_template("semestres/cargarLista_semestre.html", title="Añadir estudiante", semestre=semestre, curso_id=curso_id, form=form)
 
-def analizarArchivoListEstudiantes(semestre):
+def analizarArchivoListaEstudiantes(semestre):
     exito = True
     archivoExcel = load_workbook(current_app.root_path + '/static/files/ListaEstudiantes.xlsx')
     hoja = archivoExcel.active
@@ -248,3 +247,55 @@ def descargarFormatoListaEstudiantes_semestre(semestre_id,curso_id):
                      attachment_filename='FormatoListaDeEstudiantesExportar.xlsx',
                      as_attachment=True)
     return render_template("semestres/descargarFormatoListaEstudiantes.html", title="Descargar formato lista de estudiantes", semestre=semestre, curso_id=curso_id, form=form, semestre_id=semestre_id)
+
+@semestres.route("/semestres/<int:semestre_id>/<int:curso_id>/<int:estudiante_id>/editarEstudiante", methods=["GET", "POST"])
+@login_required
+def editarEstudiante_semestre(semestre_id,curso_id,estudiante_id):
+    estudiante = Estudiante.query.get_or_404(estudiante_id)
+    form = EstudianteForm()
+    if form.validate_on_submit():
+        estudiante.nombre = form.nombres.data
+        estudiante.apellido = form.apellidos.data
+        estudiante.codigo = form.codigo.data
+        estudiante.login = form.login.data
+        estudiante.magistral = form.magistral.data
+        estudiante.complementaria = form.complementaria.data
+        db.session.commit()
+        flash("Estudiante actualizado con éxito.", "success")
+        return redirect(url_for("semestres.verLista_semestre", semestre_id=semestre_id, curso_id=curso_id))
+    elif request.method == "GET":
+        form.nombres.data = estudiante.nombre
+        form.apellidos.data = estudiante.apellido
+        form.codigo.data = estudiante.codigo
+        form.login.data = estudiante.login
+        form.magistral.data = estudiante.magistral
+        form.complementaria.data = estudiante.complementaria
+    return render_template("semestres/estudiante.html", title="Editar estudiante", form=form, legend="Editar estudiante", curso_id=curso_id, semestre_id=semestre_id)
+
+@semestres.route("/semestres/<int:semestre_id>/<int:curso_id>/crearEstudiante", methods=["GET", "POST"])
+@login_required
+def crearEstudiante_semestre(semestre_id,curso_id):
+    semestre = Semestre.query.get_or_404(semestre_id)
+    form = EstudianteForm()
+    if form.validate_on_submit():
+        estudiante = Estudiante(codigo=form.codigo.data, login=form.login.data, apellido=form.apellidos.data, nombre=form.nombres.data, magistral=form.magistral.data, complementaria=form.complementaria.data)
+        semestre.estudiantes.append(estudiante)
+        db.session.add(estudiante)
+        db.session.commit()
+        flash("Estudiante creado con éxito.", "success")
+        return redirect(url_for("semestres.verLista_semestre", semestre_id=semestre_id, curso_id=curso_id))
+    return render_template("semestres/estudiante.html", title="Crear estudiante", form=form, legend="Crear estudiante", curso_id=curso_id, semestre_id=semestre_id)
+
+@semestres.route("/semestres/<int:semestre_id>/<int:curso_id>/<int:estudiante_id>/eliminarEstudiante", methods=["GET", "POST"])
+@login_required
+def eliminar_estudiante(semestre_id,curso_id, estudiante_id):
+    estudiante = Estudiante.query.get_or_404(estudiante_id)
+    semestre = Semestre.query.get_or_404(semestre_id)
+    form = EliminarEstudianteForm()
+    if form.validate_on_submit():
+        semestre.estudiantes.remove(estudiante)
+        db.session.delete(estudiante)
+        db.session.commit()
+        flash(f"Estudiante eliminado exitosamente", "success")
+        return redirect(url_for("semestres.verLista_semestre", semestre_id=semestre_id, curso_id=curso_id))
+    return render_template("semestres/eliminar_estudiante.html", title="Eliminar estudiante", form=form, legend="Crear estudiante", curso_id=curso_id, semestre_id=semestre_id)

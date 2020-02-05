@@ -3,11 +3,11 @@ import string
 from flask import render_template, url_for, flash, redirect, request, Blueprint, abort
 from flask_login import login_user, current_user, logout_user, login_required
 from Herramienta import db, bcrypt
-from Herramienta.models import Usuario, Rol, Curso
+from Herramienta.models import Usuario, Rol, Curso, ListaUsuariosSemestreCurso
 from Herramienta.usuarios.forms import (RegistrationForm, LoginForm, RequestResetForm, ResetPasswordForm,
                                         EditarNombreUsuarioForm, EditarRolUsuarioForm, AgregarCursoAUsuarioForm, EliminarCursosAUsuarioForm,
-                                        EliminarUsuarioForm, EstablecerContraseñaForm)
-from Herramienta.usuarios.utils import send_reset_email
+                                        EliminarUsuarioForm, EstablecerContraseñaForm, ActivarUsuarioForm)
+from Herramienta.usuarios.utils import send_reset_email,usuario_creado_email
 
 usuarios = Blueprint("usuarios", __name__)
 
@@ -26,14 +26,29 @@ def register():
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
         user = Usuario(login=form.login.data,
-                       password=hashed_password, rol_id=form.rol.data)
+                       password=hashed_password, rol_id=form.rol.data, activado=False)
         db.session.add(user)
         db.session.commit()
         usuario = Usuario.query.filter_by(login=form.login.data).first()
-        send_reset_email(usuario)
-        flash(f"Usuario creado exitosamente. Es necesario que este usuario establezca su propia contraseña. Para esto cuenta con 2 días. Pasado este tiempo es necesario que el administrador vuelva a crear tu usuario. ", "success")
+        usuario_creado_email(usuario)
+        flash(f"Usuario creado exitosamente. Es necesario que este usuario establezca su propia contraseña.", "success")
         return redirect(url_for("usuarios.get_usuarios"))
     return render_template("usuarios/crear_usuario.html", title="Crear usuario", form=form)
+
+@usuarios.route("/reset_password", methods=['GET', 'POST'])
+def reset_request():
+    if current_user.is_authenticated:
+        return redirect(url_for('main.home'))
+    form = RequestResetForm()
+    if form.validate_on_submit():
+        user = Usuario.query.filter_by(login=form.login.data).first()
+        if user:
+            send_reset_email(user)
+            flash('Un correo ha sido enviado con las instrucciones para el cambio de la contraseña.', 'info')
+            return redirect(url_for('usuarios.login'))
+        else:
+            flash("El login ingresado no existe en el Opticorrector", "danger")
+    return render_template('usuarios/reset_password.html', title='Reset Password', form=form)
 
 @usuarios.route("/resetPassword/<token>", methods=["GET", "POST"])
 def reset_password(token):
@@ -41,7 +56,7 @@ def reset_password(token):
         return redirect(url_for('main.home'))
     user = Usuario.verify_token_password(token)
     if user is None:
-        flash('El token ha expirado. Comunícate con el administrador para pode generlaro de nuevo.', 'warning')
+        flash('El link de cambio de contraseña ha expirado. Necesitas crear uno nuevo de la misma manera en que creaste el anterior', 'warning')
         return redirect(url_for('main.home'))
     form = EstablecerContraseñaForm()
     if form.validate_on_submit():
@@ -50,7 +65,19 @@ def reset_password(token):
         db.session.commit()
         flash('La constreña ha sido definida. Ya puedes iniciar sesión.', 'success')
         return redirect(url_for('usuarios.login'))
-    return render_template('usuarios/establecerContrasena.html', title='Reset Password', form=form)
+    return render_template('usuarios/establecerContrasena.html', title='Cambiar contraseña', form=form)
+
+@usuarios.route("/resetPassword/<int:usuario_id>", methods=["GET", "POST"])
+def cambiar_contrasena(usuario_id):
+    user = Usuario.query.get_or_404(usuario_id)
+    form = EstablecerContraseñaForm()
+    if form.validate_on_submit():
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user.password = hashed_password
+        db.session.commit()
+        flash('La constreña ha sido definida', 'success')
+        return redirect(url_for('cursos.get_cursos'))
+    return render_template('usuarios/establecerContrasena.html', title='Cambiar contraseña', form=form)
 
 
 @usuarios.route("/login", methods=["GET", "POST"])
@@ -63,7 +90,7 @@ def login():
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user)
             next_page = request.args.get("next")
-            return redirect(next_page) if next_page else redirect(url_for("cursos.get_cursos"))
+            return redirect(next_page) if next_page else redirect(url_for("main.home"))
         else:
             flash("Login o contraseña invalidos.", "danger")
     return render_template("usuarios/login.html", title="Iniciar sesión", form=form)
@@ -204,3 +231,25 @@ def eliminar_usuario(usuario_id):
 def randomString(stringLength):
     letters = string.ascii_letters
     return ''.join(random.choice(letters) for i in range(stringLength))
+
+@usuarios.route("/usuarios/activarUsuario", methods=["GET", "POST"])
+@login_required
+def activar_usuario():
+    user_id = current_user.get_id()
+    user = Usuario.query.filter_by(id=user_id).first()
+    form = ActivarUsuarioForm()
+    if form.validate_on_submit():
+        user.nombres = form.nombres.data
+        user.apellidos = form.apellidos.data
+        user.activado = True
+        db.session.commit()
+        flash(f"Usuario activado exitosamente", "success")
+        return redirect(url_for("cursos.get_cursos"))
+    return render_template("usuarios/activar_usuario.html", title="Activar usuario", form=form)
+
+@usuarios.route("/usuarios/<int:semestre_id>/<int:curso_id>/verMonitores", methods=["GET", "POST"])
+@login_required
+def verMonitores(semestre_id,curso_id):
+    listaMonitores = ListaUsuariosSemestreCurso.query.filter_by(semestre_id=semestre_id,curso_id=curso_id).all()
+
+    return render_template("usuarios/activar_usuario.html", title="Activar usuario", form=form)

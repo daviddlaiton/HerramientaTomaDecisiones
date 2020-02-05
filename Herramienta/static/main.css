@@ -69,13 +69,6 @@ body {
     vertical-align: middle;
   }
   
-  .account-img {
-    height: 125px;
-    width: 125px;
-    margin-right: 20px;
-    margin-bottom: 16px;
-  }
-  
   .account-heading {
     font-size: 2.5rem;
   }
@@ -228,6 +221,10 @@ body {
 
 .finalizado{
   color: green;
+}
+
+.habilitarButton{
+  height: 40px;
 }
 
 

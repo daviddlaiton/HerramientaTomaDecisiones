@@ -33,6 +33,9 @@ class AgregarCursoASemestreForm(FlaskForm) :
 class EliminarCursoASemestreForm(FlaskForm) :
     submit = SubmitField("Eliminar curso") 
 
+class EliminarEstudianteForm(FlaskForm) :
+    submit = SubmitField("Eliminar estudiante") 
+
 class EliminarSemestreForm(FlaskForm) :
     submit = SubmitField("Eliminar semestre") 
 
@@ -45,3 +48,12 @@ class DescargarListaEstudiantesForm(FlaskForm):
 
 class DescargarFormatoListaEstudiantesForm(FlaskForm):
     submit = SubmitField("Descargar formato lista de estudiantes") 
+
+class EstudianteForm(FlaskForm):
+    nombres = StringField("Nombres", validators=[DataRequired()])
+    apellidos = StringField("Apellidos", validators=[DataRequired()])
+    codigo = IntegerField("Código", validators=[DataRequired()])
+    login = StringField("Login", validators=[DataRequired()])
+    magistral = StringField("Magistral", validators=[DataRequired()])
+    complementaria = StringField("Complementaria", validators=[DataRequired()])
+    submit = SubmitField("Aceptar")

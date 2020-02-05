@@ -12,12 +12,6 @@ class RegistrationForm(FlaskForm):
     rol = SelectField("Tipo de usuario", choices=[], coerce=int)
     submit = SubmitField("Crear usuario")
 
-    def validate_login(self, login):
-        user = Usuario.query.filter_by(login=login.data).first()
-        if user:
-            raise ValidationError("Usuario ya existente en el sistema.")
-
-
 class LoginForm(FlaskForm):
     login = StringField("Login", validators=[DataRequired()])
     password = PasswordField("Contraseña", validators=[DataRequired()])
@@ -25,22 +19,14 @@ class LoginForm(FlaskForm):
 
 
 class RequestResetForm(FlaskForm):
-    email = StringField("Correo", validators=[DataRequired(), Email()])
+    login = StringField("Login", validators=[DataRequired()])
     submit = SubmitField("Solicitar cambio de contraseña")
-
-    def validate_email(self, email):
-        user = Usuario.query.filter_by(email=email.data).first()
-        if user is None:
-            raise ValidationError(
-                "No existe una cuenta asignada a ese correo .")
-
 
 class ResetPasswordForm(FlaskForm):
     password = PasswordField("Nueva contraseña", validators=[DataRequired()])
     confirm_password = PasswordField(" Confirmar contraseña", validators=[
                                      DataRequired(), EqualTo("password")])
     submit = SubmitField("Cambiar contraseña")
-
 
 class EditarNombreUsuarioForm(FlaskForm):
     login = StringField("Usuario", validators=[
@@ -67,3 +53,8 @@ class EstablecerContraseñaForm(FlaskForm):
     confirm_password = PasswordField(" Confirmar constraseña", validators=[
                                      DataRequired(), EqualTo("password")])
     submit = SubmitField("Establecer contraseña") 
+
+class ActivarUsuarioForm(FlaskForm):
+    nombres = StringField("Nombres ", validators=[DataRequired()])
+    apellidos = StringField("Apellidos", validators=[DataRequired()])
+    submit = SubmitField("Aceptar") 

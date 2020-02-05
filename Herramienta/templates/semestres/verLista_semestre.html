@@ -22,6 +22,9 @@
                         <br>
                         <p>No hay estudiantes asignados a este semestre</p>
                     {% else %}
+                    <form action="{{ url_for('semestres.crearEstudiante_semestre', curso_id=curso_id, semestre_id=semestre.id) }}">
+                        <button type="submit" class="btn btn-outline-info semestreActions">Crear estudiante</button>
+                    </form>
                     <table id="listaEstudiantes" class="hover" style="width:100%">
                         <thead>
                             <tr>
@@ -29,6 +32,12 @@
                                 <th>Código</th>
                                 <th>Apellidos</th>
                                 <th>Nombres</th>
+                                    <th>
+                                        <img class="habilitarButton" src="/static/icons/edit.png" alt="edit image">
+                                    </th>
+                                <th>
+                                    <img class="habilitarButton" src="/static/icons/trash.png" alt="edit image">
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -38,6 +47,16 @@
                                 <td>{{ estudiante.codigo }}</td>
                                 <td>{{ estudiante.apellido }}</td>
                                 <td>{{ estudiante.nombre }}</td>
+                                <td>
+                                    <form action="{{ url_for('semestres.editarEstudiante_semestre', curso_id=curso_id, semestre_id=semestre.id, estudiante_id=estudiante.id) }}">
+                                        <button type="submit" class="checkButton"><img src="/static/icons/edit.png" class="habilitarButton" alt="check image"></button>
+                                    </form>
+                                </td>
+                                <td>
+                                    <form action="{{ url_for('semestres.eliminar_estudiante', curso_id=curso_id, semestre_id=semestre.id, estudiante_id=estudiante.id) }}">
+                                        <button type="submit" class="checkButton"><img src="/static/icons/trash.png" class="habilitarButton" alt="check image"></button>
+                                    </form>
+                                </td>
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -47,6 +66,12 @@
                                 <th>Código</th>
                                 <th>Apellidos</th>
                                 <th>Nombres</th>
+                                    <th>
+                                        <img class="habilitarButton" src="/static/icons/edit.png" alt="edit image">
+                                    </th>
+                                <th>
+                                    <img class="habilitarButton" src="/static/icons/trash.png" alt="edit image">
+                                </th>
                             </tr>
                         </tfoot>
                     </table>
