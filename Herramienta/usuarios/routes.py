@@ -3,10 +3,10 @@ import string
 from flask import render_template, url_for, flash, redirect, request, Blueprint, abort
 from flask_login import login_user, current_user, logout_user, login_required
 from Herramienta import db, bcrypt
-from Herramienta.models import Usuario, Rol, Curso, ListaUsuariosSemestreCurso
+from Herramienta.models import Usuario, Rol, Curso, ListaUsuariosSemestreCurso, Semestre
 from Herramienta.usuarios.forms import (RegistrationForm, LoginForm, RequestResetForm, ResetPasswordForm,
                                         EditarNombreUsuarioForm, EditarRolUsuarioForm, AgregarCursoAUsuarioForm, EliminarCursosAUsuarioForm,
-                                        EliminarUsuarioForm, EstablecerContraseñaForm, ActivarUsuarioForm)
+                                        EliminarUsuarioForm, EstablecerContraseñaForm, ActivarUsuarioForm, EliminarMonitorAsignadoForm, CrearMonitorForm)
 from Herramienta.usuarios.utils import send_reset_email,usuario_creado_email
 
 usuarios = Blueprint("usuarios", __name__)
@@ -34,6 +34,27 @@ def register():
         flash(f"Usuario creado exitosamente. Es necesario que este usuario establezca su propia contraseña.", "success")
         return redirect(url_for("usuarios.get_usuarios"))
     return render_template("usuarios/crear_usuario.html", title="Crear usuario", form=form)
+
+@usuarios.route("/crearMonitor/<int:curso_id>/<int:semestre_id>", methods=["GET", "POST"])
+@login_required
+def crearMonitor(curso_id,semestre_id):
+    user_id = current_user.get_id()
+    user = Usuario.query.filter_by(id=user_id).first()
+    if user.rol_id == 1:
+        abort(403)
+    form = CrearMonitorForm()
+    password = randomString(10)
+    if form.validate_on_submit():
+        hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
+        user = Usuario(login=form.login.data,
+                       password=hashed_password, rol_id=1, activado=False)
+        db.session.add(user)
+        db.session.commit()
+        usuario = Usuario.query.filter_by(login=form.login.data).first()
+        usuario_creado_email(usuario)
+        flash(f"Monitor creado exitosamente. Es necesario que este usuario establezca su propia contraseña.", "success")
+        return redirect(url_for("usuarios.verMonitores", curso_id=curso_id, semestre_id=semestre_id))
+    return render_template("usuarios/crear_monitor.html", title="Crear monitor", form=form)
 
 @usuarios.route("/reset_password", methods=['GET', 'POST'])
 def reset_request():
@@ -222,6 +243,8 @@ def eliminar_usuario(usuario_id):
     usuario = Usuario.query.get_or_404(usuario_id)
     form = EliminarUsuarioForm()
     if form.validate_on_submit():
+        lista = ListaUsuariosSemestreCurso.query.filter_by(usuario_id=usuario.id).first()
+        db.session.delete(lista)
         db.session.delete(usuario)
         db.session.commit()
         flash(f"Usuario eliminado exitosamente", "success")
@@ -250,6 +273,60 @@ def activar_usuario():
 @usuarios.route("/usuarios/<int:semestre_id>/<int:curso_id>/verMonitores", methods=["GET", "POST"])
 @login_required
 def verMonitores(semestre_id,curso_id):
+    curso = Curso.query.get_or_404(curso_id)
+    semestre = Semestre.query.get_or_404(semestre_id)
     listaMonitores = ListaUsuariosSemestreCurso.query.filter_by(semestre_id=semestre_id,curso_id=curso_id).all()
+    monitores = []
+    for monitorEnLista in listaMonitores:
+        idMonitor = monitorEnLista.usuario_id
+        monitorAgregar = Usuario.query.get_or_404(idMonitor)
+        monitores.append(monitorAgregar)
+    return render_template("usuarios/verMonitores.html", title="Ver monitores", monitores=monitores, semestre=semestre, curso=curso)
 
-    return render_template("usuarios/activar_usuario.html", title="Activar usuario", form=form)
+@usuarios.route("/usuarios/<int:semestre_id>/<int:curso_id>/agregarMonitor", methods=["GET", "POST"])
+@login_required
+def agregarMonitor(semestre_id,curso_id):
+    curso = Curso.query.get_or_404(curso_id)
+    semestre = Semestre.query.get_or_404(semestre_id)
+    todosLosMonitores = Usuario.query.filter_by(rol_id=1).all()
+    listaMonitores = ListaUsuariosSemestreCurso.query.filter_by(semestre_id=semestre_id,curso_id=curso_id).all()
+    monitoresJSON = []
+    monitoresActualesJSON = []
+    for monitor in todosLosMonitores:
+        if monitor.activado:
+            monitorAnadir = {
+                "login" : monitor.login,
+                "nombres" : monitor.nombres,
+                "apellidos" : monitor.apellidos
+            } 
+            monitoresJSON.append(monitorAnadir)
+    for monitor in listaMonitores:
+        login = Usuario.query.get_or_404(monitor.usuario_id).login
+        monitoresActualesJSON.append(login)
+
+    return render_template("usuarios/agregarMonitor.html", title="Ver monitores", monitoresActuales=monitoresActualesJSON, monitoresJSON=monitoresJSON, semestre=semestre, curso=curso)
+
+@usuarios.route("/usuarios/<int:semestre_id>/<int:curso_id>/agregarMonitor/<monitorSeleccionado>", methods=["GET", "POST"])
+@login_required
+def monitorAgregado(semestre_id,curso_id, monitorSeleccionado):
+    monitor = Usuario.query.filter_by(login=monitorSeleccionado).first()
+    nuevoMonitor = ListaUsuariosSemestreCurso(semestre_id=semestre_id, curso_id=curso_id, usuario_id=monitor.id)
+    db.session.add(nuevoMonitor)
+    db.session.commit()
+    flash(f"Monitor agreagado exitosamente", "success")
+    return redirect(url_for("usuarios.verMonitores", curso_id=curso_id, semestre_id=semestre_id))
+
+@usuarios.route("/usuarios/<int:semestre_id>/<int:curso_id>/eliminarMonitorAsignado/<int:usuario_id>", methods=["GET", "POST"])
+@login_required
+def eliminarMonitorAsignado(semestre_id,curso_id,usuario_id):
+    curso = Curso.query.get_or_404(curso_id)
+    semestre = Semestre.query.get_or_404(semestre_id)
+    usuario = Usuario.query.get_or_404(usuario_id)
+    form = EliminarMonitorAsignadoForm()
+    if form.validate_on_submit():
+        eliminar = ListaUsuariosSemestreCurso.query.filter_by(semestre_id=semestre_id, curso_id=curso_id, usuario_id=usuario_id).first()
+        db.session.delete(eliminar)
+        db.session.commit()
+        flash(f"Monitor eliminado exitosamente", "success")
+        return redirect(url_for("usuarios.verMonitores", curso_id=curso_id, semestre_id=semestre_id))
+    return render_template("usuarios/eliminar_monitor.html", title="Eliminar monitor", form=form, curso=curso, semestre=semestre, usuario=usuario)

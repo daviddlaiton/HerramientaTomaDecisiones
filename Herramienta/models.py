@@ -80,6 +80,17 @@ class ListaUsuariosSemestreCurso(db.Model):
     usuario_id = db.Column(db.Integer, db.ForeignKey(
         "usuario.id"))
     
+class SemestreCursoHabilitados(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    semestre_id = db.Column(db.Integer, db.ForeignKey(
+        "semestre.id"), nullable=False)
+    curso_id = db.Column(db.Integer, db.ForeignKey(
+        "curso.id"), nullable=False)
+    habilitado = db.Column(db.Boolean, nullable=False)
+
+    def __repr__(self):
+        return f"'{self.semestre_id}' '{self.curso_id}' '{self.habilitado}'"
+
 
 class Estudiante(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -163,7 +174,7 @@ class Actividad(db.Model):
     numGrupos = db.Column(db.Integer, nullable=False)
 
     def __repr__(self):
-        return f"Actividad:'{self.nombre}':'{self.id}, Grupos: '{self.grupos}', Semestre:'{self.semestre_id}', Curso: '{self.curso_id}', Puntos:'{self.puntos}')"
+        return f"Actividad:'{self.nombre}':'{self.id}, habilitadad:'{self.habilitada}', Grupos: '{self.grupos}', Semestre:'{self.semestre_id}', Curso: '{self.curso_id}', Puntos:'{self.puntos}')"
 
 class Punto(db.Model):
     id = db.Column(db.Integer, primary_key=True)

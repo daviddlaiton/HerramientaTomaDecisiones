@@ -23,10 +23,10 @@
                             <button type="submit" class="btn btn-outline-info semestreActions">Agregar semestre a curso</button>
                         </form>
                     {% endif %}
-                    {% if not curso.semestres %}
-                        No hay semestres asignados a este curso
+                    {% if not semestres %}
+                        <h4>No hay semestres asignados a este curso</h4>
                     {% else %}
-                        {% for semestre in curso.semestres %}
+                        {% for semestre in semestres %}
                             {% if current_user.rol_id != 1 %}
                                 <table id="listaEstudiantes" class="hover" style="width:100%">
                                     <thead>
@@ -38,16 +38,16 @@
                                             <th>Ver actividades</th>                                            
                                             <th>Ver Estudiantes</th>
                                             <th>Ver Monitores</th>
-                                            <th>Eliminar semestre</th>
                                             <th><img class="habilitarButton" src="/static/icons/tick.png" alt="check image"></th>
                                             <th><img class="habilitarButton" src="/static/icons/x.png" alt="check image"></th>
+                                            <th><img class="habilitarButton" src="/static/icons/trash.png" alt="check image"></th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
                                             <td>{{ semestre.nombre }}</td>
                                             <td>{{ semestre.estudiantes|length }}</td>
-                                            <td>{{ semestre.usuarios|length }}</td>
+                                            <td>{{ semestre.usuarios }}</td>
                                             <td>{{ semestre.actividades|length }}</td>
                                             <td>
                                                 <form action="{{ url_for('actividades.verActividades_semestre', curso_id=curso.id, semestre_id=semestre.id) }}">
@@ -64,19 +64,28 @@
                                                     <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Ver monitores</button>
                                                 </form>
                                             </td>
+                                            {% if semestre.habilitado %}
+                                                <td>
+                                                    <img src="/static/icons/tick-disabled.png" class="habilitarButton" alt="check image">
+                                                </td>
+                                                <td>
+                                                    <form action="{{ url_for('cursos.cambiarEstadoSemestreCurso', semestre_id=semestre.id,  curso_id=curso.id) }}">
+                                                        <button type="submit" class="checkButton"><img src="/static/icons/x.png" class="habilitarButton" alt="check image"></button>
+                                                    </form>
+                                                </td>
+                                            {% else %}
                                             <td>
-                                                <form action="{{ url_for('cursos.eliminarCurso_semestre', semestre_id=semestre.id,  curso_id=curso.id) }}">
-                                                    <button type="submit" class="btn btn-outline-danger eliminarCursoSemestre">Eliminar semestre</button>
-                                                </form>
-                                            </td>
-                                            <td>
-                                                <form action="{{ url_for('cursos.eliminarCurso_semestre', semestre_id=semestre.id,  curso_id=curso.id) }}">
+                                                <form action="{{ url_for('cursos.cambiarEstadoSemestreCurso', semestre_id=semestre.id,  curso_id=curso.id) }}">
                                                     <button type="submit" class="checkButton"><img src="/static/icons/tick.png" class="habilitarButton" alt="check image"></button>
                                                 </form>
                                             </td>
                                             <td>
+                                                <img src="/static/icons/x-disabled.png" class="habilitarButton" alt="check image">
+                                            </td>
+                                            {% endif %}
+                                            <td>
                                                 <form action="{{ url_for('cursos.eliminarCurso_semestre', semestre_id=semestre.id,  curso_id=curso.id) }}">
-                                                    <button type="submit" class="checkButton"><img src="/static/icons/x.png" class="habilitarButton" alt="check image"></button>
+                                                    <button type="submit" class="checkButton"><img src="/static/icons/trash.png" class="habilitarButton" alt="check image"></button>
                                                 </form>
                                             </td>
                                         </tr>
@@ -90,13 +99,13 @@
                                             <th>Ver actividades</th>                                            
                                             <th>Ver Estudiantes</th>
                                             <th>Ver Monitores</th>
-                                            <th>Eliminar semestre</th>
                                             <th><img class="habilitarButton" src="/static/icons/tick.png" alt="check image"></th>
                                             <th><img class="habilitarButton" src="/static/icons/x.png" alt="check image"></th>
+                                            <th><img class="habilitarButton" src="/static/icons/trash.png" alt="check image"></th>
                                         </tr>
                                     </tfoot>
                                 </table>
-                            {% else %}
+                            {% elif numActividadesHabilitadasTotal != 0 %}
                                 <table id="listaEstudiantes" class="hover" style="width:100%">
                                     <thead>
                                         <tr>
@@ -107,13 +116,15 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td>{{ semestre.nombre }}</td>
-                                            <td>0</td>
-                                            <td>
-                                                <form action="{{ url_for('actividades.verActividades_semestre', curso_id=curso.id, semestre_id=semestre.id) }}">
-                                                    <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Ver actividades</button>
-                                                </form>
-                                            </td>
+                                            {% if semestre.habilitado %}
+                                                <td>{{ semestre.nombre }}</td>
+                                                <td>{{ semestre.actividadesHabilitadas }}</td>
+                                                <td>
+                                                    <form action="{{ url_for('actividades.verActividades_semestre', curso_id=curso.id, semestre_id=semestre.id) }}">
+                                                        <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Ver actividades</button>
+                                                    </form>
+                                                </td>
+                                            {% endif %}
                                         </tr>
                                     </tbody>
                                     <tfoot>
@@ -124,6 +135,8 @@
                                         </tr>
                                     </tfoot>
                                 </table>
+                            {% else %}
+                                <h4>No hay actividades habilitadas para calificar</h4>
                             {% endif %}
                         {% endfor %}
                     {% endif %}

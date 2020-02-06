@@ -1,0 +1,77 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+            <form action="{{ url_for('cursos.ver_curso', curso_id=curso.id)}}">
+                <input type="image" class="BackButton" src="https://image.flaticon.com/icons/svg/271/271218.svg" />
+            </form>
+            <br>
+            <article class="media content-section">
+                <div class="media-body">
+                    <div class="article-metadata">
+                        <h3 class="mr-2">Equipo {{curso.nombre}} - {{semestre.nombre}} </h3>
+                    </div>
+                    <form action="{{ url_for('usuarios.agregarMonitor', curso_id=curso.id, semestre_id=semestre.id) }}">
+                        <button type="submit" class="btn btn-outline-info semestreActions">Agregar monitor </button>
+                    </form>
+                    {% if not monitores %}
+                        No hay monitores asignados a este curso en este semestre
+                    {% else %}
+                            <table id="listaEstudiantes" class="hover" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th>Login</th>
+                                        <th>Nombres</th>
+                                        <th>Apellidos</th>
+                                        <th>Rol</th>
+                                        <th><img class="habilitarButton" src="/static/icons/trash.png" alt="check image"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for monitor in monitores %}
+                                    <tr>
+                                        <td>{{ monitor.login }}</td>
+                                        <td>{{ monitor.nombres }}</td>
+                                        <td>{{ monitor.apellidos }}</td>
+                                        {% if monitor.rol_id == 1 %}
+                                            <td>Monitor</td>
+                                        {% elif monitor.rol_id == 2 %}
+                                            <td>Asistente</td>
+                                        {% elif monitor.rol_id == 3 %}
+                                            <td>Profesor</td>
+                                        {% endif %}
+                                        <td>
+                                            <form action="{{ url_for('usuarios.eliminarMonitorAsignado', semestre_id=semestre.id,  curso_id=curso.id, usuario_id=monitor.id) }}">
+                                                <button type="submit" class="checkButton"><img src="/static/icons/trash.png" class="habilitarButton" alt="check image"></button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th>Login</th>
+                                        <th>Nombres</th>
+                                        <th>Apellidos</th>
+                                        <th>Rol</th>
+                                        <th><img class="habilitarButton" src="/static/icons/trash.png" alt="check image"></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                    {% endif %}
+                </div>
+            </article>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function() {
+            $('#listaEstudiantes').DataTable({
+                "language" : {
+                    "url" : "//cdn.datatables.net/plug-ins/1.10.20/i18n/Spanish.json"
+                }
+            });
+        } );
+    </script>
+{% endblock content %}

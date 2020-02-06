@@ -7,10 +7,15 @@ from Herramienta.models import Usuario, Rol
 
 
 class RegistrationForm(FlaskForm):
-    login = StringField("Usuario", validators=[
+    login = StringField("Login", validators=[
                         DataRequired(), Length(min=2, max=20)])
     rol = SelectField("Tipo de usuario", choices=[], coerce=int)
     submit = SubmitField("Crear usuario")
+
+class CrearMonitorForm(FlaskForm):
+    login = StringField("Login", validators=[
+                        DataRequired(), Length(min=2, max=20)])
+    submit = SubmitField("Crear monitor")
 
 class LoginForm(FlaskForm):
     login = StringField("Login", validators=[DataRequired()])
@@ -44,8 +49,11 @@ class AgregarCursoAUsuarioForm(FlaskForm) :
 class EliminarCursosAUsuarioForm(FlaskForm) :
     submit = SubmitField("Eliminar curso") 
 
-class EliminarUsuarioForm(FlaskForm) :
+class EliminarUsuarioForm(FlaskForm):
     submit = SubmitField("Eliminar usuario") 
+
+class EliminarMonitorAsignadoForm(FlaskForm):
+    submit = SubmitField("Eliminar monitor") 
 
 class EstablecerContraseñaForm(FlaskForm):
     password = PasswordField("Contraseña", validators=[

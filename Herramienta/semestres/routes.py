@@ -1,7 +1,7 @@
 import os
 from flask import render_template, url_for, flash, redirect, request, Blueprint, abort, current_app, send_file
 from flask_login import current_user, login_required
-from Herramienta.models import Usuario, Semestre, Curso, Estudiante
+from Herramienta.models import Usuario, Semestre, Curso, Estudiante, SemestreCursoHabilitados
 from Herramienta import db, bcrypt
 from Herramienta.semestres.forms import (CrearSemestreForm, EditarNombreSemestreForm,
                                          AgregarCursoASemestreForm, EliminarCursoASemestreForm, EliminarSemestreForm, CargarListaEstudiantesForm, DescargarListaEstudiantesForm, DescargarFormatoListaEstudiantesForm, EstudianteForm, EliminarEstudianteForm)
@@ -81,6 +81,8 @@ def agregarCurso_semestre(semestre_id):
     if form.validate_on_submit():
         cursoAnadir = Curso.query.filter_by(id=form.curso.data).first()
         semestre.cursos.append(cursoAnadir)
+        semestreCurso = SemestreCursoHabilitados(semestre_id=semestre_id,curso_id=cursoAnadir.id,habilitado=True)
+        db.session.add(semestreCurso)
         db.session.commit()
         flash(f"Curso añadido exitosamente", "success")
         return redirect(url_for("semestres.ver_semestre", semestre_id=semestre.id))
@@ -99,6 +101,8 @@ def eliminarCurso_semestre(semestre_id, curso_id):
     form = EliminarCursoASemestreForm()
     if form.validate_on_submit():
         semestre.cursos.remove(curso)
+        semestreCurso = SemestreCursoHabilitados.query.filter_by(semestre_id=semestre_id, curso_id=curso_id).first()
+        db.session.delete(semestreCurso)
         db.session.commit()
         flash(f"Curso eliminado exitosamente", "success")
         return redirect(url_for("semestres.ver_semestre", semestre_id=semestre.id))

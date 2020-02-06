@@ -2,7 +2,7 @@
 
 {% block content %}
     <div class="row">
-        <div class="col-md-10">
+        <div class="col-md-12">
             <form action="{{ url_for('cursos.ver_curso', curso_id=curso.id)}}">
                 <input type="image" class="BackButton" src="https://image.flaticon.com/icons/svg/271/271218.svg" />
             </form>
@@ -21,17 +21,26 @@
                         </form>
                     {% endif %}
                     {% if not actividades %}
-                        No hay actividades asignadoas a este curso en este semestre
+                        No hay actividades asignadas a este curso en este semestre
                     {% else %}
                         {% for actividad in actividades %}
                             <table id="listaEstudiantes" class="hover" style="width:100%">
                                 <thead>
                                     <tr>
-                                        <th>Nombre actividad</th>
-                                        <th>Ver grupos</th>
+                                        <th>Nombre</th>
+                                        <th>Núm. Grupos</th>
+                                        <th>Núm. Máx. Integrantes</th>
+                                        <th>Núm. Est. Calificados</th>
+                                        <th>Promedio</th>
+                                        <th>Desv. Est.</th>
                                         {% if current_user.rol_id != 1 %}
-                                            <th>Ver actividad</th>
+                                            <th>Estado</th>
+                                            <th><img class="habilitarButton" src="/static/icons/tick.png" alt="check image"></th>
+                                            <th><img class="habilitarButton" src="/static/icons/x.png" alt="check image"></th>
+                                            <th><img class="habilitarButton" src="/static/icons/edit.png" alt="check image"></th>
+                                            <th><img class="habilitarButton" src="/static/icons/trash.png" alt="check image"></th>
                                         {% endif %}
+                                        <th>Calificar</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -53,11 +62,20 @@
                                 </tbody>
                                 <tfoot>
                                     <tr>
-                                        <th>Nombre actividad</th>
-                                        <th>Ver grupos</th>
+                                        <th>Nombre</th>
+                                        <th>Núm. Grupos</th>
+                                        <th>Núm. Máx. Integrantes</th>
+                                        <th>Núm. Est. Calificados</th>
+                                        <th>Promedio</th>
+                                        <th>Desv. Est.</th>
                                         {% if current_user.rol_id != 1 %}
-                                            <th>Ver actividad</th>
+                                            <th>Estado</th>
+                                            <th><img class="habilitarButton" src="/static/icons/tick.png" alt="check image"></th>
+                                            <th><img class="habilitarButton" src="/static/icons/x.png" alt="check image"></th>
+                                            <th><img class="habilitarButton" src="/static/icons/edit.png" alt="check image"></th>
+                                            <th><img class="habilitarButton" src="/static/icons/trash.png" alt="check image"></th>
                                         {% endif %}
+                                        <th>Calificar</th>
                                     </tr>
                                 </tfoot>
                             </table>

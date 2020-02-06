@@ -1,6 +1,6 @@
 from flask import render_template, url_for, flash, redirect, request, Blueprint, abort
 from flask_login import current_user, login_required
-from Herramienta.models import Usuario, Curso, Semestre, Actividad, Grupo
+from Herramienta.models import Usuario, Curso, Semestre, Actividad, Grupo, SemestreCursoHabilitados, ListaUsuariosSemestreCurso
 from Herramienta import db, bcrypt
 from Herramienta.cursos.forms import CrearUsuarioForm, EditarNombreCursoForm, AgregarSemestreACursoForm, EliminarSemestreACursoForm, EliminarCursoForm
 
@@ -53,7 +53,37 @@ def editar_curso(curso_id):
 @login_required
 def ver_curso(curso_id):
     curso = Curso.query.get_or_404(curso_id)
-    return render_template("cursos/ver_curso.html", title="Ver curso", curso=curso)
+    listaSemestres = SemestreCursoHabilitados.query.filter_by(curso_id=curso_id).all()
+    semestres = []
+    numActividadesHabilitadasTotal = 0
+    for s in listaSemestres:
+        numActividadesHabilitadas = 0
+        semestre = Semestre.query.get_or_404(s.semestre_id)
+        listaActividades = Actividad.query.filter_by(semestre_id=s.semestre_id, curso_id=curso_id).all()
+        for actividad in listaActividades:
+            if actividad.habilitada:
+                numActividadesHabilitadas = numActividadesHabilitadas + 1
+                numActividadesHabilitadasTotal = numActividadesHabilitadasTotal +1
+        numUsuarios = len(ListaUsuariosSemestreCurso.query.filter_by(semestre_id=s.semestre_id, curso_id=curso_id).all())
+        semestreAnadir = {
+            "id": semestre.id,
+            "nombre" : semestre.nombre,
+            "estudiantes" : semestre.estudiantes,
+            "usuarios": numUsuarios,
+            "actividades" : semestre.actividades,
+            "habilitado" : s.habilitado,
+            "actividadesHabilitadas" : numActividadesHabilitadas
+        }
+        semestres.append(semestreAnadir)
+    return render_template("cursos/ver_curso.html", title="Ver curso", curso=curso, semestres=semestres, numActividadesHabilitadasTotal=numActividadesHabilitadasTotal)
+
+@cursos.route("/cursos/<int:curso_id>/<int:semestre_id>/cambiarEstado", methods=["GET", "POST"])
+@login_required
+def cambiarEstadoSemestreCurso(curso_id,semestre_id):
+    elemento = SemestreCursoHabilitados.query.filter_by(semestre_id=semestre_id, curso_id=curso_id).first()
+    elemento.habilitado = not elemento.habilitado
+    db.session.commit()
+    return redirect(url_for("cursos.ver_curso", curso_id=curso_id))
 
 @cursos.route("/cursos/<int:curso_id>/editarNombre", methods=["GET", "POST"])
 @login_required
@@ -89,6 +119,8 @@ def agregarSemestre_curso(curso_id):
     if form.validate_on_submit():
         semestreAnadir = Semestre.query.filter_by(id=form.semestre.data).first()
         curso.semestres.append(semestreAnadir)
+        semestreCurso = SemestreCursoHabilitados(semestre_id=semestreAnadir.id,curso_id=curso_id,habilitado=True)
+        db.session.add(semestreCurso)
         db.session.commit()
         flash(f"Semestre añadido exitosamente", "success")
         return redirect(url_for("cursos.ver_curso", curso_id=curso.id))
@@ -107,6 +139,8 @@ def eliminarCurso_semestre(semestre_id, curso_id):
     form = EliminarSemestreACursoForm()
     if form.validate_on_submit():
         curso.semestres.remove(semestre)
+        semestreCurso = SemestreCursoHabilitados.query.filter_by(semestre_id=semestre_id, curso_id=curso_id).first()
+        db.session.delete(semestreCurso)
         db.session.commit()
         flash(f"Semestre eliminado exitosamente", "success")
         return redirect(url_for("cursos.ver_curso", curso_id=curso.id))
