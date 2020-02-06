@@ -100,18 +100,13 @@ def eliminar_actividad(actividad_id, curso_id):
         return redirect(url_for("cursos.ver_curso", curso_id=curso_id))
     return render_template("actividades/eliminar_actividad.html", title="Eliminar actividad", curso_id=curso_id, actividad_id=actividad_id, form=form)
 
-@actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/cambiarEstado", methods=["GET", "POST"])
+@actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/<int:semestre_id>/cambiarEstado", methods=["GET", "POST"])
 @login_required
-def cambiarEstado_actividad(actividad_id,curso_id):
+def cambiarEstado_actividad(actividad_id,curso_id,semestre_id):
     actividad = Actividad.query.get_or_404(actividad_id)
-    estadoACambiar = not actividad.habilitada
-    form = CambiarEstadoActividad()
-    if form.validate_on_submit():
-        actividad.habilitada = estadoACambiar
-        db.session.commit()
-        flash(f"Cambio de estado de actividad realizado exitosamente", "success")
-        return redirect(url_for("actividades.ver_actividad", curso_id=curso_id, actividad_id=actividad_id))
-    return render_template("actividades/cambiarEstado_actividad.html", title="Cambiar estado actividad", actividad=actividad, curso_id=curso_id, form=form)
+    actividad.habilitada  = not actividad.habilitada
+    db.session.commit()
+    return redirect(url_for("actividades.verActividades_semestre", curso_id=curso_id, semestre_id=semestre_id))
 
 @actividades.route("/actividades/<int:curso_id>/crearActividad")
 @login_required
@@ -433,11 +428,7 @@ def grupo_creado_actividad(actividad_id,curso_id,integrantesSeleccionados):
 def verActividades_semestre(semestre_id,curso_id):
     curso = Curso.query.get_or_404(curso_id)
     semestre = Semestre.query.get_or_404(semestre_id)
-    todasActividades = curso.actividades 
-    actividades = []
-    for actividad in todasActividades:
-        if actividad.semestre_id == semestre_id:
-            actividades.append(actividad)
+    actividades = Actividad.query.filter_by(semestre_id=semestre_id, curso_id=curso_id).all()
     return render_template("actividades/ver_actividades_semestre.html", title="Ver actividades", actividades=actividades, curso=curso, semestre=semestre)
 
 @actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/eliminarGrupo/<int:grupo_id>", methods=["GET", "POST"])

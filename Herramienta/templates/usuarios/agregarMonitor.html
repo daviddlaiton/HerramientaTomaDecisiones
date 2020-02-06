@@ -157,7 +157,7 @@
                 }
 
             if(!campoVacio && monitorNuevo){
-                actionFormbuttonAnadirMonitor.action = "/usuarios/" + curso_id.innerHTML + "/"+ semestre_id.innerHTML + "/agregarMonitor/" + loginMonitor;
+                actionFormbuttonAnadirMonitor.action = "/usuarios/" + semestre_id.innerHTML + "/"+ curso_id.innerHTML+ "/agregarMonitor/" + loginMonitor;
                 buttonAnadirMonitor.click();
             } else if (campoVacio){
                 alert("No se ha seleccionado ningun monitor")

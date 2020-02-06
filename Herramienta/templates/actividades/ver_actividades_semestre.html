@@ -44,21 +44,65 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    {% if current_user.rol_id != 1 %}
                                     <tr>
                                         <td>{{ actividad.nombre }}</td>
+                                        <td>{{ actividad.grupos|length}}</td>
+                                        <td>{{ actividad.numeroIntegrantes }}</td>
+                                        <td>0</td>
+                                        <td>0</td>
+                                        <td>0</td>
+                                        {% if actividad.habilitada %}
+                                            <td class="finalizado">Habilitada</td>
+                                            <td>
+                                                <img src="/static/icons/tick-disabled.png" class="habilitarButton" alt="check image">
+                                            </td>
+                                            <td>
+                                                <form action="{{ url_for('actividades.cambiarEstado_actividad', semestre_id=semestre.id,  curso_id=curso.id, actividad_id=actividad.id) }}">
+                                                    <button type="submit" class="checkButton"><img src="/static/icons/x.png" class="habilitarButton" alt="check image"></button>
+                                                </form>
+                                            </td>
+                                        {% else %}
+                                            <td class="noFinalizado">Deshabilitada</td>
+                                            <td>
+                                                <form action="{{ url_for('actividades.cambiarEstado_actividad', semestre_id=semestre.id,  curso_id=curso.id, actividad_id=actividad.id) }}">
+                                                    <button type="submit" class="checkButton"><img src="/static/icons/tick.png" class="habilitarButton" alt="check image"></button>
+                                                </form>
+                                            </td>
+                                            <td>
+                                                <img src="/static/icons/x-disabled.png" class="habilitarButton" alt="check image">
+                                            </td>
+                                        {% endif %}
                                         <td>
-                                            <form action="{{ url_for('actividades.ver_grupos_actividad', actividad_id=actividad.id, curso_id=curso.id) }}">
-                                                <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Ver grupos</button>
+                                            <form action="{{ url_for('actividades.ver_actividad', actividad_id=actividad.id, curso_id=curso.id) }}">
+                                                <button type="submit" class="checkButton"><img class="habilitarButton" src="/static/icons/edit.png" alt="check image"></button>
                                             </form>
                                         </td>
                                         <td>
-                                            {% if current_user.rol_id != 1 %}
-                                                <form action="{{ url_for('actividades.ver_actividad', actividad_id=actividad.id, curso_id=curso.id) }}">
-                                                    <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Ver actividad</button>
-                                                </form>
-                                            {% endif %}
+                                            <form action="{{ url_for('cursos.eliminarCurso_semestre', semestre_id=semestre.id,  curso_id=curso.id) }}">
+                                                <button type="submit" class="checkButton"><img src="/static/icons/trash.png" class="habilitarButton" alt="check image"></button>
+                                            </form>
+                                        </td>
+                                        <td>
+                                            <form action="{{ url_for('actividades.ver_grupos_actividad', actividad_id=actividad.id, curso_id=curso.id) }}">
+                                                <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Calificar</button>
+                                            </form>
                                         </td>
                                     </tr>
+                                    {% elif actividad.habilitada %}
+                                    <td>{{ actividad.nombre }}</td>
+                                    <td>{{ actividad.grupos|length}}</td>
+                                    <td>{{ actividad.numeroIntegrantes }}</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>
+                                        <form action="{{ url_for('actividades.ver_grupos_actividad', actividad_id=actividad.id, curso_id=curso.id) }}">
+                                            <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Calificar</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                    {% endif %}
                                 </tbody>
                                 <tfoot>
                                     <tr>

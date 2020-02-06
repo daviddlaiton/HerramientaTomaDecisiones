@@ -26,7 +26,6 @@
                     {% if not semestres %}
                         <h4>No hay semestres asignados a este curso</h4>
                     {% else %}
-                        {% for semestre in semestres %}
                             {% if current_user.rol_id != 1 %}
                                 <table id="listaEstudiantes" class="hover" style="width:100%">
                                     <thead>
@@ -44,6 +43,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        {% for semestre in semestres %}
                                         <tr>
                                             <td>{{ semestre.nombre }}</td>
                                             <td>{{ semestre.estudiantes|length }}</td>
@@ -89,6 +89,7 @@
                                                 </form>
                                             </td>
                                         </tr>
+                                        {% endfor %}
                                     </tbody>
                                     <tfoot>
                                         <tr>
@@ -115,17 +116,19 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            {% if semestre.habilitado %}
-                                                <td>{{ semestre.nombre }}</td>
-                                                <td>{{ semestre.actividadesHabilitadas }}</td>
-                                                <td>
-                                                    <form action="{{ url_for('actividades.verActividades_semestre', curso_id=curso.id, semestre_id=semestre.id) }}">
-                                                        <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Ver actividades</button>
-                                                    </form>
-                                                </td>
-                                            {% endif %}
-                                        </tr>
+                                        {% for semestre in semestres %}
+                                            <tr>
+                                                {% if semestre.habilitado %}
+                                                    <td>{{ semestre.nombre }}</td>
+                                                    <td>{{ semestre.actividadesHabilitadas }}</td>
+                                                    <td>
+                                                        <form action="{{ url_for('actividades.verActividades_semestre', curso_id=curso.id, semestre_id=semestre.id) }}">
+                                                            <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Ver actividades</button>
+                                                        </form>
+                                                    </td>
+                                                {% endif %}
+                                            </tr>
+                                        {% endfor %}
                                     </tbody>
                                     <tfoot>
                                         <tr>
@@ -138,7 +141,6 @@
                             {% else %}
                                 <h4>No hay actividades habilitadas para calificar</h4>
                             {% endif %}
-                        {% endfor %}
                     {% endif %}
                 </div>
             </article>

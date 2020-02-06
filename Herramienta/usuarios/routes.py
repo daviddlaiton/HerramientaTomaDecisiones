@@ -303,7 +303,6 @@ def agregarMonitor(semestre_id,curso_id):
     for monitor in listaMonitores:
         login = Usuario.query.get_or_404(monitor.usuario_id).login
         monitoresActualesJSON.append(login)
-
     return render_template("usuarios/agregarMonitor.html", title="Ver monitores", monitoresActuales=monitoresActualesJSON, monitoresJSON=monitoresJSON, semestre=semestre, curso=curso)
 
 @usuarios.route("/usuarios/<int:semestre_id>/<int:curso_id>/agregarMonitor/<monitorSeleccionado>", methods=["GET", "POST"])
