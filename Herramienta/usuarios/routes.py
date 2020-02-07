@@ -54,7 +54,50 @@ def crearMonitor(curso_id,semestre_id):
         usuario_creado_email(usuario)
         flash(f"Monitor creado exitosamente. Es necesario que este usuario establezca su propia contraseña.", "success")
         return redirect(url_for("usuarios.verMonitores", curso_id=curso_id, semestre_id=semestre_id))
-    return render_template("usuarios/crear_monitor.html", title="Crear monitor", form=form)
+    return render_template("usuarios/crear_monitor.html", title="Crear monitor", form=form, legend="Monitor")
+
+@usuarios.route("/crearProfesor/<int:curso_id>/<int:semestre_id>", methods=["GET", "POST"])
+@login_required
+def crearProfesor(curso_id,semestre_id):
+    print("jasdkjasdlka")
+    user_id = current_user.get_id()
+    user = Usuario.query.filter_by(id=user_id).first()
+    if user.rol_id == 1:
+        abort(403)
+    form = CrearMonitorForm()
+    password = randomString(10)
+    if form.validate_on_submit():
+        hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
+        user = Usuario(login=form.login.data,
+                       password=hashed_password, rol_id=3, activado=False)
+        db.session.add(user)
+        db.session.commit()
+        usuario = Usuario.query.filter_by(login=form.login.data).first()
+        usuario_creado_email(usuario)
+        flash(f"Profesor creado exitosamente. Es necesario que este usuario establezca su propia contraseña.", "success")
+        return redirect(url_for("usuarios.verMonitores", curso_id=curso_id, semestre_id=semestre_id))
+    return render_template("usuarios/crear_monitor.html", title="Crear profesor", form=form, legend="Profesor")
+
+@usuarios.route("/crearAsistente/<int:curso_id>/<int:semestre_id>", methods=["GET", "POST"])
+@login_required
+def crearAsistente(curso_id,semestre_id):
+    user_id = current_user.get_id()
+    user = Usuario.query.filter_by(id=user_id).first()
+    if user.rol_id == 1:
+        abort(403)
+    form = CrearMonitorForm()
+    password = randomString(10)
+    if form.validate_on_submit():
+        hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
+        user = Usuario(login=form.login.data,
+                       password=hashed_password, rol_id=2, activado=False)
+        db.session.add(user)
+        db.session.commit()
+        usuario = Usuario.query.filter_by(login=form.login.data).first()
+        usuario_creado_email(usuario)
+        flash(f"Asistente graduado creado exitosamente. Es necesario que este usuario establezca su propia contraseña.", "success")
+        return redirect(url_for("usuarios.verMonitores", curso_id=curso_id, semestre_id=semestre_id))
+    return render_template("usuarios/crear_monitor.html", title="Crear Asistente graduado", form=form, legend="Asistente graduado ")
 
 @usuarios.route("/reset_password", methods=['GET', 'POST'])
 def reset_request():
@@ -303,7 +346,51 @@ def agregarMonitor(semestre_id,curso_id):
     for monitor in listaMonitores:
         login = Usuario.query.get_or_404(monitor.usuario_id).login
         monitoresActualesJSON.append(login)
-    return render_template("usuarios/agregarMonitor.html", title="Ver monitores", monitoresActuales=monitoresActualesJSON, monitoresJSON=monitoresJSON, semestre=semestre, curso=curso)
+    return render_template("usuarios/agregarMonitor.html", title="Agregar monitores", monitoresActuales=monitoresActualesJSON, monitoresJSON=monitoresJSON, semestre=semestre, curso=curso)
+
+@usuarios.route("/usuarios/<int:semestre_id>/<int:curso_id>/agregarProfesor", methods=["GET", "POST"])
+@login_required
+def agregarProfesor(semestre_id,curso_id):
+    curso = Curso.query.get_or_404(curso_id)
+    semestre = Semestre.query.get_or_404(semestre_id)
+    todosLosMonitores = Usuario.query.filter_by(rol_id=3).all()
+    listaMonitores = ListaUsuariosSemestreCurso.query.filter_by(semestre_id=semestre_id,curso_id=curso_id).all()
+    monitoresJSON = []
+    monitoresActualesJSON = []
+    for monitor in todosLosMonitores:
+        if monitor.activado:
+            monitorAnadir = {
+                "login" : monitor.login,
+                "nombres" : monitor.nombres,
+                "apellidos" : monitor.apellidos
+            } 
+            monitoresJSON.append(monitorAnadir)
+    for monitor in listaMonitores:
+        login = Usuario.query.get_or_404(monitor.usuario_id).login
+        monitoresActualesJSON.append(login)
+    return render_template("usuarios/agregarProfesor.html", title="Agregar profesor", monitoresActuales=monitoresActualesJSON, monitoresJSON=monitoresJSON, semestre=semestre, curso=curso)
+
+@usuarios.route("/usuarios/<int:semestre_id>/<int:curso_id>/agregarAsistente", methods=["GET", "POST"])
+@login_required
+def agregarAsistente(semestre_id,curso_id):
+    curso = Curso.query.get_or_404(curso_id)
+    semestre = Semestre.query.get_or_404(semestre_id)
+    todosLosMonitores = Usuario.query.filter_by(rol_id=2).all()
+    listaMonitores = ListaUsuariosSemestreCurso.query.filter_by(semestre_id=semestre_id,curso_id=curso_id).all()
+    monitoresJSON = []
+    monitoresActualesJSON = []
+    for monitor in todosLosMonitores:
+        if monitor.activado:
+            monitorAnadir = {
+                "login" : monitor.login,
+                "nombres" : monitor.nombres,
+                "apellidos" : monitor.apellidos
+            } 
+            monitoresJSON.append(monitorAnadir)
+    for monitor in listaMonitores:
+        login = Usuario.query.get_or_404(monitor.usuario_id).login
+        monitoresActualesJSON.append(login)
+    return render_template("usuarios/agregarAsistente.html", title="Agregar asistente", monitoresActuales=monitoresActualesJSON, monitoresJSON=monitoresJSON, semestre=semestre, curso=curso)
 
 @usuarios.route("/usuarios/<int:semestre_id>/<int:curso_id>/agregarMonitor/<monitorSeleccionado>", methods=["GET", "POST"])
 @login_required

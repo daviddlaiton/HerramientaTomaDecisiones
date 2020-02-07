@@ -8,8 +8,8 @@
                 <form method="POST" action="">
                     {{ form.hidden_tag() }}
                     <fieldset class="form-group">
-                        <legend class="border-bottom mb-2">Crear monitor</legend>
-                        <p>Por favor ingresar el usuario del correo Uniandes y el tipo de usuario a crear</p>
+                        <legend class="border-bottom mb-2">Crear {{ legend }}</legend>
+                        <p>Por favor ingresar el usuario del correo Uniandes</p>
                         <div class="form-group">
                             {{ form.login.label(class="form-control-label") }}
 

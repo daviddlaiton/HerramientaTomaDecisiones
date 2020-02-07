@@ -13,9 +13,19 @@
                     <div class="article-metadata">
                         <h3 class="mr-2">Equipo {{curso.nombre}} - {{semestre.nombre}} </h3>
                     </div>
-                    <form action="{{ url_for('usuarios.agregarMonitor', curso_id=curso.id, semestre_id=semestre.id) }}">
-                        <button type="submit" class="btn btn-outline-info semestreActions">Agregar monitor </button>
+                    <form class="agregarUsuarios" action="{{ url_for('usuarios.agregarMonitor', curso_id=curso.id, semestre_id=semestre.id) }}">
+                        <button type="submit" class="btn btn-outline-info semestreActions">Agregar monitor</button>
                     </form>
+                    {% if current_user.rol_id == 3 or current_user.rol_id == 4 %}
+                        <form class="agregarUsuarios" action="{{ url_for('usuarios.agregarProfesor', curso_id=curso.id, semestre_id=semestre.id) }}">
+                            <button type="submit" class="btn btn-outline-info semestreActions">Agregar profesor</button>
+                        </form>
+                        <form class="agregarUsuarios" action="{{ url_for('usuarios.agregarAsistente', curso_id=curso.id, semestre_id=semestre.id) }}">
+                            <button type="submit" class="btn btn-outline-info semestreActions">Agregar asistente graduado</button>
+                        </form>
+                    {% endif %}
+                    <br>
+                    <br>
                     {% if not monitores %}
                         No hay monitores asignados a este curso en este semestre
                     {% else %}

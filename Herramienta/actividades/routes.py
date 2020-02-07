@@ -373,6 +373,8 @@ def enviar_informes(curso_id,actividad_id):
 @login_required
 def ver_grupos_actividad(actividad_id,curso_id):
     actividad = Actividad.query.get_or_404(actividad_id)
+    semestre = Semestre.query.get_or_404(actividad.semestre_id)
+    curso = Curso.query.get_or_404(curso_id)
     grupos = []
     user_id = current_user.get_id()
     user = Usuario.query.filter_by(id=user_id).first()
@@ -380,7 +382,7 @@ def ver_grupos_actividad(actividad_id,curso_id):
         grupos = Grupo.query.filter_by(actividad_id=actividad_id,usuario_id=user_id).all()
     else:
         grupos = Grupo.query.filter_by(actividad_id=actividad_id).all()
-    return render_template("actividades/ver_grupos_actividad.html", title="Ver grupos", actividad=actividad, curso_id=curso_id, grupos=grupos)
+    return render_template("actividades/ver_grupos_actividad.html", title="Ver grupos", actividad=actividad, curso=curso, grupos=grupos, semestre=semestre)
 
 @actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/crearGrupo/<int:numero_integrantes>", methods=["GET", "POST"])
 @login_required

@@ -1,0 +1,173 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <p id="cursoId">{{curso.id}}</p>
+    <p id="semestreId">{{semestre.id}}</p>
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+            <form action="{{ url_for('usuarios.verMonitores', curso_id=curso.id, semestre_id=semestre.id) }}">
+                <input type="image" class="BackButton" src="https://image.flaticon.com/icons/svg/271/271218.svg" />
+            </form>
+            {% if not monitoresJSON %}
+                <h4>No hay asistentes graduados registrados para poder añadir.</h4>
+                <form action="{{ url_for('usuarios.crearAsistente', curso_id=curso.id, semestre_id=semestre.id) }}">
+                    <button type="submit" class="btn btn-outline-info usuariossActionsButton">Crear asistente graduado</button>
+                </form>
+            {% else %}
+                <div class="content-section">
+                    <form method="POST" action="" enctype="multipart/form-data" id="createForm" name="createForm">
+                        <fieldset class="form-group">
+                            <legend class="border-bottom mb-4">Añadir asistentes graduados - {{ curso.nombre }} - {{ semestre.nombre}}</legend>
+                            <div class="form-group" id="listaEstudiantes">
+                                <div class="row">
+                                    <div class="col-md-2"></div>
+                                    <div class="col-md-2">
+                                        <p style="text-align: center;"><strong>Login</strong></p>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <p style="text-align: center;"><strong>Apellidos</strong></p style="text-align: center;">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <p style="text-align: center;"><strong>Nombres</strong></p style="text-align: center;">
+                                    </div>
+                                </div>
+                                <div class="row" id="estudiante">
+                                    <div class="col-md-2"></div>
+                                    <div class="col-md-2">
+                                        <input type="text" class="form-control" name="login" id="login">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <p id="apellidos" class="notFound">Apellidos</p>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <p id="nombres" class="notFound">Nombres</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <br>
+                        <button class="btn btn-success semestreActions" onclick="verificarMonitorSeleccionado(event)">Agregar monitor</button>
+                    </form>
+                </div>
+            {% endif %}
+            <form action="{{ url_for('usuarios.crearAsistente', curso_id=curso.id, semestre_id=semestre.id) }}">
+                <button type="submit" class="btn btn-outline-info usuariossActionsButton" id="botonCrearMonitor">Crear monitor</button>
+            </form>
+            <form
+            action="{{ url_for('usuarios.monitorAgregado', curso_id=curso.id, semestre_id=semestre.id,monitorSeleccionado='2') }}" id="formAnadirMonitor">
+            <button type="submit" class="btn btn-outline-info semestreActions" id="buttonAnadirMonitor"></button>
+        </form>
+        </div>
+    </div>
+    <script>
+
+        let botonCrearMonitor = document.getElementById("botonCrearMonitor");
+        botonCrearMonitor.style.display = "none";
+
+        let curso_id = document.getElementById("cursoId");
+        curso_id.style.display = "none";
+
+        let semestre_id = document.getElementById("semestreId");
+        semestre_id.style.display = "none";
+
+        let buttonAnadirMonitor = document.getElementById("buttonAnadirMonitor");
+        buttonAnadirMonitor.style.display = "none";
+
+        let actionFormbuttonAnadirMonitor = document.getElementById("formAnadirMonitor")
+
+        let monitores = JSON.parse('{{ monitoresJSON | tojson | safe}}');
+        let monitoresActuales = JSON.parse('{{ monitoresActuales | tojson | safe}}');
+
+        let numEstudiantes = 1;
+
+        createAutoComplete("login", "login");
+
+        function createAutoComplete(id, tipo){
+            new autoComplete({
+                data: {                              // Data src [Array, Function, Async] | (REQUIRED)
+                src: monitores,
+                key: [tipo],
+                cache: true
+                },
+                sort: (a, b) => {                    // Sort rendered results ascendingly | (Optional)
+                    if (a.match < b.match) return -1;
+                    if (a.match > b.match) return 1;
+                    return 0;
+                },
+                placeHolder: tipo,     // Place Holder text                 | (Optional)
+                selector: "#" + id,           // Input field selector              | (Optional)
+                threshold: 0,                        // Min. Chars length to start Engine | (Optional)
+                debounce: 300,                       // Post duration for engine to start | (Optional)
+                searchEngine: "strict",              // Search Engine type/mode           | (Optional)
+                resultsList: {                       // Rendered results list object      | (Optional)
+                    render: true,
+                    container: source => {
+                        source.setAttribute("id", tipo + "_list"+id);
+                    },
+                    destination: document.querySelector("#"+id),
+                    position: "afterend",
+                    element: "ul"
+                },
+                maxResults: 5,                         // Max. number of rendered results | (Optional)
+                highlight: true,                       // Highlight matching results      | (Optional)
+                resultItem: {                          // Rendered result item            | (Optional)
+                    content: (data, source) => {
+                        source.innerHTML = data.match;
+                    },
+                    element: "li"
+                },
+                noResults: () => {                     // Action script on noResults      | (Optional)
+                    const result = document.createElement("li");
+                    result.setAttribute("class", "no_result");
+                    result.setAttribute("tabindex", "1");
+                    result.innerHTML = "Sin resultados";
+                    result.setAttribute("onclick","mostrarBotonAgregarMonitor()")
+                    document.querySelector("#"+ tipo + "_list"+id).appendChild(result);
+                },
+                onSelection: feedback => {             // Action script onSelection event | (Optional)
+                    estudianteSeleccionado(feedback.selection.value, id)
+                }
+            });
+        }
+
+        function estudianteSeleccionado(estudiante, idString) {
+            document.getElementById("login").value = estudiante.login;
+            document.getElementById("nombres").innerHTML = estudiante.nombres;
+            document.getElementById("nombres").classList.remove("notFound");
+            document.getElementById("nombres").classList.add("found");
+            document.getElementById("apellidos").innerHTML = estudiante.apellidos;
+            document.getElementById("apellidos").classList.remove("notFound");
+            document.getElementById("apellidos").classList.add("found");
+        }
+
+        function verificarMonitorSeleccionado(e){
+            e.preventDefault()
+            let campoVacio = false;
+            let monitorNuevo = true;
+            let loginMonitor = document.getElementById("login").value;
+                for(let j = 0; j< monitoresActuales.length && monitorNuevo; j++){
+                    let monitorActual = monitoresActuales[j];
+                    if (monitorActual === loginMonitor){
+                        monitorNuevo = false;
+                    }
+                }
+                 if (loginMonitor === ""){
+                    campoVacio = true;
+                }
+
+            if(!campoVacio && monitorNuevo){
+                actionFormbuttonAnadirMonitor.action = "/usuarios/" + semestre_id.innerHTML + "/"+ curso_id.innerHTML+ "/agregarAsistente" + loginMonitor;
+                buttonAnadirMonitor.click();
+            } else if (campoVacio){
+                alert("No se ha seleccionado ningun asistente graduado")
+            } else if (!monitorNuevo){
+                alert("El asistente graduado seleccionado ya está asignado para este curso y este semestre")
+            }   
+        }
+
+        function mostrarBotonAgregarMonitor(){
+            botonCrearMonitor.style.display = "block";
+        }
+    </script>
+{% endblock content %}

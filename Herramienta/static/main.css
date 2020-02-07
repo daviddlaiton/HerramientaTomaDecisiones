@@ -227,6 +227,9 @@ body {
   height: 40px;
 }
 
+.agregarUsuarios{
+  display: inline-block;
+}
 
 /* Autocomplete css */
 

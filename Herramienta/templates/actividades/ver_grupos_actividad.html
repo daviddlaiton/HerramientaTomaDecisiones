@@ -3,37 +3,35 @@
 {% block content %}
     <div class="row">
         <div class="col-md-12">
-            <form action="{{ url_for('cursos.ver_curso', curso_id=curso_id) }}">
+            <form action="{{ url_for('cursos.ver_curso', curso_id=curso.id) }}">
                 <input type="image" class="BackButton" src="https://image.flaticon.com/icons/svg/271/271218.svg" />
             </form>
             <article class="media content-section">
                 <div class="media-body">
                     <div class="article-metadata">
-                        <h4 class="mr-2">{{ actividad.nombre }} - Acciones sobre los grupos</h4>
+                        <h4 class="mr-2"> {{ curso.nombre}} - {{ semestre.nombre }} - {{ actividad.nombre }}  </h4>
                     </div>
-                    <h4>Esta actividad está asignada para {{ actividad.numeroIntegrantes }} personas</h4>
                     <form
-                        action="{{ url_for('actividades.crear_grupo_actividad', curso_id=curso_id, actividad_id=actividad.id, numero_integrantes=actividad.numeroIntegrantes) }}">
+                        action="{{ url_for('actividades.crear_grupo_actividad', curso_id=curso.id, actividad_id=actividad.id, numero_integrantes=actividad.numeroIntegrantes) }}">
                         <button type="submit" class="btn btn-outline-info semestreActions">Crear grupos</button>
                     </form>
-                    <br>
                     <h4>Lista de grupos</h4>
                     {% if not grupos %}
-                        <p>No hay grupos creados hasta el momento.</p>
+                        <h5>No hay grupos creados hasta el momento.</h5>
                     {% else %}
                         <table id="listaEstudiantes" class="hover" style="width:100%">
                             <thead>
                                 <tr>
-                                    <th>ID grupo</th>
+                                    <th>Grupo</th>
                                     <th>Núm. Integrantes</th>
                                     <th>Nota</th>
-                                    <th>Calificador</th>
                                     <th>Estado</th>
-                                    <th>Editar</th>
-                                    {% if actividad.habilitada%}
-                                        <th>Calificar</th>
-                                    {% endif %}
-                                    <th>Eliminar</th>
+                                    <th>Calificador</th>
+                                    <th><img class="habilitarButton" src="/static/icons/edit.png" alt="check image"></th>
+                                    <th>Calificar</th>
+                                    <th><img class="habilitarButton" src="/static/icons/trash.png" alt="check image"></th>
+                                    <th>Generar Informe</th>
+                                    <th>Enviar Informe</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -42,27 +40,35 @@
                                     <td>{{ grupo.numero }}</td>
                                     <td>{{ grupo.estudiantes|length }}</td>
                                     <td>{{ grupo.calificaciones }}</td>
-                                    <td>{{ grupo.creador}}</td>
                                     {% if grupo.estado %}
                                         <td class="finalizado">Calificado</td>
                                     {% else %}
                                         <td class="noFinalizado">No calificado</td>
                                     {% endif %}
+                                    <td>{{ grupo.creador}}</td>
                                     <td>
-                                        <form action="{{ url_for('actividades.calificar_actividad', curso_id=curso_id, actividad_id=actividad.id,grupo_id=grupo.id) }}">
-                                            <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Editar</button>
+                                        <form action="{{ url_for('actividades.calificar_actividad', curso_id=curso.id, actividad_id=actividad.id,grupo_id=grupo.id) }}">
+                                            <button type="submit" class="checkButton"><img class="habilitarButton" src="/static/icons/edit.png" alt="check image"></button>
                                         </form>
                                     </td>
-                                    {% if actividad.habilitada%}
-                                        <td>
-                                            <form action="{{ url_for('actividades.calificar_actividad', curso_id=curso_id, actividad_id=actividad.id,grupo_id=grupo.id) }}">
-                                                <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Calificar</button>
-                                            </form>
-                                        </td>
-                                    {% endif %}
                                     <td>
-                                        <form action="{{ url_for('actividades.eliminar_grupo_semestre', curso_id=curso_id, actividad_id=actividad.id,grupo_id=grupo.id) }}">
-                                            <button type="submit" class="btn btn-outline-danger eliminarCursoSemestre">Eliminar</button>
+                                        <form action="{{ url_for('actividades.calificar_actividad', curso_id=curso.id, actividad_id=actividad.id,grupo_id=grupo.id) }}">
+                                            <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Calificar</button>
+                                        </form>
+                                    </td>
+                                    <td>
+                                        <form action="{{ url_for('actividades.eliminar_grupo_semestre', curso_id=curso.id, actividad_id=actividad.id,grupo_id=grupo.id) }}">
+                                            <button type="submit" class="checkButton"><img class="habilitarButton" src="/static/icons/trash.png" alt="check image"></button>
+                                        </form>
+                                    </td>
+                                    <td>
+                                        <form action="{{ url_for('actividades.calificar_actividad', curso_id=curso.id, actividad_id=actividad.id,grupo_id=grupo.id) }}">
+                                            <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Generar informes</button>
+                                        </form>
+                                    </td>
+                                    <td>
+                                        <form action="{{ url_for('actividades.calificar_actividad', curso_id=curso.id, actividad_id=actividad.id,grupo_id=grupo.id) }}">
+                                            <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Enviar Informe</button>
                                         </form>
                                     </td>
                                 </tr>
@@ -70,16 +76,16 @@
                             </tbody>
                             <tfoot>
                                 <tr>
-                                    <th>ID grupo</th>
+                                    <th>Grupo</th>
                                     <th>Núm. Integrantes</th>
                                     <th>Nota</th>
-                                    <th>Calificador</th>
                                     <th>Estado</th>
-                                    <th>Editar</th>
-                                    {% if actividad.habilitada%}
-                                        <th>Calificar</th>
-                                    {% endif %}
-                                    <th>Eliminar</th>
+                                    <th>Calificador</th>
+                                    <th><img class="habilitarButton" src="/static/icons/edit.png" alt="check image"></th>
+                                    <th>Calificar</th>
+                                    <th><img class="habilitarButton" src="/static/icons/trash.png" alt="check image"></th>
+                                    <th>Generar Informe</th>
+                                    <th>Descargar Informe</th>
                                 </tr>
                             </tfoot>
                         </table>
