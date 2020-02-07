@@ -35,3 +35,6 @@ class IntegranteForm(FlaskForm):
 class EscogerGrupoParaCalificar(FlaskForm):
     grupo = SelectField("Grupo", choices=[], coerce=int)
     submit = SubmitField("Seleccionar grupo para calificar")
+
+class DescargarFormatoActividadForm(FlaskForm):
+    submit = SubmitField("Descargar formato actividad") 

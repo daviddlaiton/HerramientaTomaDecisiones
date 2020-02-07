@@ -4,15 +4,15 @@
     <div class="row">
         <div class="col-md-3"></div>
         <div class="col-md-5">
-            <form action="{{ url_for('cursos.ver_curso', curso_id=curso_id) }}">
+            <form action="{{ url_for('actividades.verActividades_semestre', curso_id=curso_id, semestre_id=semestre_id) }}">
                 <input type="image" class="BackButton" src="https://image.flaticon.com/icons/svg/271/271218.svg" />
             </form>
             <div class="content-section">
                 <legend class="border-bottom mb-4">Crear actividad</legend>
-                <form action="{{ url_for('actividades.crear_actividadArchivo', curso_id=curso_id) }}">
+                <form action="{{ url_for('actividades.crear_actividadArchivo', curso_id=curso_id, semestre_id=semestre_id) }}">
                     <button type="submit" class="btn btn-outline-info semestreActions">Crear desde archivo xlsx</button>
                 </form>
-                <form action="{{ url_for('actividades.crear_actividad', curso_id=curso_id) }}">
+                <form action="{{ url_for('actividades.crear_actividad', curso_id=curso_id, semestre_id=semestre_id) }}">
                     <button type="submit" class="btn btn-outline-info semestreActions">Crear desde vista web</button>
                 </form>
             </div>

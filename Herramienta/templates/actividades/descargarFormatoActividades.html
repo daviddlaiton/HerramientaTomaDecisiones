@@ -4,16 +4,15 @@
     <div class="row">
         <div class="col-md-3"></div>
         <div class="col-md-5">
-            <form action="{{ url_for('actividades.verActividades_semestre', curso_id=curso_id, actividad_id=actividad_id, semestre_id=semestre_id) }}">
+            <form action="{{ url_for('actividades.verActividades_semestre', curso_id=curso_id, semestre_id=semestre_id) }}">
                 <input type="image" class="BackButton" src="https://image.flaticon.com/icons/svg/271/271218.svg" />
             </form>
             <div class="content-section">
                 <form method="POST" action="">
                     {{ form.hidden_tag() }}
-                    <legend class="border-bottom mb-2">Eliminar actividad</legend>
-                    <p>¿Desea eliminar de forma permante la actividad? Esta acción no puede deshacerse.</p>
+                    <legend class="border-bottom mb-4">Descargar formato actividades</legend>
                     <div class="form-group">
-                        {{ form.submit(class="btn btn-outline-danger")}}
+                        {{ form.submit(class="btn btn-outline-info")}}
                     </div>
                 </form>
             </div>

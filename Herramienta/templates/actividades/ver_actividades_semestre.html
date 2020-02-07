@@ -13,45 +13,45 @@
                         <h3 class="mr-2">Actividades del semestre {{ semestre.nombre}} del curso {{ curso.nombre }} </h3>
                     </div>
                     {% if current_user.rol_id != 1 %}
-                        <form action="{{ url_for('actividades.crear_actividad', curso_id=curso.id) }}">
+                        <form action="{{ url_for('actividades.crear_actividad', curso_id=curso.id, semestre_id=semestre.id) }}">
                             <button type="submit" class="btn btn-outline-info semestreActions">Crear actividad</button>
                         </form>
-                        <form action="{{ url_for('actividades.crear_actividad', curso_id=curso.id) }}">
+                        <form action="{{ url_for('actividades.descargarFormatoActividad', curso_id=curso.id, semestre_id=semestre.id) }}">
                             <button type="submit" class="btn btn-outline-info semestreActions">Descargar formato actividad</button>
                         </form>
                     {% endif %}
                     {% if not actividades %}
                         No hay actividades asignadas a este curso en este semestre
                     {% else %}
-                        {% for actividad in actividades %}
-                            <table id="listaEstudiantes" class="hover" style="width:100%">
-                                <thead>
-                                    <tr>
-                                        <th>Nombre</th>
-                                        <th>Núm. Grupos</th>
-                                        <th>Núm. Máx. Integrantes</th>
-                                        <th>Núm. Est. Calificados</th>
-                                        <th>Promedio</th>
-                                        <th>Desv. Est.</th>
-                                        {% if current_user.rol_id != 1 %}
-                                            <th>Estado</th>
-                                            <th><img class="habilitarButton" src="/static/icons/tick.png" alt="check image"></th>
-                                            <th><img class="habilitarButton" src="/static/icons/x.png" alt="check image"></th>
-                                            <th><img class="habilitarButton" src="/static/icons/edit.png" alt="check image"></th>
-                                            <th><img class="habilitarButton" src="/static/icons/trash.png" alt="check image"></th>
-                                        {% endif %}
-                                        <th>Calificar</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
+                        <table id="listaEstudiantes" class="hover" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Núm. Grupos</th>
+                                    <th>Núm. Máx. Integrantes</th>
+                                    <th>Núm. Est. Calificados</th>
+                                    <th>Promedio</th>
+                                    <th>Desv. Est.</th>
                                     {% if current_user.rol_id != 1 %}
-                                    <tr>
-                                        <td>{{ actividad.nombre }}</td>
-                                        <td>{{ actividad.grupos|length}}</td>
-                                        <td>{{ actividad.numeroIntegrantes }}</td>
-                                        <td>0</td>
-                                        <td>0</td>
-                                        <td>0</td>
+                                        <th>Estado</th>
+                                        <th><img class="habilitarButton" src="/static/icons/tick.png" alt="check image"></th>
+                                        <th><img class="habilitarButton" src="/static/icons/x.png" alt="check image"></th>
+                                        <th><img class="habilitarButton" src="/static/icons/edit.png" alt="check image"></th>
+                                        <th><img class="habilitarButton" src="/static/icons/trash.png" alt="check image"></th>
+                                    {% endif %}
+                                    <th>Calificar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for actividad in actividades %}
+                                <tr>
+                                    <td>{{ actividad.nombre }}</td>
+                                    <td>{{ actividad.grupos|length}}</td>
+                                    <td>{{ actividad.numeroIntegrantes }}</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    {% if current_user.rol_id != 1 %}
                                         {% if actividad.habilitada %}
                                             <td class="finalizado">Habilitada</td>
                                             <td>
@@ -79,51 +79,38 @@
                                             </form>
                                         </td>
                                         <td>
-                                            <form action="{{ url_for('cursos.eliminarCurso_semestre', semestre_id=semestre.id,  curso_id=curso.id) }}">
+                                            <form action="{{ url_for('actividades.eliminar_actividad', semestre_id=semestre.id,  curso_id=curso.id, actividad_id=actividad.id) }}">
                                                 <button type="submit" class="checkButton"><img src="/static/icons/trash.png" class="habilitarButton" alt="check image"></button>
                                             </form>
                                         </td>
-                                        <td>
-                                            <form action="{{ url_for('actividades.ver_grupos_actividad', actividad_id=actividad.id, curso_id=curso.id) }}">
-                                                <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Calificar</button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                    {% elif actividad.habilitada %}
-                                    <td>{{ actividad.nombre }}</td>
-                                    <td>{{ actividad.grupos|length}}</td>
-                                    <td>{{ actividad.numeroIntegrantes }}</td>
-                                    <td>0</td>
-                                    <td>0</td>
-                                    <td>0</td>
+                                    {% endif %}
                                     <td>
                                         <form action="{{ url_for('actividades.ver_grupos_actividad', actividad_id=actividad.id, curso_id=curso.id) }}">
                                             <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Calificar</button>
                                         </form>
                                     </td>
                                 </tr>
+                            {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Núm. Grupos</th>
+                                    <th>Núm. Máx. Integrantes</th>
+                                    <th>Núm. Est. Calificados</th>
+                                    <th>Promedio</th>
+                                    <th>Desv. Est.</th>
+                                    {% if current_user.rol_id != 1 %}
+                                        <th>Estado</th>
+                                        <th><img class="habilitarButton" src="/static/icons/tick.png" alt="check image"></th>
+                                        <th><img class="habilitarButton" src="/static/icons/x.png" alt="check image"></th>
+                                        <th><img class="habilitarButton" src="/static/icons/edit.png" alt="check image"></th>
+                                        <th><img class="habilitarButton" src="/static/icons/trash.png" alt="check image"></th>
                                     {% endif %}
-                                </tbody>
-                                <tfoot>
-                                    <tr>
-                                        <th>Nombre</th>
-                                        <th>Núm. Grupos</th>
-                                        <th>Núm. Máx. Integrantes</th>
-                                        <th>Núm. Est. Calificados</th>
-                                        <th>Promedio</th>
-                                        <th>Desv. Est.</th>
-                                        {% if current_user.rol_id != 1 %}
-                                            <th>Estado</th>
-                                            <th><img class="habilitarButton" src="/static/icons/tick.png" alt="check image"></th>
-                                            <th><img class="habilitarButton" src="/static/icons/x.png" alt="check image"></th>
-                                            <th><img class="habilitarButton" src="/static/icons/edit.png" alt="check image"></th>
-                                            <th><img class="habilitarButton" src="/static/icons/trash.png" alt="check image"></th>
-                                        {% endif %}
-                                        <th>Calificar</th>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        {% endfor %}
+                                    <th>Calificar</th>
+                                </tr>
+                            </tfoot>
+                        </table>
                     {% endif %}
                 </div>
             </article>

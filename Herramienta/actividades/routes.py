@@ -5,7 +5,7 @@ from wtforms import FieldList, FormField, SubmitField
 from flask_login import current_user, login_required
 from Herramienta.models import Usuario, Curso, Semestre, Actividad, Punto, Inciso, Criterio, Subcriterio, Variacion, Grupo, Estudiante
 from Herramienta import db, bcrypt
-from Herramienta.actividades.forms import CrearActividadArchivoForm, EliminarActividad, DescargarActividad, CrearPunto, CambiarEstadoActividad, EnviarReportes, IntegranteForm, EscogerGrupoParaCalificar, EliminarGrupo
+from Herramienta.actividades.forms import CrearActividadArchivoForm, EliminarActividad, DescargarActividad, CrearPunto, CambiarEstadoActividad, EnviarReportes, IntegranteForm, EscogerGrupoParaCalificar, EliminarGrupo, DescargarFormatoActividadForm
 from openpyxl import load_workbook, Workbook
 from Herramienta.actividades.utils import send_reports
 
@@ -81,9 +81,9 @@ def calificar_actividad(actividad_id,curso_id,grupo_id):
     }
     return render_template("actividades/calificar_actividad.html", title="Calificar actividad", actividad=actividad, curso_id=curso_id, actividadJSON = actividadToJson, grupo_id=grupo_id, grupo=grupo)
 
-@actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/eliminar", methods=["GET", "POST"])
+@actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/<int:semestre_id>/eliminar", methods=["GET", "POST"])
 @login_required
-def eliminar_actividad(actividad_id, curso_id):
+def eliminar_actividad(actividad_id, curso_id,semestre_id):
     user_id = current_user.get_id()
     user = Usuario.query.filter_by(id=user_id).first()
     actividad = Actividad.query.get_or_404(actividad_id)
@@ -97,8 +97,8 @@ def eliminar_actividad(actividad_id, curso_id):
             db.session.commit()
         eliminarActividad(actividad_id)
         flash(f"Actividad eliminada exitosamente", "success")
-        return redirect(url_for("cursos.ver_curso", curso_id=curso_id))
-    return render_template("actividades/eliminar_actividad.html", title="Eliminar actividad", curso_id=curso_id, actividad_id=actividad_id, form=form)
+        return redirect(url_for("actividades.verActividades_semestre", curso_id=curso_id, semestre_id=semestre_id))
+    return render_template("actividades/eliminar_actividad.html", title="Eliminar actividad", curso_id=curso_id, actividad_id=actividad_id, semestre_id=semestre_id,form=form)
 
 @actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/<int:semestre_id>/cambiarEstado", methods=["GET", "POST"])
 @login_required
@@ -108,50 +108,74 @@ def cambiarEstado_actividad(actividad_id,curso_id,semestre_id):
     db.session.commit()
     return redirect(url_for("actividades.verActividades_semestre", curso_id=curso_id, semestre_id=semestre_id))
 
-@actividades.route("/actividades/<int:curso_id>/crearActividad")
+@actividades.route("/actividades/<int:curso_id>/<int:semestre_id>/crearActividad")
 @login_required
-def crear_actividad(curso_id):
-    return render_template("actividades/crear_actividad.html", title="Crear actividad", curso_id=curso_id)
+def crear_actividad(curso_id, semestre_id):
+    return render_template("actividades/crear_actividad.html", title="Crear actividad", curso_id=curso_id, semestre_id=semestre_id)
 
-@actividades.route("/actividades/<int:curso_id>/crearActividadArchivo", methods=["GET", "POST"])
+@actividades.route("/actividades/<int:curso_id>/<int:semestre_id>/crearActividadArchivo", methods=["GET", "POST"])
 @login_required
-def crear_actividadArchivo(curso_id):
+def crear_actividadArchivo(curso_id, semestre_id):
     form = CrearActividadArchivoForm()
     if form.validate_on_submit():
         if form.archivo.data:
             if request.method == 'POST':
                 f = request.files['archivo']
                 f.save(os.path.join(current_app.root_path, 'static/files', "Actividad.xlsx"))
-                analisis = analizarArchivo(curso_id)
-                if analisis:
+                analisis = analizarArchivo(curso_id,semestre_id)
+                if analisis is None:
                     flash(f"Actividad creada exitosamente", "success")
-                    return redirect(url_for("cursos.ver_curso", curso_id=curso_id))
-                else:
-                    flash(f"El archivo no pudo ser procesado porque el semestre no existe", "danger")
-                    return redirect(url_for("cursos.ver_curso", curso_id=curso_id))
-    return render_template("actividades/crear_actividadArchivo.html", title="Crear actividad desde archivo", curso_id=curso_id, form=form)
+                elif analisis == "nombre":
+                    flash(f"El archivo no pudo ser procesado porque ya existe una actividad con ese nombre.", "danger")
+                elif analisis == "porcentaje":
+                    flash(f"El archivo no pudo ser procesado porque el porcentaje no es un numero.", "danger")
+                elif analisis == "porcentajeMayorACero":
+                    flash("El archivo no pudo ser procesado porque el valor de porcentaje es mayor a 1", "danger")
+                elif analisis == "integrantes":
+                    flash("El archivo no pudo ser procesado porque el número de integrantes es menor o igual a 0.", "danger")
+                elif analisis.startswith("formato"):
+                    lugar = analisis.split(":")
+                    flash("El archivo no pudo ser procesado porque hay un error en la fila " + lugar[1] + " columna " +lugar[2], "danger")
+                elif analisis.startswith("2formato"):
+                    lugar = analisis.split(":")
+                    flash("El archivo no pudo ser procesado porque hay un error en la fila " + lugar[1], "danger")
+                return redirect(url_for("actividades.verActividades_semestre", curso_id=curso_id, semestre_id=semestre_id))
+    return render_template("actividades/crear_actividadArchivo.html", title="Crear actividad desde archivo", curso_id=curso_id, form=form, semestre_id=semestre_id)
 
 
-def analizarArchivo(curso_id):
-    exito = True
+def analizarArchivo(curso_id, semestre_id):
+    tipoError = None
     archivoExcel = load_workbook(current_app.root_path + '/static/files/Actividad.xlsx')
     hoja = archivoExcel.active
     nombre = hoja["B1"].value
-    nombreSemestre = hoja["B2"].value
-    porcentaje = float(hoja["B3"].value)
-    numeroIntegrantes = int(hoja["B4"].value) 
-    semestre = Semestre.query.filter_by(nombre=nombreSemestre).first()
-    if semestre is None:
-        exito = False
-        return exito
-    actividad = Actividad(nombre=nombre, porcentaje=porcentaje, habilitada=False, semestre_id=semestre.id, curso_id=curso_id, numeroIntegrantes=numeroIntegrantes, numGrupos=0)
+    if Actividad.query.filter_by(nombre=nombre, semestre_id=semestre_id, curso_id=curso_id).first() is not None:
+        tipoError = "nombre"
+        return tipoError
+    porcentaje = 0
+    try:
+        porcentaje = float(hoja["B2"].value)
+    except ValueError:
+        tipoError = "porcentaje"
+        return tipoError
+    if porcentaje > 1:
+        tipoError = "porcentajeMayorACero"
+        return tipoError
+    numeroIntegrantes = int(hoja["B3"].value) 
+    if numeroIntegrantes <= 0:
+        tipoError = "integrantes"
+        return tipoError
+    actividad = Actividad(nombre=nombre, porcentaje=porcentaje, habilitada=False, semestre_id=semestre_id, curso_id=curso_id, numeroIntegrantes=numeroIntegrantes, numGrupos=0)
     db.session.add(actividad)
     db.session.commit()
     #Siempre se debe comenzar ahí, el formato se tiene que respetar.
-    fila = 6
+    fila = 5
     columna = 2
     final = False
     celdaPunto = hoja.cell(row=fila, column=columna).value
+    if celdaPunto is None:
+        eliminarActividad(actividad.id)
+        tipoError = "formato:" + str(fila) + ":" + str(columna)
+        return tipoError
 
     while not final:
         if celdaPunto is not None:
@@ -164,6 +188,10 @@ def analizarArchivo(curso_id):
             celdaInciso = hoja.cell(row=fila, column=columna).value
             #-------------------------------------------------------------------
             while not finalPunto:
+                if celdaInciso is None:
+                    eliminarActividad(actividad.id)
+                    tipoError = "formato:" + str(fila) + ":" + str(columna)
+                    return tipoError
                 inciso = Inciso(nombre = celdaInciso, puntajePosible=0, punto_id=punto.id)
                 db.session.add(inciso)
                 db.session.commit()
@@ -173,6 +201,10 @@ def analizarArchivo(curso_id):
                 celdaCriterio = hoja.cell(row=fila, column=columna).value
                 #-------------------------------------------------------------------
                 while not finalInciso:
+                    if celdaCriterio is None:
+                        eliminarActividad(actividad.id)
+                        tipoError = "formato:" + str(fila) + ":" + str(columna)
+                        return tipoError
                     criterio = Criterio(nombre = celdaCriterio, puntajePosible=0, inciso_id=inciso.id)
                     db.session.add(criterio)
                     db.session.commit()
@@ -182,6 +214,10 @@ def analizarArchivo(curso_id):
                     celdaSubriterio = hoja.cell(row=fila, column=columna).value
                     #-------------------------------------------------------------------
                     while not finalCriterio:
+                        if celdaSubriterio is None:
+                            eliminarActividad(actividad.id)
+                            tipoError = "formato:" + str(fila) + ":" + str(columna)
+                            return tipoError                        
                         puntajeMinimo = float(hoja.cell(row=fila, column=7).value)
                         puntajeMaximo = float(hoja.cell(row=fila, column=8).value)
                         subcriterio = Subcriterio(nombre = celdaSubriterio, maximoPuntaje=puntajeMaximo, minimoPuntaje=puntajeMinimo, criterio_id=criterio.id)
@@ -237,8 +273,17 @@ def analizarArchivo(curso_id):
             actividad.puntos.append(punto)
             db.session.commit()
         else:
-            final = True
-    return exito            
+            finalVerdadero = False
+            fila = fila + 1
+            columna = 1
+            while not finalVerdadero:
+                celda = hoja.cell(row=fila, column=columna).value
+                if celda is not None:
+                    eliminarActividad(actividad.id)
+                    tipoError = "2formato:" + str(fila-1)
+                    return tipoError
+                columna = columna + 1
+            final = True          
 @actividades.route("/actividades/<int:curso_id>/crearActividadWeb", methods=["GET", "POST"])
 @login_required
 def crear_actividadWeb(curso_id):
@@ -248,34 +293,31 @@ def crear_actividadWeb(curso_id):
 @login_required
 def descargar_actividad(actividad_id,curso_id):
     actividad = Actividad.query.get_or_404(actividad_id)
-    semestre = Semestre.query.get_or_404(actividad.semestre_id)
     form = DescargarActividad()
     wb = Workbook()
     dest_filename = 'Herramienta/static/files/ExportarActividad.xlsx'
     hoja = wb.active
     hoja.cell(column=1, row=1, value="Nombre:")
     hoja.cell(column=2, row=1, value=actividad.nombre)
-    hoja.cell(column=1, row=2, value="Semestre:")
-    hoja.cell(column=2, row=2, value=semestre.nombre)
-    hoja.cell(column=1, row=3, value="Porcentaje sobre la nota:")
-    hoja.cell(column=2, row=3, value=actividad.porcentaje)
-    hoja.cell(column=1, row=4, value="Integrantes por grupo:")
-    hoja.cell(column=2, row=4, value=actividad.numeroIntegrantes)
+    hoja.cell(column=1, row=2, value="Porcentaje sobre la nota:")
+    hoja.cell(column=2, row=2, value=actividad.porcentaje)
+    hoja.cell(column=1, row=3, value="Integrantes por grupo:")
+    hoja.cell(column=2, row=3, value=actividad.numeroIntegrantes)
 
 
-    hoja.cell(column=1, row=5, value="ID")
-    hoja.cell(column=2, row=5, value="Punto")
-    hoja.cell(column=3, row=5, value="Inciso")
-    hoja.cell(column=4, row=5, value="Criterio")
-    hoja.cell(column=5, row=5, value="Subcriterio")
-    hoja.cell(column=6, row=5, value="Variación/Penalización")
-    hoja.cell(column=7, row=5, value="Puntaje minimo")
-    hoja.cell(column=8, row=5, value="Puntaje")
-    hoja.cell(column=9, row=5, value="Máximo veces")
+    hoja.cell(column=1, row=4, value="ID")
+    hoja.cell(column=2, row=4, value="Punto")
+    hoja.cell(column=3, row=4, value="Inciso")
+    hoja.cell(column=4, row=4, value="Criterio")
+    hoja.cell(column=5, row=4, value="Subcriterio")
+    hoja.cell(column=6, row=4, value="Variación/Penalización")
+    hoja.cell(column=7, row=4, value="Puntaje minimo")
+    hoja.cell(column=8, row=4, value="Puntaje")
+    hoja.cell(column=9, row=4, value="Máximo veces")
 
     
     #------------------------------------------------------------------
-    fila = 6
+    fila = 5
     idPunto = 1
     idInciso = 1
     idCriterio = 1
@@ -447,3 +489,18 @@ def eliminar_grupo_semestre(actividad_id,curso_id,grupo_id):
         flash(f"Grupo eliminado exitosamente", "success")
         return redirect(url_for("actividades.ver_grupos_actividad", curso_id=curso_id, actividad_id=actividad.id))
     return render_template("actividades/eliminar_grupo.html", title="Eliminar grupo", actividad=actividad, curso=curso,grupo=grupo, form=form)
+
+@actividades.route("/actividades/<int:semestre_id>/<int:curso_id>/descargarFormatoLista", methods=["GET", "POST"])
+@login_required
+def descargarFormatoActividad(semestre_id,curso_id):
+    user_id = current_user.get_id()
+    user = Usuario.query.filter_by(id=user_id).first()
+    if user.rol_id == 1:
+        abort(403)
+    form = DescargarFormatoActividadForm()
+    if form.validate_on_submit():
+        return send_file('static/files/FormatoEjemploTarea.xlsx',
+                     mimetype='text/xlsx',
+                     attachment_filename='FormatoEjemploTarea.xlsx',
+                     as_attachment=True)
+    return render_template("actividades/descargarFormatoActividades.html", title="Descargar formato actividades", curso_id=curso_id, form=form, semestre_id=semestre_id)
