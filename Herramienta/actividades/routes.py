@@ -79,7 +79,7 @@ def calificar_actividad(actividad_id,curso_id,grupo_id):
         "puntaje" : puntaje,
         "numSubcriterios" : numSubcriterios
     }
-    return render_template("actividades/calificar_actividad.html", title="Calificar actividad", actividad=actividad, curso_id=curso_id, actividadJSON = actividadToJson, grupo_id=grupo_id, grupo=grupo)
+    return render_template("actividades/calificar_actividad.html", title="Calificar actividad", actividad=actividad, curso_id=curso_id, actividadJSON = actividadToJson, grupo=grupo)
 
 @actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/<int:semestre_id>/eliminar", methods=["GET", "POST"])
 @login_required
@@ -504,3 +504,11 @@ def descargarFormatoActividad(semestre_id,curso_id):
                      attachment_filename='FormatoEjemploTarea.xlsx',
                      as_attachment=True)
     return render_template("actividades/descargarFormatoActividades.html", title="Descargar formato actividades", curso_id=curso_id, form=form, semestre_id=semestre_id)
+
+
+@actividades.route("/actividades/<int:actividad_id>/<int:curso_id>/<int:grupo_id>/guardarNotas/<variaciones>/<estado>", methods=["GET", "POST"])
+@login_required
+def guardarNotas(actividad_id,curso_id, grupo_id, variaciones, estado):
+    print(variaciones)
+    print(estado)
+    return redirect(url_for('actividades.ver_grupos_actividad', curso_id=curso_id, actividad_id=actividad_id))

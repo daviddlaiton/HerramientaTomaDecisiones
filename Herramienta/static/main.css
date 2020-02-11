@@ -223,6 +223,19 @@ body {
   color: green;
 }
 
+.sinEmpezarCalificacion{
+  color: red;
+}
+
+.noFinalizadoCalificacion{
+  color: #fcc603;
+}
+
+.finalizadoCalificacion{
+  color: green;
+}
+
+
 .habilitarButton{
   height: 40px;
 }
