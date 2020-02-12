@@ -48,9 +48,9 @@
                                     <td>{{ actividad.nombre }}</td>
                                     <td>{{ actividad.grupos|length}}</td>
                                     <td>{{ actividad.numeroIntegrantes }}</td>
-                                    <td>0</td>
-                                    <td>0</td>
-                                    <td>0</td>
+                                    <td>{{ actividad.numEstCalificados }}</td>
+                                    <td>{{ '%0.2f'| format(actividad.promedio|float) }}</td>
+                                    <td>{{ '%0.2f'| format(actividad.desvEst|float) }}</td>
                                     {% if current_user.rol_id != 1 %}
                                         {% if actividad.habilitada %}
                                             <td class="finalizado">Habilitada</td>

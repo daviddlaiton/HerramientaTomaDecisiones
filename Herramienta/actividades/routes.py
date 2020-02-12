@@ -1,13 +1,14 @@
 import os
+import statistics 
 from flask import render_template, url_for, flash, redirect, request, Blueprint, abort, current_app, send_file
 from flask_wtf import FlaskForm
 from wtforms import FieldList, FormField, SubmitField
 from flask_login import current_user, login_required
-from Herramienta.models import Usuario, Curso, Semestre, Actividad, Punto, Inciso, Criterio, Subcriterio, Variacion, Grupo, Estudiante
+from Herramienta.models import Usuario, Curso, Semestre, Actividad, Punto, Inciso, Criterio, Subcriterio, Variacion, Grupo, Estudiante, Calificacion
 from Herramienta import db, bcrypt
-from Herramienta.actividades.forms import CrearActividadArchivoForm, EliminarActividad, DescargarActividad, CrearPunto, CambiarEstadoActividad, EnviarReportes, IntegranteForm, EscogerGrupoParaCalificar, EliminarGrupo, DescargarFormatoActividadForm
+from Herramienta.actividades.forms import CrearActividadArchivoForm, EliminarActividad, DescargarActividad, CrearPunto, CambiarEstadoActividad, EnviarReportes, IntegranteForm, EscogerGrupoParaCalificar, EliminarGrupo, DescargarFormatoActividadForm, GenerarReporte
 from openpyxl import load_workbook, Workbook
-from Herramienta.actividades.utils import send_reports
+from Herramienta.actividades.utils import send_reports, create_pdf
 
 actividades = Blueprint("actividades", __name__)
 
@@ -36,6 +37,7 @@ def calificar_actividad(actividad_id,curso_id,grupo_id):
     puntaje = 0
     numSubcriterios = 0
     puntos = []
+    calificacionesExistentes = []
     for punto in actividad.puntos:
         incisos = []
         for inciso in punto.incisos:
@@ -45,9 +47,13 @@ def calificar_actividad(actividad_id,curso_id,grupo_id):
                 for subcriterio in criterio.subcriterios:
                     variaciones = []
                     for variacion in subcriterio.variaciones:
+                        calificacionExistente = Calificacion.query.filter_by(grupo_id=grupo_id, variacion_id=variacion.id).first()
+                        if calificacionExistente is not None:
+                            calificacionesExistentes.append(str(variacion.id) + ":" + str(subcriterio.id))
                         variacionJSON = {
                             "id" : variacion.id,
-                            "puntaje" : variacion.puntaje
+                            "puntaje" : variacion.puntaje,
+                            "esOtro" : variacion.esOtro
                         }
                         variaciones.append(variacionJSON)
                     puntaje = puntaje + subcriterio.maximoPuntaje
@@ -77,7 +83,8 @@ def calificar_actividad(actividad_id,curso_id,grupo_id):
         "id" : actividad.id,
         "puntos" : puntos,
         "puntaje" : puntaje,
-        "numSubcriterios" : numSubcriterios
+        "numSubcriterios" : numSubcriterios,
+        "calificacionesExistentes" : calificacionesExistentes
     }
     return render_template("actividades/calificar_actividad.html", title="Calificar actividad", actividad=actividad, curso_id=curso_id, actividadJSON = actividadToJson, grupo=grupo)
 
@@ -93,6 +100,10 @@ def eliminar_actividad(actividad_id, curso_id,semestre_id):
     form = EliminarActividad()
     if form.validate_on_submit():
         for grupo in grupos:
+            listaCalificaciones = Calificacion.query.filter_by(grupo_id=grupo.id).all()
+            for calificacion in listaCalificaciones:
+                db.session.delete(calificacion)
+                db.session.commit()
             db.session.delete(grupo)
             db.session.commit()
         eliminarActividad(actividad_id)
@@ -164,7 +175,7 @@ def analizarArchivo(curso_id, semestre_id):
     if numeroIntegrantes <= 0:
         tipoError = "integrantes"
         return tipoError
-    actividad = Actividad(nombre=nombre, porcentaje=porcentaje, habilitada=False, semestre_id=semestre_id, curso_id=curso_id, numeroIntegrantes=numeroIntegrantes, numGrupos=0)
+    actividad = Actividad(nombre=nombre, porcentaje=porcentaje, habilitada=False, semestre_id=semestre_id, curso_id=curso_id, numeroIntegrantes=numeroIntegrantes, numGrupos=0, numEstCalificados=0, promedio=0, desvEst=0)
     db.session.add(actividad)
     db.session.commit()
     #Siempre se debe comenzar ahí, el formato se tiene que respetar.
@@ -243,6 +254,11 @@ def analizarArchivo(curso_id, semestre_id):
                             celdaVariacion = hoja.cell(row=fila, column=columna).value
                             if celdaVariacion is None:
                                 finalSubcriterio = True
+                                variacion = Variacion(descripcion = "No realizó nada", puntaje=0, esPenalizacion=False, subcriterio_id=subcriterio.id, esOtro=True, maximoVeces=1)
+                                db.session.add(variacion)
+                                db.session.commit()
+                                subcriterio.variaciones.append(variacion)
+                                db.session.commit()
                         #-------------------------------------------------------------------
                         columna = columna - 1
                         celdaSubriterio = hoja.cell(row=fila, column=columna).value
@@ -283,6 +299,8 @@ def analizarArchivo(curso_id, semestre_id):
                     tipoError = "2formato:" + str(fila-1)
                     return tipoError
                 columna = columna + 1
+                if columna >= 6:
+                    finalVerdadero = True
             final = True          
 @actividades.route("/actividades/<int:curso_id>/crearActividadWeb", methods=["GET", "POST"])
 @login_required
@@ -365,7 +383,6 @@ def descargar_actividad(actividad_id,curso_id):
 
 def eliminarActividad(actividad_id):
     actividad = Actividad.query.get_or_404(actividad_id)
-
     for punto in actividad.puntos:
         #-------------------------------------------------------------------
         for inciso in punto.incisos:
@@ -389,7 +406,7 @@ def eliminarActividad(actividad_id):
         #-------------------------------------------------------------------
         db.session.delete(punto)
         db.session.commit()
-    
+
     db.session.delete(actividad)
     db.session.commit()
 
@@ -411,6 +428,20 @@ def enviar_informes(curso_id,actividad_id):
         return render_template("actividades/ver_actividad.html", title="Ver actividad", actividad=actividad, curso_id=curso_id)
     return render_template("actividades/enviarReportes.html", title="Enviar reportes", actividad_id=actividad_id, curso_id=curso_id, form=form)
 
+@actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/generarInforme/<int:grupo_id>", methods=["GET","POST"])
+@login_required
+def generar_informe(curso_id,actividad_id,grupo_id):
+    actividad = Actividad.query.get_or_404(actividad_id)
+    grupo = Grupo.query.get_or_404(grupo_id)
+    form = GenerarReporte()
+    if form.validate_on_submit():
+        create_pdf(actividad,grupo)
+        return send_file('actividades/files/reporte.pdf',
+                        mimetype='application/pdf',
+                        attachment_filename='reporte.pdf',
+                        as_attachment=True)
+    return render_template("actividades/generarReporte.html", title="Generar reporte", actividad_id=actividad_id, curso_id=curso_id, form=form, grupo=grupo)
+    
 @actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/verGrupos", methods=["GET", "POST"])
 @login_required
 def ver_grupos_actividad(actividad_id,curso_id):
@@ -461,7 +492,7 @@ def grupo_creado_actividad(actividad_id,curso_id,integrantesSeleccionados):
         if codigoIntegrante is not "":
             integrante = Estudiante.query.filter_by(codigo=codigoIntegrante).first()
             integrantes.append(integrante)
-    grupo = Grupo(actividad_id=actividad_id, estudiantes=integrantes, numero=numeroGrupo, usuario_id=current_user.get_id() , creador=current_user.login, calificado = False)
+    grupo = Grupo(actividad_id=actividad_id, estudiantes=integrantes, numero=numeroGrupo, usuario_id=current_user.get_id() , creador=current_user.login, nota = 0, estadoCalifacion="SinEmpezar")
     db.session.add(grupo)
     db.session.commit()
     flash(f"Grupo creado exitosamente", "success")
@@ -483,6 +514,10 @@ def eliminar_grupo_semestre(actividad_id,curso_id,grupo_id):
     grupo = Grupo.query.get_or_404(grupo_id)
     form = EliminarGrupo()
     if form.validate_on_submit():
+        listaCalificaciones = Calificacion.query.filter_by(grupo_id=grupo.id).all()
+        for calificacion in listaCalificaciones:
+            db.session.delete(calificacion)
+            db.session.commit()
         actividad.grupos.remove(grupo)
         db.session.delete(grupo)
         db.session.commit()
@@ -506,9 +541,93 @@ def descargarFormatoActividad(semestre_id,curso_id):
     return render_template("actividades/descargarFormatoActividades.html", title="Descargar formato actividades", curso_id=curso_id, form=form, semestre_id=semestre_id)
 
 
-@actividades.route("/actividades/<int:actividad_id>/<int:curso_id>/<int:grupo_id>/guardarNotas/<variaciones>/<estado>", methods=["GET", "POST"])
+@actividades.route("/actividades/<int:actividad_id>/<int:curso_id>/<int:grupo_id>/guardarNotas/<variaciones>/<estado>/<nota>/<puntaje>", methods=["GET", "POST"])
 @login_required
-def guardarNotas(actividad_id,curso_id, grupo_id, variaciones, estado):
-    print(variaciones)
-    print(estado)
+def guardarNotas(actividad_id,curso_id, grupo_id, variaciones, estado, nota,puntaje):
+    grupo = Grupo.query.get_or_404(grupo_id)
+    actividad = Actividad.query.get_or_404(actividad_id)
+    if estado == "Finalizado" and grupo.estadoCalifacion != "Finalizado":
+        actividad.numEstCalificados = actividad.numEstCalificados + 1
+    elif estado != "Finalizado" and grupo.estadoCalifacion == "Finalizado":
+        actividad.numEstCalificados = actividad.numEstCalificados - 1
+    grupo.estadoCalifacion = estado
+    grupo.nota = ((float(nota)/float(puntaje))*5)
+    db.session.commit()
+    listaGrupos = Grupo.query.filter_by(actividad_id=actividad_id, estadoCalifacion="Finalizado").all()
+    listaNotas = []
+    for grupoL in listaGrupos:
+        listaNotas.append(grupoL.nota) 
+    if len(listaNotas) >1:
+        actividad.desvEst = statistics.stdev(listaNotas)
+    if len(listaNotas) > 0:
+        actividad.promedio = statistics.mean(listaNotas)
+    listaVariaciones = variaciones.split(":")
+    listaVariacionesInt = []
+    for variacion in listaVariaciones:
+        if variacion != "":
+            listaVariacionesInt.append(int(variacion))
+    for punto in actividad.puntos:
+        #-------------------------------------------------------------------
+        for inciso in punto.incisos:
+            #-------------------------------------------------------------------
+            for criterio in inciso.criterios:
+                #-------------------------------------------------------------------
+                for subcriterio in criterio.subcriterios:
+                    #-------------------------------------------------------------------
+                    for variacion in subcriterio.variaciones:
+                        calificacionExistente = Calificacion.query.filter_by(grupo_id=grupo_id, variacion_id=variacion.id).first()
+                        if variacion.id in listaVariacionesInt:
+                            if calificacionExistente is None:
+                                nuevaCalificacion = Calificacion(grupo_id=grupo_id, variacion_id=variacion.id, descripcion=variacion.descripcion, cantidadVeces=1, puntaje=variacion.puntaje)
+                                db.session.add(nuevaCalificacion)
+                                listaVariacionesInt.remove(variacion.id)
+                        else:
+                            if calificacionExistente is not None:
+                                db.session.delete(calificacionExistente)
+                        db.session.commit()
     return redirect(url_for('actividades.ver_grupos_actividad', curso_id=curso_id, actividad_id=actividad_id))
+
+@actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/descargarNotas", methods=["GET","POST"])
+@login_required
+def descargar_notas(actividad_id,curso_id):
+    actividad = Actividad.query.get_or_404(actividad_id)
+    form = DescargarActividad()
+    wb = Workbook()
+    dest_filename = 'Herramienta/static/files/Notas.xlsx'
+    hoja = wb.active
+    hoja.cell(column=1, row=2, value="Código")
+    hoja.cell(column=2, row=2, value="Login")
+    hoja.cell(column=3, row=2, value="Apellidos")
+    hoja.cell(column=4, row=2, value="Nombre")
+    hoja.cell(column=5, row=2, value="Subcriterio")
+    
+    #------------------------------------------------------------------
+    columna = 6
+
+    for punto in actividad.puntos:
+        hoja.cell(column=columna, row=1, value=punto.nombre)
+        hoja.cell(column=columna, row=2, value=punto.puntajePosible)
+        columna = columna + 1
+        for inciso in punto.incisos:
+            hoja.cell(column=columna, row=1, value=inciso.nombre)
+            hoja.cell(column=columna, row=2, value=inciso.puntajePosible)
+            columna = columna + 1
+            for criterio in inciso.criterios:
+                hoja.cell(column=columna, row=1, value=criterio.nombre)
+                hoja.cell(column=columna, row=2, value=criterio.puntajePosible)
+                columna = columna + 1
+                for subcriterio in criterio.subcriterios:
+                    hoja.cell(column=columna, row=1, value=subcriterio.nombre)
+                    hoja.cell(column=columna, row=2, value=subcriterio.maximoPuntaje)
+                    columna = columna + 1
+                    for variacion in subcriterio.variaciones:
+                        hoja.cell(column=columna, row=1, value=variacion.descripcion)
+                        hoja.cell(column=columna, row=2, value=variacion.puntaje)
+                        columna = columna + 1
+    wb.save(filename = dest_filename)
+    if form.validate_on_submit():
+        return send_file('static/files/Notas.xlsx',
+                     mimetype='text/xlsx',
+                     attachment_filename='Notas.xlsx',
+                     as_attachment=True)
+    return render_template("actividades/descargar_notas.html", title="Descargar actividad Web", actividad_id=actividad_id, curso_id=curso_id, form=form)

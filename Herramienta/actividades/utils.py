@@ -5,7 +5,7 @@ from fpdf import FPDF
 
 app = Flask(__name__)  
 
-def send_reports(actividad):
+def send_reports(actividad, correo, grupo):
     user_mail = "ad.laiton10@uniandes.edu.co"
     msg = Message(subject='Retroalimentación Tarea',
                   sender='ad.laiton10@uniandes.edu.co',
@@ -16,7 +16,7 @@ Adjunto a este mensaje usted encontrará la retroalimentación correspondiente a
 Equipo de Asistentes y Profesores
 Opti.
 '''
-    create_pdf(actividad)
+    create_pdf(actividad, grupo)
     with app.open_resource("./files/simple_demo.pdf") as fp:
         msg.attach(
         "simple_demo.pdf",
@@ -25,7 +25,11 @@ Opti.
     )
     mail.send(msg)
 
-def create_pdf(actividad):
+def create_pdf(actividad, grupo):
+    calificaciones = grupo.calificaciones
+    idsVariacionesEnCalificaciones = []
+    for calificacion in calificaciones:
+        idsVariacionesEnCalificaciones.append(calificacion.id)
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Times", "B",size=12)
@@ -44,24 +48,32 @@ def create_pdf(actividad):
     pdf.set_font("Times", "B",size=14)
     pdf.cell(50, 5, txt="Criterios:", ln=1) 
     for punto in actividad.puntos:
+        pdf.set_text_color(0)
         pdf.set_font("Times", "B",size=12)
         pdf.cell(50, 5, txt=punto.nombre, ln=1) 
         for inciso in punto.incisos:
+            pdf.set_text_color(0)
             pdf.set_font("Times", "B",size=12)
             pdf.cell(50, 5, txt=inciso.nombre, ln=1) 
             for criterio in inciso.criterios:
+                pdf.set_text_color(0)
                 pdf.set_font("Times", "B",size=12)
                 pdf.cell(5)
                 pdf.cell(50, 5, txt=criterio.nombre, ln=1) 
                 for subcriterio in criterio.subcriterios:
+                    pdf.set_text_color(0)
                     pdf.set_font("Times", "B",size=12)
-                    pdf.cell(10)
+                    pdf.cell(7)
                     pdf.cell(50, 5, txt=subcriterio.nombre, ln=1) 
                     for variacion in subcriterio.variaciones:
+                        if variacion.id in idsVariacionesEnCalificaciones:
+                            pdf.set_text_color(0)
+                        else:
+                            pdf.set_text_color(126)
                         pdf.set_font("Times",size=12)
                         pdf.cell(15)
                         pdf.cell(50, 5, txt=variacion.descripcion, ln=1)
                     pdf.cell(40, 5, txt="", ln=1)
         pdf.cell(40, 10, txt="", ln=1)
 
-    pdf.output("Herramienta/actividades/files/simple_demo.pdf")
+    pdf.output("Herramienta/actividades/files/reporte.pdf")

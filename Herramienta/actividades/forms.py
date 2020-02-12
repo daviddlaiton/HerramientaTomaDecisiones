@@ -29,6 +29,9 @@ class CambiarEstadoActividad(FlaskForm):
 class EnviarReportes(FlaskForm):
     submit = SubmitField("Enviar reportes")
 
+class GenerarReporte(FlaskForm):
+    submit = SubmitField("Generar informe")
+
 class IntegranteForm(FlaskForm):
     codigo = SelectField("Código", choices=[], coerce=int)
 

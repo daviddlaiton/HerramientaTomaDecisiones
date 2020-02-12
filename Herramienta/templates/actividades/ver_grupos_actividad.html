@@ -3,7 +3,7 @@
 {% block content %}
     <div class="row">
         <div class="col-md-12">
-            <form action="{{ url_for('cursos.ver_curso', curso_id=curso.id) }}">
+            <form action="{{ url_for('actividades.verActividades_semestre', curso_id=curso.id, semestre_id=semestre.id) }}">
                 <input type="image" class="BackButton" src="https://image.flaticon.com/icons/svg/271/271218.svg" />
             </form>
             <article class="media content-section">
@@ -39,11 +39,13 @@
                                 <tr>
                                     <td>{{ grupo.numero }}</td>
                                     <td>{{ grupo.estudiantes|length }}</td>
-                                    <td>{{ grupo.calificaciones }}</td>
-                                    {% if grupo.estado %}
-                                        <td class="finalizado">Calificado</td>
+                                    <td>{{ '%0.2f'| format(grupo.nota|float) }}</td>
+                                    {% if grupo.estadoCalifacion == "Finalizado" %}
+                                        <td class="finalizadoCalificacion">Calificado</td>
+                                    {% elif grupo.estadoCalifacion == "Incompleto" %}
+                                        <td class="noFinalizadoCalificacion">Incompleto</td>
                                     {% else %}
-                                        <td class="noFinalizado">No calificado</td>
+                                        <td class="sinEmpezarCalificacion">Sin empezar</td>
                                     {% endif %}
                                     <td>{{ grupo.creador}}</td>
                                     <td>
@@ -62,8 +64,8 @@
                                         </form>
                                     </td>
                                     <td>
-                                        <form action="{{ url_for('actividades.calificar_actividad', curso_id=curso.id, actividad_id=actividad.id,grupo_id=grupo.id) }}">
-                                            <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Generar informes</button>
+                                        <form action="{{ url_for('actividades.generar_informe', curso_id=curso.id, actividad_id=actividad.id, grupo_id=grupo.id) }}">
+                                            <button type="submit" class="btn btn-outline-info eliminarCursoSemestre">Generar informe</button>
                                         </form>
                                     </td>
                                     <td>
@@ -89,6 +91,15 @@
                                 </tr>
                             </tfoot>
                         </table>
+                        <form action="">
+                            <button type="submit" class="btn btn-outline-info semestreActions">Generar Informes</button>
+                        </form>
+                        <form action="">
+                            <button type="submit" class="btn btn-outline-info semestreActions">Enviar Informes</button>
+                        </form>
+                        <form action="{{ url_for('actividades.descargar_notas', curso_id=curso.id, actividad_id=actividad.id) }}">
+                            <button type="submit" class="btn btn-outline-info semestreActions">Descargar Notas</button>
+                        </form>
                     {% endif %}
                 </div>
             </article>

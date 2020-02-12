@@ -15,7 +15,8 @@
                     <div class="article-metadata">
                         <h4 class="mr-2">{{ actividad.nombre }} - Calificar actividad</h4>
                     </div>
-                    <h5><strong>Grupo: </strong>{{grupo.estudiantes}}</h5>
+                    <h5><strong>Grupo: </strong>{{grupo.numero}}</h5>
+                    <h5><strong>Integrantes: </strong>{{grupo.estudiantes}}</h5>
                     <h5 id="nota"></h5>
                     <h5 class="sinEmpezarCalificacion" id="estadoActividad">Estado de la calificación: No finalizado.</h5>
                     <br>
@@ -102,24 +103,13 @@
                                                                                                 <p>{{ variacion.descripcion }}</p>
                                                                                             </div>
                                                                                             <div class="variacionTextInputDiv">
-                                                                                                <input type="checkbox" class="notaTextInput" id={{"notaVariacion" + variacion.id|string}}  name={{"notaVariacion" + variacion.id|string}} onclick={{"onlyOneSelected(" + variacion.id|string + ","+ subcriterio.id|string +"false)"}}>
+                                                                                                <input type="checkbox" class="notaTextInput" id={{"notaVariacion" + variacion.id|string}}  name={{"notaVariacion" + variacion.id|string}} onclick={{"onlyOneSelected(" + variacion.id|string + ","+ subcriterio.id|string +",false)"}}>
                                                                                             </div>
                                                                                             <div class="variacionPuntaje">
                                                                                                 <p class="variacionPuntajeText" id={{"puntajeVariacion"+ variacion.id|string}}>{{ variacion.puntaje }}</p>
                                                                                             </div>
                                                                                         </div>
                                                                                         {% endfor %}
-                                                                                        <div class="variacionGroup">
-                                                                                            <div class="variacionText" id={{"variacionNada" + subcriterio.id|string}}>
-                                                                                                <p>No realizó nada</p>
-                                                                                            </div>
-                                                                                            <div class="variacionTextInputDiv">
-                                                                                                <input type="checkbox" class="notaTextInput" id={{"notaVariacionNada" + subcriterio.id|string}}  name={{"notaVariacionNada" + subcriterio.id|string}} onclick={{"onlyOneSelected('nada'" + ","+ subcriterio.id|string + "false)"}}>
-                                                                                            </div>
-                                                                                            <div class="variacionPuntaje">
-                                                                                                <p class="variacionPuntajeText">0</p>
-                                                                                            </div>
-                                                                                        </div>
                                                                                 </div>                                                                           
                                                                             {% endfor %}
                                                                         </div> 
@@ -162,7 +152,7 @@
         let buttonEnviarCalificacion = document.getElementById("buttonEnviarCalificacion");
         buttonEnviarCalificacion.style.display = "none";
 
-        let actionFormEnviarCalificacion = document.getElementById("formEnviarCalificacion")
+        let actionFormEnviarCalificacion = document.getElementById("formEnviarCalificacion");
 
         let actividad = JSON.parse('{{ actividadJSON | tojson | safe}}');
 
@@ -172,9 +162,19 @@
         let numSubcriterios = actividad.numSubcriterios;
         let numSubcriteriosSeleccionadas = 0; 
 
+        let variacionesSeleccionadasAnteriormente = actividad.calificacionesExistentes;
+
         let nota = 0;
 
         let variacionesSeleccionadas = [];
+
+        $(document).ready( function () {
+            for(let i=0; i < variacionesSeleccionadasAnteriormente.length;i++){
+                let variacionSplit = variacionesSeleccionadasAnteriormente[i].split(":");
+                document.getElementById("notaVariacion" + variacionSplit[0]).checked = true;
+                onlyOneSelected(parseInt(variacionSplit[0]), parseInt(variacionSplit[1]), false);
+            }
+        })
 
         function corregirPunto(id,tipo) {
             let acabo = false;
@@ -300,7 +300,6 @@
                                     }
                                     
                                 } else {
-                                    document.getElementById("notaVariacionNada" + subcriterio.id).checked = true;
                                     onlyOneSelected("nada", subcriterio.id, true);
                                 }
                                     
@@ -323,7 +322,6 @@
                                 let idElemento = subcriterio.variaciones[elementoSeleccionar].id;
                                 onlyOneSelected(idElemento, subcriterio.id, true);
                             } else {
-                                document.getElementById("notaVariacionNada" + subcriterio.id).checked = true;
                                 onlyOneSelected("nada", subcriterio.id, true);
                             }
                         });
@@ -343,7 +341,6 @@
                             let idElemento = subcriterio.variaciones[elementoSeleccionar].id;
                             onlyOneSelected(idElemento, subcriterio.id, true);
                         } else {
-                            document.getElementById("notaVariacionNada" + subcriterio.id).checked = true;
                             onlyOneSelected("nada", subcriterio.id, true);
                         }   
                     });
@@ -359,16 +356,16 @@
                                 }
                             });
                             let idElemento = elemento.variaciones[elementoSeleccionar].id;
-                            onlyOneSelected(idElemento, subcriterio.id, true);
+                            onlyOneSelected(idElemento, elemento.id, true);
                         } else {
-                            document.getElementById("notaVariacionNada" + elemento.id).checked = true;
-                            onlyOneSelected("nada", subcriterio.id, true);
+                            onlyOneSelected("nada", elemento.id, true);
                         }   
                     break;
             }
         }
 
         function onlyOneSelected(idCheckbox, idParent, desdeBoton) {
+            console.log(numSubcriteriosSeleccionadas)
             actividad.puntos.forEach(punto => {
                 punto.incisos.forEach(inciso => {
                     inciso.criterios.forEach(criterio => {
@@ -376,16 +373,22 @@
                             if (subcriterio.id == idParent) {
                                 if (idCheckbox === "nada" ){
                                     subcriterio.variaciones.forEach( variacion => { 
-                                        let checkbox = document.getElementById("notaVariacion" + variacion.id)                        
+                                        let checkbox = document.getElementById("notaVariacion" + variacion.id)                  
                                         if(checkbox.checked){
                                             let valor = parseFloat(document.getElementById("puntajeVariacion"+ variacion.id).innerHTML);
                                             nota = nota - valor;
                                             notaHTML.innerHTML = "Nota: " + nota + "/"+ actividad.puntaje;
                                             checkbox.checked = false;
                                             variacionesSeleccionadas.splice( variacionesSeleccionadas.indexOf(variacion.id), 1 );
+                                            numSubcriteriosSeleccionadas = numSubcriteriosSeleccionadas - 1;
+                                        }
+                                        if(variacion.esOtro == true){
+                                            document.getElementById("notaVariacion" + variacion.id).checked = true;
+                                            variacionesSeleccionadas.push(variacion.id)
+                                            numSubcriteriosSeleccionadas = numSubcriteriosSeleccionadas + 1;
                                         }                                        
                                     });
-                                    variacionesSeleccionadas.push("nada" + idParent)
+                                    verificarFinalizacion()      
                                 } else {
                                     subcriterio.variaciones.forEach( variacion => {
                                         let idElementToChange = variacion.id;
@@ -396,6 +399,7 @@
                                                 nota = nota - valor;
                                                 notaHTML.innerHTML = "Nota: " + nota + "/"+ actividad.puntaje;
                                                 variacionesSeleccionadas.splice( variacionesSeleccionadas.indexOf(idElementToChange), 1 );
+                                                numSubcriteriosSeleccionadas = numSubcriteriosSeleccionadas - 1;
                                             }
                                             checkbox.checked = false;
                                         } else {
@@ -406,7 +410,7 @@
                                                     nota = nota + valor;
                                                     numSubcriteriosSeleccionadas = numSubcriteriosSeleccionadas + 1;
                                                     variacionesSeleccionadas.push(idElementToChange)
-                                                }
+                                                } 
                                             } else {
                                                 if(!checkbox.checked){
                                                     nota = nota - valor;
@@ -423,7 +427,6 @@
                                             notaHTML.innerHTML = "Nota: " + nota + "/"+ actividad.puntaje;
                                         }                                       
                                     });
-                                    document.getElementById("notaVariacionNada" + subcriterio.id).checked = false;
                                 }
                             }
                         });
@@ -434,7 +437,7 @@
 
     function verificarFinalizacion(){
         let estado = document.getElementById("estadoActividad");
-        if (numSubcriteriosSeleccionadas === numSubcriterios){
+        if (numSubcriteriosSeleccionadas >= numSubcriterios){
             estado.innerHTML = "Estado de la calificación: Finalizado.";
             estado.className = '';
             estado.className = 'finalizadoCalificacion';
@@ -453,20 +456,20 @@
         let estado = document.getElementById("estadoActividad").innerHTML;
         let estadoString = "";
         if (estado === "Estado de la calificación: Finalizado."){
-            estadoString = "Finalizado"
+            estadoString = "Finalizado";
         } else if (estado === "Estado de la calificación: No finalizado."){
-            estadoString = "Incompleto"
+            estadoString = "Incompleto";
         } else {
-            estadoString = "Sin Empezar"
+            estadoString = "SinEmpezar";
         }
-        let stringVariaciones = ""
+        let stringVariaciones = "";
         for(let i=0; i< variacionesSeleccionadas.length; i++){
-            stringVariaciones = stringVariaciones + variacionesSeleccionadas[i] +  ":" 
+            stringVariaciones = stringVariaciones + variacionesSeleccionadas[i] +  ":";
         }
         if (stringVariaciones == ""){
-            stringVariaciones = "sinVariaciones"
+            stringVariaciones = "sinVariaciones";
         }
-        actionFormEnviarCalificacion.action = "/actividades/" + actividad_id.innerHTML + "/"+ curso_id.innerHTML +  "/" + grupo_id.innerHTML + "/guardarNotas/" + stringVariaciones + "/" +estadoString;
+        actionFormEnviarCalificacion.action = "/actividades/" + actividad_id.innerHTML + "/"+ curso_id.innerHTML +  "/" + grupo_id.innerHTML + "/guardarNotas/" + stringVariaciones + "/" +estadoString +"/" + nota +"/"+actividad.puntaje;
         buttonEnviarCalificacion.click(); 
     }
     </script>

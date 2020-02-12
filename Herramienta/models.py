@@ -91,7 +91,6 @@ class SemestreCursoHabilitados(db.Model):
     def __repr__(self):
         return f"'{self.semestre_id}' '{self.curso_id}' '{self.habilitado}'"
 
-
 class Estudiante(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     codigo = db.Column(db.Integer, nullable=False)
@@ -106,7 +105,7 @@ class Estudiante(db.Model):
         "semestre.id"), nullable=False)
 
     def __repr__(self):
-        return f"'{self.nombre}' '{self.apellido}'"
+        return f"{self.nombre} {self.apellido}"
 
 
 class Curso(db.Model):
@@ -140,7 +139,6 @@ class Calificacion(db.Model):
     puntaje = db.Column(db.Float, nullable=False)
     grupo_id = db.Column(db.Integer, db.ForeignKey(
         "grupo.id"), nullable=False)
-    # supongo que una calificacion puede tener más de 1 variación
     variacion_id = db.Column(db.Integer, db.ForeignKey(
         "variacion.id"), nullable=False)
 
@@ -150,14 +148,15 @@ class Grupo(db.Model):
     numero = db.Column(db.Integer, nullable=False)
     usuario_id = db.Column(db.Integer, db.ForeignKey(
         "usuario.id"))
-    creador = db.Column(db.String(20), unique=True, nullable=False)
+    creador = db.Column(db.String(20), nullable=False)
     actividad_id = db.Column(db.Integer, db.ForeignKey(
         "actividad.id"), nullable=False)
     calificaciones = db.relationship("Calificacion", backref="grupos")
-    calificado =  db.Column(db.Boolean, nullable=False)
+    nota = db.Column(db.Integer, nullable=False)
+    estadoCalifacion =  db.Column(db.String(20), nullable=False)
     
     def __repr__(self):
-        return f"Grupo('{self.id}'), Calificaciones('{self.calificaciones})', ) "
+        return f"Grupo('{self.id}'), Calificaciones('{self.calificaciones})', Nota('{self.nota}'')) "
 
 class Actividad(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -172,6 +171,9 @@ class Actividad(db.Model):
     grupos = db.relationship("Grupo", backref="actividad")
     puntos = db.relationship("Punto", backref="actividad")
     numGrupos = db.Column(db.Integer, nullable=False)
+    numEstCalificados = db.Column(db.Integer, nullable=False)
+    promedio = db.Column(db.Float, nullable=False)
+    desvEst = db.Column(db.Float, nullable=False)
 
     def __repr__(self):
         return f"Actividad:'{self.nombre}':'{self.id}, habilitadad:'{self.habilitada}', Grupos: '{self.grupos}', Semestre:'{self.semestre_id}', Curso: '{self.curso_id}', Puntos:'{self.puntos}')"

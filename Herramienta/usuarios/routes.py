@@ -59,7 +59,6 @@ def crearMonitor(curso_id,semestre_id):
 @usuarios.route("/crearProfesor/<int:curso_id>/<int:semestre_id>", methods=["GET", "POST"])
 @login_required
 def crearProfesor(curso_id,semestre_id):
-    print("jasdkjasdlka")
     user_id = current_user.get_id()
     user = Usuario.query.filter_by(id=user_id).first()
     if user.rol_id == 1:
