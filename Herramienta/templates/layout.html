@@ -39,13 +39,15 @@
                     <!-- Navbar Right Side -->
                     <div class="navbar-nav">
                         {% if current_user.is_authenticated %}
-                        <a class="nav-item nav-link" href="{{ url_for('cursos.get_cursos') }}">Cursos</a>
-                        {% if current_user.rol_id == 4 %}
-                        <a class="nav-item nav-link" href="{{ url_for('usuarios.get_usuarios')}}">Usuarios</a>
-                        <a class="nav-item nav-link" href="{{ url_for('semestres.get_semestres') }}">Semestres</a>
-                        {% endif %}
-                        <a class="nav-item nav-link" href="{{ url_for('usuarios.cuenta') }}">Mi cuenta</a>
-                        <a class="nav-item nav-link" href="{{ url_for('usuarios.logout') }}">Cerrar sesión</a>
+                            {% if current_user.activado %} 
+                                <a class="nav-item nav-link" href="{{ url_for('cursos.get_cursos') }}">Cursos</a>
+                                {% if current_user.rol_id == 4 %}
+                                    <a class="nav-item nav-link" href="{{ url_for('usuarios.get_usuarios')}}">Usuarios</a>
+                                    <a class="nav-item nav-link" href="{{ url_for('semestres.get_semestres') }}">Semestres</a>
+                                {% endif %}
+                                <a class="nav-item nav-link" href="{{ url_for('usuarios.cuenta') }}">Mi cuenta</a>
+                                <a class="nav-item nav-link" href="{{ url_for('usuarios.logout') }}">Cerrar sesión</a>
+                            {% endif %}
                         {% else %}
                         <a class="nav-item nav-link" href="{{ url_for('usuarios.login') }}">Iniciar sesión</a>
                         {% endif %}

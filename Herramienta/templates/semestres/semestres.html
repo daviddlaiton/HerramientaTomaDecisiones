@@ -4,18 +4,22 @@
 <div class="row">
     <div class="col-md-7">
         <h1>Lista de semestres</h1>
-        {% for semestre in semestres.items %}
-        <article class="media content-section">
-            <div class="media-body">
-                <div class="article-metadata">
-                    <h2><a class="mr-2">{{ semestre.nombre }}</a></h2>
+        {% if not semestres.items %}
+            <h4>No hay semestres</h4>
+        {% else %}
+            {% for semestre in semestres.items %}
+            <article class="media content-section">
+                <div class="media-body">
+                    <div class="article-metadata">
+                        <h2><a class="mr-2">{{ semestre.nombre }}</a></h2>
+                    </div>
+                    <form action="{{ url_for('semestres.ver_semestre', semestre_id=semestre.id) }}">
+                        <button type="submit" class="btn btn-outline-info verButton">Ver semestre</button>
+                    </form>
                 </div>
-                <form action="{{ url_for('semestres.ver_semestre', semestre_id=semestre.id) }}">
-                    <button type="submit" class="btn btn-outline-info verButton">Ver semestre</button>
-                </form>
-            </div>
-        </article>
-        {% endfor %}
+            </article>
+            {% endfor %}
+        {% endif %}
         {% for page_num in semestres.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
             {% if page_num %}
                 {% if semestres.page == page_num %}

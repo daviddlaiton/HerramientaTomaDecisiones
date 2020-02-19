@@ -1,7 +1,7 @@
 import os
 from flask import render_template, url_for, flash, redirect, request, Blueprint, abort, current_app, send_file
 from flask_login import current_user, login_required
-from Herramienta.models import Usuario, Semestre, Curso, Estudiante, SemestreCursoHabilitados
+from Herramienta.models import Usuario, Semestre, Curso, Estudiante, SemestreCursoHabilitados, Actividad, Calificacion, Grupo
 from Herramienta import db, bcrypt
 from Herramienta.semestres.forms import (CrearSemestreForm, EditarNombreSemestreForm,
                                          AgregarCursoASemestreForm, EliminarCursoASemestreForm, EliminarSemestreForm, CargarListaEstudiantesForm, DescargarListaEstudiantesForm, DescargarFormatoListaEstudiantesForm, EstudianteForm, EliminarEstudianteForm)
@@ -12,6 +12,12 @@ semestres = Blueprint("semestres", __name__)
 @semestres.route("/semestres")
 @login_required
 def get_semestres():
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
+    user_id = current_user.get_id()
+    user = Usuario.query.filter_by(id=user_id).first()
+    if user.rol_id == 1:
+        abort(403)
     page = request.args.get("page", 1, type=int)
     semestres = Semestre.query.order_by(
         Semestre.id.desc()).paginate(page=page, per_page=5)
@@ -21,6 +27,8 @@ def get_semestres():
 @semestres.route("/crear_semestre", methods=["GET", "POST"])
 @login_required
 def crear_semestre():
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
     user_id = current_user.get_id()
     user = Usuario.query.filter_by(id=user_id).first()
     if user.rol_id == 1:
@@ -38,6 +46,8 @@ def crear_semestre():
 @semestres.route("/semestres/<int:semestre_id>", methods=["GET", "POST"])
 @login_required
 def ver_semestre(semestre_id):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
     user_id = current_user.get_id()
     user = Usuario.query.filter_by(id=user_id).first()
     if user.rol_id == 1:
@@ -49,6 +59,8 @@ def ver_semestre(semestre_id):
 @semestres.route("/semestres/<int:semestre_id>/editarNombre", methods=["GET", "POST"])
 @login_required
 def editarNombre_semestre(semestre_id):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
     user_id = current_user.get_id()
     user = Usuario.query.filter_by(id=user_id).first()
     if user.rol_id == 1:
@@ -68,6 +80,8 @@ def editarNombre_semestre(semestre_id):
 @semestres.route("/semestres/<int:semestre_id>/agregarCurso", methods=["GET", "POST"])
 @login_required
 def agregarCurso_semestre(semestre_id):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
     user_id = current_user.get_id()
     user = Usuario.query.filter_by(id=user_id).first()
     if user.rol_id == 1:
@@ -92,6 +106,8 @@ def agregarCurso_semestre(semestre_id):
 @semestres.route("/semestres/<int:semestre_id>/eliminarCurso/<int:curso_id>", methods=["GET", "POST"])
 @login_required
 def eliminarCurso_semestre(semestre_id, curso_id):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
     user_id = current_user.get_id()
     user = Usuario.query.filter_by(id=user_id).first()
     if user.rol_id == 1:
@@ -112,13 +128,37 @@ def eliminarCurso_semestre(semestre_id, curso_id):
 @semestres.route("/semestres/<int:semestre_id>/eliminarSemestre", methods=["GET", "POST"])
 @login_required
 def eliminar_semestre(semestre_id):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
     user_id = current_user.get_id()
     user = Usuario.query.filter_by(id=user_id).first()
     if user.rol_id == 1:
         abort(403)
     semestre = Semestre.query.get_or_404(semestre_id)
+    actividades = Actividad.query.filter_by(semestre_id=semestre.id).all()
+    estudiantes = Estudiante.query.filter_by(semestre=semestre.id).all()
     form = EliminarSemestreForm()
     if form.validate_on_submit():
+        for curso in semestre.cursos:
+            semestre.cursos.remove(curso)
+            semestreCurso = SemestreCursoHabilitados.query.filter_by(semestre_id=semestre.id, curso_id=curso.id).first()
+            db.session.delete(semestreCurso)
+            db.session.commit()
+        for estudiante in estudiantes:
+            semestre.estudiantes.remove(estudiante)
+            db.session.delete(estudiante)
+            db.session.commit()
+        for actividad in actividades:
+            grupos = Grupo.query.filter_by(actividad_id=actividad.id).all()
+            for grupo in grupos:
+                listaCalificaciones = Calificacion.query.filter_by(grupo_id=grupo.id).all()
+                for calificacion in listaCalificaciones:
+                    db.session.delete(calificacion)
+                    db.session.commit()
+                db.session.delete(grupo)
+                db.session.commit()
+            eliminarActividad(actividad.id)
+            db.session.commit()
         db.session.delete(semestre)
         db.session.commit()
         flash(f"Semestre eliminado exitosamente", "success")
@@ -128,6 +168,8 @@ def eliminar_semestre(semestre_id):
 @semestres.route("/semestres/<int:semestre_id>/<int:curso_id>/verLista", methods=["GET", "POST"])
 @login_required
 def verLista_semestre(semestre_id,curso_id):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
     user_id = current_user.get_id()
     user = Usuario.query.filter_by(id=user_id).first()
     if user.rol_id == 1:
@@ -138,6 +180,8 @@ def verLista_semestre(semestre_id,curso_id):
 @semestres.route("/semestres/<int:semestre_id>/<int:curso_id>/cargarLista", methods=["GET", "POST"])
 @login_required
 def cargarListaEstudiantes_semestre(semestre_id,curso_id):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
     user_id = current_user.get_id()
     user = Usuario.query.filter_by(id=user_id).first()
     if user.rol_id == 1:
@@ -188,6 +232,8 @@ def analizarArchivoListaEstudiantes(semestre):
 @semestres.route("/semestres/<int:semestre_id>/<int:curso_id>/descargarLista", methods=["GET", "POST"])
 @login_required
 def descargarListaEstudiantes_semestre(semestre_id,curso_id):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
     user_id = current_user.get_id()
     user = Usuario.query.filter_by(id=user_id).first()
     if user.rol_id == 1:
@@ -227,6 +273,8 @@ def descargarListaEstudiantes_semestre(semestre_id,curso_id):
 @semestres.route("/semestres/<int:semestre_id>/<int:curso_id>/descargarFormatoLista", methods=["GET", "POST"])
 @login_required
 def descargarFormatoListaEstudiantes_semestre(semestre_id,curso_id):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
     user_id = current_user.get_id()
     user = Usuario.query.filter_by(id=user_id).first()
     if user.rol_id == 1:
@@ -255,6 +303,12 @@ def descargarFormatoListaEstudiantes_semestre(semestre_id,curso_id):
 @semestres.route("/semestres/<int:semestre_id>/<int:curso_id>/<int:estudiante_id>/editarEstudiante", methods=["GET", "POST"])
 @login_required
 def editarEstudiante_semestre(semestre_id,curso_id,estudiante_id):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
+    user_id = current_user.get_id()
+    user = Usuario.query.filter_by(id=user_id).first()
+    if user.rol_id == 1:
+        abort(403)
     estudiante = Estudiante.query.get_or_404(estudiante_id)
     form = EstudianteForm()
     if form.validate_on_submit():
@@ -279,22 +333,50 @@ def editarEstudiante_semestre(semestre_id,curso_id,estudiante_id):
 @semestres.route("/semestres/<int:semestre_id>/<int:curso_id>/crearEstudiante", methods=["GET", "POST"])
 @login_required
 def crearEstudiante_semestre(semestre_id,curso_id):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
+    user_id = current_user.get_id()
+    user = Usuario.query.filter_by(id=user_id).first()
+    if user.rol_id == 1:
+        abort(403)
     semestre = Semestre.query.get_or_404(semestre_id)
     form = EstudianteForm()
+    estudiantes = semestre.estudiantes
+    estudiantesJSON = []
+    for estudiante in estudiantes:
+        estudianteAnadir = {
+            "codigo" : str(estudiante.codigo),
+            "login" : estudiante.login
+        }
+        estudiantesJSON.append(estudianteAnadir)
     if form.validate_on_submit():
-        estudiante = Estudiante(codigo=form.codigo.data, login=form.login.data, apellido=form.apellidos.data, nombre=form.nombres.data, magistral=form.magistral.data, complementaria=form.complementaria.data)
-        semestre.estudiantes.append(estudiante)
-        db.session.add(estudiante)
-        db.session.commit()
-        flash("Estudiante creado con éxito.", "success")
+        existenteCodigo = Estudiante.query.filter_by(codigo=form.codigo.data, semestre=semestre.id).first()
+        existenteLogin = Estudiante.query.filter_by(login=form.login.data, semestre=semestre.id).first()
+        if existenteCodigo is not None:
+            flash("Ya existe un estudiante con ese código en este semestre", "danger")
+        elif existenteLogin is not None:
+            flash("Ya existe un estudiante con ese login en este semestre", "danger")
+        else:
+            estudiante = Estudiante(codigo=form.codigo.data, login=form.login.data, apellido=form.apellidos.data, nombre=form.nombres.data, magistral=form.magistral.data, complementaria=form.complementaria.data)
+            semestre.estudiantes.append(estudiante)
+            db.session.add(estudiante)
+            db.session.commit()
+            flash("Estudiante creado con éxito.", "success")
         return redirect(url_for("semestres.verLista_semestre", semestre_id=semestre_id, curso_id=curso_id))
-    return render_template("semestres/estudiante.html", title="Crear estudiante", form=form, legend="Crear estudiante", curso_id=curso_id, semestre_id=semestre_id)
+    return render_template("semestres/estudiante.html", title="Crear estudiante", form=form, legend="Crear estudiante", curso_id=curso_id, semestre_id=semestre_id, estudiantesJSON=estudiantesJSON)
 
 @semestres.route("/semestres/<int:semestre_id>/<int:curso_id>/<int:estudiante_id>/eliminarEstudiante", methods=["GET", "POST"])
 @login_required
 def eliminar_estudiante(semestre_id,curso_id, estudiante_id):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
+    user_id = current_user.get_id()
+    user = Usuario.query.filter_by(id=user_id).first()
+    if user.rol_id == 1:
+        abort(403)
     estudiante = Estudiante.query.get_or_404(estudiante_id)
     semestre = Semestre.query.get_or_404(semestre_id)
+    curso = Curso.query.get_or_404(curso_id)
     form = EliminarEstudianteForm()
     if form.validate_on_submit():
         semestre.estudiantes.remove(estudiante)
@@ -302,4 +384,34 @@ def eliminar_estudiante(semestre_id,curso_id, estudiante_id):
         db.session.commit()
         flash(f"Estudiante eliminado exitosamente", "success")
         return redirect(url_for("semestres.verLista_semestre", semestre_id=semestre_id, curso_id=curso_id))
-    return render_template("semestres/eliminar_estudiante.html", title="Eliminar estudiante", form=form, legend="Crear estudiante", curso_id=curso_id, semestre_id=semestre_id)
+    return render_template("semestres/eliminar_estudiante.html", title="Eliminar estudiante", form=form, legend="Eliminar estudiante", curso=curso, semestre=semestre, estudiante=estudiante)
+
+def eliminarActividad(actividad_id):
+    actividad = Actividad.query.get_or_404(actividad_id)
+
+    for punto in actividad.puntos:
+        #-------------------------------------------------------------------
+        for inciso in punto.incisos:
+            #-------------------------------------------------------------------
+            for criterio in inciso.criterios:
+                #-------------------------------------------------------------------
+                for subcriterio in criterio.subcriterios:
+                    #-------------------------------------------------------------------
+                    for variacion in subcriterio.variaciones:
+                        db.session.delete(variacion)
+                        db.session.commit()
+                    #-------------------------------------------------------------------
+                    db.session.delete(subcriterio)
+                    db.session.commit()
+                #-------------------------------------------------------------------
+                db.session.delete(criterio)
+                db.session.commit()
+            #-------------------------------------------------------------------
+            db.session.delete(inciso)
+            db.session.commit()
+        #-------------------------------------------------------------------
+        db.session.delete(punto)
+        db.session.commit()
+    
+    db.session.delete(actividad)
+    db.session.commit()

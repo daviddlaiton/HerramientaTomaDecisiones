@@ -4,7 +4,7 @@ from flask import render_template, url_for, flash, redirect, request, Blueprint,
 from flask_wtf import FlaskForm
 from wtforms import FieldList, FormField, SubmitField
 from flask_login import current_user, login_required
-from Herramienta.models import Usuario, Curso, Semestre, Actividad, Punto, Inciso, Criterio, Subcriterio, Variacion, Grupo, Estudiante, Calificacion
+from Herramienta.models import Usuario, Curso, Semestre, Actividad, Punto, Inciso, Criterio, Subcriterio, Variacion, Grupo, Estudiante, Calificacion, ListaUsuariosSemestreCurso
 from Herramienta import db, bcrypt
 from Herramienta.actividades.forms import CrearActividadArchivoForm, EliminarActividad, DescargarActividad, CrearPunto, CambiarEstadoActividad, EnviarReportes, IntegranteForm, EscogerGrupoParaCalificar, EliminarGrupo, DescargarFormatoActividadForm, GenerarReporte
 from openpyxl import load_workbook, Workbook
@@ -15,12 +15,16 @@ actividades = Blueprint("actividades", __name__)
 @actividades.route("/actividades/<int:curso_id>/<int:actividad_id>", methods=["GET", "POST"])
 @login_required
 def ver_actividad(actividad_id,curso_id):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
     actividad = Actividad.query.get_or_404(actividad_id)
     return render_template("actividades/ver_actividad.html", title="Ver actividad", actividad=actividad, curso_id=curso_id)
 
 @actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/elegirGrupoCalificar", methods=["GET", "POST"])
 @login_required
 def elegir_grupo_calificar_actividad(actividad_id,curso_id):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
     actividad = Actividad.query.get_or_404(actividad_id)
     grupos = [(g.id, g.estudiantes) for g in Grupo.query.filter_by(actividad_id=actividad.id, calificaciones=None).all()]
     form = EscogerGrupoParaCalificar(request.form)
@@ -32,6 +36,14 @@ def elegir_grupo_calificar_actividad(actividad_id,curso_id):
 @actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/calificar/<int:grupo_id>", methods=["GET", "POST"])
 @login_required
 def calificar_actividad(actividad_id,curso_id,grupo_id):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
+    user_id = current_user.get_id()
+    user = Usuario.query.filter_by(id=user_id).first()
+    if user.rol_id == 1:
+        habilitado = ListaUsuariosSemestreCurso.query.filter_by(usuario_id=user_id, curso_id=curso_id).first()
+        if not habilitado:
+            abort(403)
     actividad = Actividad.query.get_or_404(actividad_id)
     grupo = Grupo.query.get_or_404(grupo_id)
     puntaje = 0
@@ -91,8 +103,12 @@ def calificar_actividad(actividad_id,curso_id,grupo_id):
 @actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/<int:semestre_id>/eliminar", methods=["GET", "POST"])
 @login_required
 def eliminar_actividad(actividad_id, curso_id,semestre_id):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
     user_id = current_user.get_id()
     user = Usuario.query.filter_by(id=user_id).first()
+    if user.rol_id == 1:
+        abort(403)
     actividad = Actividad.query.get_or_404(actividad_id)
     grupos = Grupo.query.filter_by(actividad_id=actividad.id).all()
     if user.rol_id == 1:
@@ -114,6 +130,12 @@ def eliminar_actividad(actividad_id, curso_id,semestre_id):
 @actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/<int:semestre_id>/cambiarEstado", methods=["GET", "POST"])
 @login_required
 def cambiarEstado_actividad(actividad_id,curso_id,semestre_id):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
+    user_id = current_user.get_id()
+    user = Usuario.query.filter_by(id=user_id).first()
+    if user.rol_id == 1:
+        abort(403)
     actividad = Actividad.query.get_or_404(actividad_id)
     actividad.habilitada  = not actividad.habilitada
     db.session.commit()
@@ -127,6 +149,12 @@ def crear_actividad(curso_id, semestre_id):
 @actividades.route("/actividades/<int:curso_id>/<int:semestre_id>/crearActividadArchivo", methods=["GET", "POST"])
 @login_required
 def crear_actividadArchivo(curso_id, semestre_id):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
+    user_id = current_user.get_id()
+    user = Usuario.query.filter_by(id=user_id).first()
+    if user.rol_id == 1:
+        abort(403)
     form = CrearActividadArchivoForm()
     if form.validate_on_submit():
         if form.archivo.data:
@@ -305,11 +333,19 @@ def analizarArchivo(curso_id, semestre_id):
 @actividades.route("/actividades/<int:curso_id>/crearActividadWeb", methods=["GET", "POST"])
 @login_required
 def crear_actividadWeb(curso_id):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
     return render_template("actividades/crear_actividadWeb.html", title="Crear actividad Web", curso_id=curso_id)
 
 @actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/descargar", methods=["GET","POST"])
 @login_required
 def descargar_actividad(actividad_id,curso_id):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
+    user_id = current_user.get_id()
+    user = Usuario.query.filter_by(id=user_id).first()
+    if user.rol_id == 1:
+        abort(403)
     actividad = Actividad.query.get_or_404(actividad_id)
     form = DescargarActividad()
     wb = Workbook()
@@ -413,6 +449,8 @@ def eliminarActividad(actividad_id):
 @actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/crearPunto", methods=["GET","POST"])
 @login_required
 def crear_punto(curso_id,actividad_id):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
     actividad = Actividad.query.get_or_404(actividad_id)
     # form = EliminarActividad()
     # punto = Punto(nombre=, actividad_id=actividad.id, puntajePosible=0)
@@ -420,6 +458,12 @@ def crear_punto(curso_id,actividad_id):
 @actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/enviarInformes", methods=["GET","POST"])
 @login_required
 def enviar_informes(curso_id,actividad_id):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
+    user_id = current_user.get_id()
+    user = Usuario.query.filter_by(id=user_id).first()
+    if user.rol_id == 1:
+        abort(403)
     actividad = Actividad.query.get_or_404(actividad_id)
     form = EnviarReportes()
     if form.validate_on_submit():
@@ -431,6 +475,8 @@ def enviar_informes(curso_id,actividad_id):
 @actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/generarInforme/<int:grupo_id>", methods=["GET","POST"])
 @login_required
 def generar_informe(curso_id,actividad_id,grupo_id):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
     actividad = Actividad.query.get_or_404(actividad_id)
     grupo = Grupo.query.get_or_404(grupo_id)
     form = GenerarReporte()
@@ -445,6 +491,8 @@ def generar_informe(curso_id,actividad_id,grupo_id):
 @actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/verGrupos", methods=["GET", "POST"])
 @login_required
 def ver_grupos_actividad(actividad_id,curso_id):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
     actividad = Actividad.query.get_or_404(actividad_id)
     semestre = Semestre.query.get_or_404(actividad.semestre_id)
     curso = Curso.query.get_or_404(curso_id)
@@ -460,6 +508,8 @@ def ver_grupos_actividad(actividad_id,curso_id):
 @actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/crearGrupo/<int:numero_integrantes>", methods=["GET", "POST"])
 @login_required
 def crear_grupo_actividad(actividad_id,curso_id, numero_integrantes):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
     actividad = Actividad.query.get_or_404(actividad_id)
     estudiantes = Semestre.query.get_or_404(actividad.semestre_id).estudiantes
     estudiantesEnGrupo = []
@@ -483,6 +533,8 @@ def crear_grupo_actividad(actividad_id,curso_id, numero_integrantes):
 @actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/grupoCreado/<integrantesSeleccionados>", methods=["GET", "POST"])
 @login_required
 def grupo_creado_actividad(actividad_id,curso_id,integrantesSeleccionados):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
     actividad = Actividad.query.get_or_404(actividad_id)
     integrantes = []
     actividad.numGrupos = actividad.numGrupos + 1
@@ -501,14 +553,27 @@ def grupo_creado_actividad(actividad_id,curso_id,integrantesSeleccionados):
 @actividades.route("/actividades/<int:curso_id>/<int:semestre_id>/", methods=["GET", "POST"])
 @login_required
 def verActividades_semestre(semestre_id,curso_id):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
     curso = Curso.query.get_or_404(curso_id)
     semestre = Semestre.query.get_or_404(semestre_id)
-    actividades = Actividad.query.filter_by(semestre_id=semestre_id, curso_id=curso_id).all()
+    actividades = []
+    user_id = current_user.get_id()
+    user = Usuario.query.filter_by(id=user_id).first()
+    if user.rol_id == 1:
+        habilitado = ListaUsuariosSemestreCurso.query.filter_by(usuario_id=user_id, curso_id=curso_id,semestre_id=semestre_id).first()
+        if not habilitado:
+            abort(403)
+        actividades = Actividad.query.filter_by(semestre_id=semestre_id, curso_id=curso_id, habilitada=True).all()
+    else:
+        actividades = Actividad.query.filter_by(semestre_id=semestre_id, curso_id=curso_id).all()
     return render_template("actividades/ver_actividades_semestre.html", title="Ver actividades", actividades=actividades, curso=curso, semestre=semestre)
 
 @actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/eliminarGrupo/<int:grupo_id>", methods=["GET", "POST"])
 @login_required
 def eliminar_grupo_semestre(actividad_id,curso_id,grupo_id):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
     curso = Curso.query.get_or_404(curso_id)
     actividad = Actividad.query.get_or_404(actividad_id)
     grupo = Grupo.query.get_or_404(grupo_id)
@@ -528,6 +593,8 @@ def eliminar_grupo_semestre(actividad_id,curso_id,grupo_id):
 @actividades.route("/actividades/<int:semestre_id>/<int:curso_id>/descargarFormatoLista", methods=["GET", "POST"])
 @login_required
 def descargarFormatoActividad(semestre_id,curso_id):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
     user_id = current_user.get_id()
     user = Usuario.query.filter_by(id=user_id).first()
     if user.rol_id == 1:
@@ -544,6 +611,8 @@ def descargarFormatoActividad(semestre_id,curso_id):
 @actividades.route("/actividades/<int:actividad_id>/<int:curso_id>/<int:grupo_id>/guardarNotas/<variaciones>/<estado>/<nota>/<puntaje>", methods=["GET", "POST"])
 @login_required
 def guardarNotas(actividad_id,curso_id, grupo_id, variaciones, estado, nota,puntaje):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
     grupo = Grupo.query.get_or_404(grupo_id)
     actividad = Actividad.query.get_or_404(actividad_id)
     if estado == "Finalizado" and grupo.estadoCalifacion != "Finalizado":
@@ -590,6 +659,12 @@ def guardarNotas(actividad_id,curso_id, grupo_id, variaciones, estado, nota,punt
 @actividades.route("/actividades/<int:curso_id>/<int:actividad_id>/descargarNotas", methods=["GET","POST"])
 @login_required
 def descargar_notas(actividad_id,curso_id):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
+    user_id = current_user.get_id()
+    user = Usuario.query.filter_by(id=user_id).first()
+    if user.rol_id == 1:
+        abort(403)
     actividad = Actividad.query.get_or_404(actividad_id)
     form = DescargarActividad()
     wb = Workbook()

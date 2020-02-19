@@ -11,6 +11,7 @@
                 <form method="POST" action="">
                     {{ form.hidden_tag() }}
                     <legend class="border-bottom mb-4">Eliminar semestre</legend>
+                    <h4>¿Deseas eliminar el semestre {{semestre.nombre}}? Esto borarrá la lista de estudiantes, actividades, calificaciones y demás elementos relacionados a este semestre.</h4>
                     <div class="form-group">
                         {{ form.submit(class="btn btn-outline-danger")}}
                     </div>

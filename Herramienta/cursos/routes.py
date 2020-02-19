@@ -1,6 +1,6 @@
 from flask import render_template, url_for, flash, redirect, request, Blueprint, abort
 from flask_login import current_user, login_required
-from Herramienta.models import Usuario, Curso, Semestre, Actividad, Grupo, SemestreCursoHabilitados, ListaUsuariosSemestreCurso
+from Herramienta.models import Usuario, Curso, Semestre, Actividad, Grupo, SemestreCursoHabilitados, ListaUsuariosSemestreCurso, Calificacion
 from Herramienta import db, bcrypt
 from Herramienta.cursos.forms import CrearUsuarioForm, EditarNombreCursoForm, AgregarSemestreACursoForm, EliminarSemestreACursoForm, EliminarCursoForm
 
@@ -9,13 +9,27 @@ cursos = Blueprint("cursos", __name__)
 @cursos.route("/cursos")
 @login_required
 def get_cursos():
-    page = request.args.get("page", 1, type=int)
-    cursos = Curso.query.order_by(Curso.id.desc()).paginate(page=page, per_page=5)
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
+    user_id = current_user.get_id()
+    user = Usuario.query.filter_by(id=user_id).first()
+    listaCursos = ListaUsuariosSemestreCurso.query.filter_by(usuario_id=user_id).all()
+    posiblesCursos = Curso.query.all()
+    cursos = []
+    if user.rol_id == 1:
+        for curso in posiblesCursos:
+            for cursoEnLista in listaCursos:
+                if cursoEnLista.curso_id == curso.id:
+                    cursos.append(curso)
+    else:
+        cursos = posiblesCursos
     return render_template("cursos/cursos.html", title="Cursos", cursos=cursos)
 
 @cursos.route("/crear_curso", methods=["GET", "POST"])
 @login_required
 def crear_curso():
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
     user_id = current_user.get_id()
     user = Usuario.query.filter_by(id=user_id).first()
     if user.rol_id == 1:
@@ -34,6 +48,8 @@ def crear_curso():
 @cursos.route("/cursos/<int:curso_id>/editar", methods=["GET", "POST"])
 @login_required
 def editar_curso(curso_id):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
     user_id = current_user.get_id()
     user = Usuario.query.filter_by(id=user_id).first()
     if user.rol_id == 1:
@@ -52,6 +68,14 @@ def editar_curso(curso_id):
 @cursos.route("/cursos/<int:curso_id>", methods=["GET", "POST"])
 @login_required
 def ver_curso(curso_id):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
+    user_id = current_user.get_id()
+    user = Usuario.query.filter_by(id=user_id).first()
+    if user.rol_id == 1:
+        habilitado = ListaUsuariosSemestreCurso.query.filter_by(usuario_id=user_id, curso_id=curso_id).first()
+        if not habilitado:
+            abort(403)
     curso = Curso.query.get_or_404(curso_id)
     listaSemestres = SemestreCursoHabilitados.query.filter_by(curso_id=curso_id).all()
     semestres = []
@@ -64,22 +88,33 @@ def ver_curso(curso_id):
             if actividad.habilitada:
                 numActividadesHabilitadas = numActividadesHabilitadas + 1
                 numActividadesHabilitadasTotal = numActividadesHabilitadasTotal +1
-        numUsuarios = len(ListaUsuariosSemestreCurso.query.filter_by(semestre_id=s.semestre_id, curso_id=curso_id).all())
-        semestreAnadir = {
-            "id": semestre.id,
-            "nombre" : semestre.nombre,
-            "estudiantes" : semestre.estudiantes,
-            "usuarios": numUsuarios,
-            "actividades" : semestre.actividades,
-            "habilitado" : s.habilitado,
-            "actividadesHabilitadas" : numActividadesHabilitadas
-        }
-        semestres.append(semestreAnadir)
+        listaUsuarios=ListaUsuariosSemestreCurso.query.filter_by(semestre_id=s.semestre_id, curso_id=curso_id).all()
+        anadir = False
+        if user.rol_id == 1:
+            usuarioEnLista = ListaUsuariosSemestreCurso.query.filter_by(semestre_id=s.semestre_id, curso_id=curso_id, usuario_id=user_id).first()
+            if usuarioEnLista is not None:
+                anadir = True
+        else:
+            anadir = True
+        if anadir:
+            numUsuarios = len(listaUsuarios)
+            semestreAnadir = {
+                "id": semestre.id,
+                "nombre" : semestre.nombre,
+                "estudiantes" : semestre.estudiantes,
+                "usuarios": numUsuarios,
+                "actividades" : semestre.actividades,
+                "habilitado" : s.habilitado,
+                "actividadesHabilitadas" : numActividadesHabilitadas
+            }
+            semestres.append(semestreAnadir)
     return render_template("cursos/ver_curso.html", title="Ver curso", curso=curso, semestres=semestres, numActividadesHabilitadasTotal=numActividadesHabilitadasTotal)
 
 @cursos.route("/cursos/<int:curso_id>/<int:semestre_id>/cambiarEstado", methods=["GET", "POST"])
 @login_required
 def cambiarEstadoSemestreCurso(curso_id,semestre_id):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
     elemento = SemestreCursoHabilitados.query.filter_by(semestre_id=semestre_id, curso_id=curso_id).first()
     elemento.habilitado = not elemento.habilitado
     db.session.commit()
@@ -88,6 +123,8 @@ def cambiarEstadoSemestreCurso(curso_id,semestre_id):
 @cursos.route("/cursos/<int:curso_id>/editarNombre", methods=["GET", "POST"])
 @login_required
 def editarNombre_curso(curso_id):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
     user_id = current_user.get_id()
     user = Usuario.query.filter_by(id=user_id).first()
     if user.rol_id == 1:
@@ -106,6 +143,8 @@ def editarNombre_curso(curso_id):
 @cursos.route("/cursos/<int:curso_id>/agregarSemestre", methods=["GET", "POST"])
 @login_required
 def agregarSemestre_curso(curso_id):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
     user_id = current_user.get_id()
     user = Usuario.query.filter_by(id=user_id).first()
     if user.rol_id == 1:
@@ -130,6 +169,8 @@ def agregarSemestre_curso(curso_id):
 @cursos.route("/cursos/<int:curso_id>/eliminarSemestre/<int:semestre_id>", methods=["GET", "POST"])
 @login_required
 def eliminarCurso_semestre(semestre_id, curso_id):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
     user_id = current_user.get_id()
     user = Usuario.query.filter_by(id=user_id).first()
     if user.rol_id == 1:
@@ -150,6 +191,8 @@ def eliminarCurso_semestre(semestre_id, curso_id):
 @cursos.route("/cursos/<int:curso_id>/eliminarCurso", methods=["GET", "POST"])
 @login_required
 def eliminar_curso(curso_id):
+    if not current_user.activado:
+        return redirect(url_for("usuarios.activar_usuario"))
     user_id = current_user.get_id()
     user = Usuario.query.filter_by(id=user_id).first()
     if user.rol_id == 1:
@@ -161,9 +204,18 @@ def eliminar_curso(curso_id):
         for actividad in actividades:
             grupos = Grupo.query.filter_by(actividad_id=actividad.id).all()
             for grupo in grupos:
+                listaCalificaciones = Calificacion.query.filter_by(grupo_id=grupo.id).all()
+                for calificacion in listaCalificaciones:
+                    db.session.delete(calificacion)
+                    db.session.commit()
                 db.session.delete(grupo)
                 db.session.commit()
             eliminarActividad(actividad.id)
+            db.session.commit()
+        for semestre in curso.semestres:
+            curso.semestres.remove(semestre)
+            semestreCurso = SemestreCursoHabilitados.query.filter_by(semestre_id=semestre.id, curso_id=curso_id).first()
+            db.session.delete(semestreCurso)
             db.session.commit()
         db.session.delete(curso)
         db.session.commit()
